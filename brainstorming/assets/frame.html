@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquettes</title>
+<style>
+:root {
+  --paper: #f6f4ef;
+  --surface: #ffffff;
+  --ink: #23221f;
+  --muted: #625f57;
+  --line: #d6d1c4;
+  --accent: #2e6a4f;
+  --accent-soft: #e4efe8;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.5 "Segoe UI", system-ui, sans-serif; }
+header { display: flex; justify-content: space-between; align-items: baseline; padding: 12px 32px;
+  background: var(--surface); border-bottom: 1px solid var(--line); }
+header strong { font-weight: 600; }
+header span { color: var(--muted); font-size: 14px; }
+main { max-width: 1100px; margin: 0 auto; padding: 28px 32px 160px; }
+h1 { margin: 0 0 6px; font-size: 24px; font-weight: 600; }
+h2 { margin: 24px 0 8px; font-size: 18px; font-weight: 600; }
+p { margin: 0 0 12px; }
+.options { display: grid; gap: 10px; margin: 16px 0; }
+.option { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; background: var(--surface);
+  border: 1px solid var(--line); border-radius: 4px; cursor: pointer; }
+.option:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+.option input { width: 18px; height: 18px; margin-top: 4px; accent-color: var(--accent); }
+.option small { display: block; color: var(--muted); }
+.split { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+.mockup { background: var(--surface); border: 1px solid var(--line); overflow: hidden; }
+.mockup > .label { padding: 6px 12px; color: var(--muted); font-size: 13px; border-bottom: 1px solid var(--line); }
+.mockup > .body { padding: 16px; }
+.placeholder { display: flex; align-items: center; justify-content: center; min-height: 64px; color: var(--muted);
+  font-size: 14px; border: 1px dashed var(--line); }
+.waiting { margin-top: 20vh; color: var(--muted); text-align: center; }
+footer { position: fixed; left: 0; right: 0; bottom: 0; display: flex; gap: 12px; align-items: center;
+  padding: 12px 32px; background: var(--surface); border-top: 1px solid var(--line); }
+body[data-screen=""] footer { display: none; }
+footer textarea { flex: 1; min-height: 44px; padding: 8px; font: inherit; border: 1px solid var(--line);
+  border-radius: 4px; resize: vertical; }
+footer button { padding: 10px 18px; font: inherit; color: #ffffff; background: var(--accent); border: 0;
+  border-radius: 4px; cursor: pointer; }
+#notice { min-width: 200px; color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body data-screen="{{screen}}" data-version="{{version}}">
+<header><strong>Maquettes à choisir</strong><span>{{screen}}</span></header>
+<main id="content">
+{{content}}
+</main>
+<footer>
+<textarea id="note" placeholder="Une remarque, ou un détail qui cloche ?"></textarea>
+<button id="send" type="button">Envoyer mes choix</button>
+<span id="notice">Coche, puis envoie.</span>
+</footer>
+<script>
+const content = document.getElementById("content");
+const notice = document.getElementById("notice");
+const note = document.getElementById("note");
+const screenName = document.body.dataset.screen;
+const shownVersion = document.body.dataset.version;
+
+function ticked() {
+  const picks = {};
+  content.querySelectorAll("input:checked").forEach((input) => {
+    const group = input.name || "choix";
+    const label = input.closest("label");
+    const value = input.getAttribute("value") || (label ? label.textContent.trim() : "oui");
+    (picks[group] = picks[group] || []).push(value);
+  });
+  return picks;
+}
+
+function post(sent) {
+  const body = JSON.stringify({ screen: screenName, selected: ticked(), note: note.value, sent });
+  fetch("/choice", { method: "POST", headers: { "Content-Type": "application/json" }, body })
+    .then((answer) => {
+      if (!answer.ok) throw new Error(String(answer.status));
+      if (sent) notice.textContent = "Choix envoyés. Tu peux revenir à la conversation.";
+    })
+    .catch(() => { notice.textContent = "Le serveur ne répond plus : dis-le dans la conversation."; });
+}
+
+content.addEventListener("change", () => post(false));
+note.addEventListener("change", () => post(false));
+document.getElementById("send").addEventListener("click", () => post(true));
+
+setInterval(() => {
+  fetch("/version")
+    .then((answer) => (answer.ok ? answer.text() : shownVersion))
+    .then((latest) => { if (latest !== shownVersion) location.reload(); })
+    .catch(() => {});
+}, 3000);
+</script>
+</body>
+</html>
