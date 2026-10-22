@@ -63,7 +63,8 @@ had before. Then run the update check once:
 python -I "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/claude-skills/tools/update.py"
 ```
 
-It prints `up to date (<sha>)`.
+It prints `up to date (<sha>)`. That run counts as the check of the current session: when a skill asks
+for it again in the same session, the script prints `already checked this session` and stops at once.
 
 ## Commands
 
@@ -103,8 +104,9 @@ session, before following the skill. The script works in this order:
 - it keeps the current version when GitHub gives no answer within 20 seconds.
 
 After a line that starts with `updated`, re-read the `SKILL.md` of the skill in use, since it may
-have changed. Every planned outcome exits 0, so the skill goes on in every case. To update by hand,
-run the same command.
+have changed. Every planned outcome exits 0, so the skill goes on in every case. Running the line
+again for a second skill in the same session costs nothing, since only the first run asks GitHub. To
+update by hand, run the same command.
 
 ## Uninstall
 
