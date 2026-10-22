@@ -47,8 +47,9 @@ These hold for every commit, whichever skill calls this one.
    `git checkout`, `git restore` or `git reset` on the path, which wipe the whole file's changes.
 3. Never `--no-verify`, never a force push, never `--amend` on a commit this run did not make.
    A hook or a check that fails blocks the commit until its cause is fixed or the user decides.
-4. GitHub only through `push.py`, which goes through the account-keys skill when it is installed,
-   else pushes with the user's own git credentials. No bare `fetch`, `pull`, `ls-remote` or `gh`.
+4. GitHub only through `push.py`, which goes through the account tool named by `CLAUDE_SKILLS_ACCOUNTS`
+   when it is set (for example the account-keys skill's tool), else pushes with the user's own git
+   credentials. No bare `fetch`, `pull`, `ls-remote` or `gh`.
 5. A push happens under `/commit` only. A calling skill gets its commits and no push.
 6. A refusal from `commit.py` is fixed, never worked around with a plain `git commit`.
 
@@ -98,8 +99,8 @@ One pass, in this order.
    with `--message-file`, deleted after. It adds the new paths, commits these paths and no other
    staged one, and prints the hash, the subject and what is left. Refused: fix what it names and
    run it again.
-9. Push, under `/commit` only: `push.py`, through the account tool when it is installed, else a plain
-   push with the user's credentials. It refuses an attribution left in the unpushed range, a
+9. Push, under `/commit` only: `push.py`, through the account tool named by `CLAUDE_SKILLS_ACCOUNTS` when it is
+   set, else a plain push with the user's credentials. It refuses an attribution left in the unpushed range, a
    detached HEAD and an operation in progress. No remote: the commits stay local, say so. A remote
    that is neither GitHub nor local or ssh: ask the user. Rejected: never forced, the
    user runs `git pull --rebase`.

@@ -16,7 +16,7 @@ conversation en cours ; si rien n'indique la tache, poser une seule question.
 Taper la commande vaut demande d'isolation : ne pas redemander si l'utilisateur veut un worktree. Le
 dossier par defaut est `.ia/worktrees/<tache>` dans le depot (un dossier cite par l'utilisateur passe avant),
 jamais dans le dossier temporaire, la branche suit les noms du depot et ne
-porte jamais le prefixe d'un outil, aucun fetch direct (le tool `comptes` de la skill account-keys quand elle
+porte jamais le prefixe d'un outil, aucun fetch direct (la skill account-keys quand elle
 est installee, sinon les identifiants git de l'utilisateur), les tests de
 depart tournent en priorite basse avec 2 workers au plus. Un worktree ou une branche avec du travail
 non commite ou non pousse n'est jamais supprime sans accord ; le menage revient a /finir.

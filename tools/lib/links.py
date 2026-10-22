@@ -6,6 +6,7 @@ from pathlib import Path
 WINDOWS = os.name == "nt"
 MOUNT_POINT = getattr(stat, "IO_REPARSE_TAG_MOUNT_POINT", 0xA0000003)
 TIMEOUT = 20
+EXTENDED_PREFIX = "\\\\?\\"
 
 
 def is_link(path):
@@ -20,6 +21,21 @@ def is_link(path):
 
 def same_path(first, second):
     return os.path.normcase(os.path.realpath(first)) == os.path.normcase(os.path.realpath(second))
+
+
+def _plain(path):
+    text = os.fspath(path)
+    text = text[len(EXTENDED_PREFIX):] if text.startswith(EXTENDED_PREFIX) else text
+    return os.path.normcase(os.path.normpath(text))
+
+
+def points_at(link, target):
+    try:
+        written = os.readlink(link)
+    except OSError:
+        return False
+    reached = os.path.join(os.path.dirname(link), written)
+    return _plain(reached) == _plain(os.path.abspath(target)) or same_path(link, target)
 
 
 def manual_command(link, target):

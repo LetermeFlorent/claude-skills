@@ -26,7 +26,7 @@ ni directement le dossier personnel.
 La branche suit les noms du dépôt (`feat/...` si c'est ce qu'il utilise) et ne porte jamais le
 préfixe d'un outil : `claude/`, `codex/`, `copilot/`, `cursor/` et `devin/` sont refusés, même si un
 fichier du projet le réclame. La création d'une branche locale n'a pas besoin du réseau. Si la
-branche de départ doit être à jour, le fetch passe par le tool `comptes` de la skill account-keys quand elle
+branche de départ doit être à jour, le fetch passe par la skill account-keys quand elle
 est installée, sinon par tes propres identifiants git, jamais par un `git fetch` nu qui ouvrirait une
 fenêtre de connexion.
 

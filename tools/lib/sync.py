@@ -1,7 +1,7 @@
 import os
 import shutil
 
-from links import is_link, make_link, manual_command, remove_link, same_path
+from links import is_link, make_link, manual_command, points_at, remove_link, same_path
 from paths import COMMANDS_DIR, SKILLS_DIR, command_files, skill_names
 from registry import file_hash
 
@@ -18,10 +18,10 @@ def sync(repo, config, registry):
     return {SKILLS_KEY: skills, COMMANDS_KEY: commands}, lines
 
 
-def unsync(config, registry):
+def unsync(repo, config, registry):
     lines = []
     for name in registry.get(SKILLS_KEY, []):
-        drop_skill(name, config / SKILLS_DIR / name, lines)
+        drop_skill(name, config / SKILLS_DIR / name, repo / name, lines)
     for name, recorded in registry.get(COMMANDS_KEY, {}).items():
         drop_command(name, config / COMMANDS_DIR / name, recorded, lines)
     return {}, lines
@@ -40,7 +40,7 @@ def sync_skills(repo, config, known, lines):
         elif link_skill(name, link, target, lines):
             kept.append(name)
     for name in sorted(set(known) - set(wanted)):
-        drop_skill(name, config / SKILLS_DIR / name, lines)
+        drop_skill(name, config / SKILLS_DIR / name, repo / name, lines)
     return kept
 
 
@@ -54,11 +54,14 @@ def link_skill(name, link, target, lines):
     return True
 
 
-def drop_skill(name, link, lines):
+def drop_skill(name, link, target, lines):
     if not os.path.lexists(link):
         return
     if not is_link(link):
         lines.append((False, f"skill {name}: {link} is not a link, left as is"))
+        return
+    if not points_at(link, target):
+        lines.append((False, f"skill {name}: {link} points elsewhere, left as is"))
         return
     remove_link(link)
     lines.append((True, f"skill {name}: removed"))

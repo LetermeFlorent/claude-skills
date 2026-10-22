@@ -20,6 +20,7 @@ Check both before cloning.
 - git: `git --version`.
 - Python 3.10 or later: `python --version`. Where `python` is missing or older, try `python3`, and
   use the one that works in every command below.
+  The same substitution applies to the update line that every `SKILL.md` opens with.
 
 Skills are linked through directory junctions on Windows, which need no administrator rights, and
 through symbolic links on macOS and Linux. `chrome-bidi` drives Chrome on Windows only; the other 17

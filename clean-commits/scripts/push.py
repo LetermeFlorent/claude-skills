@@ -1,3 +1,4 @@
+import os
 import shutil
 import sys
 
@@ -13,7 +14,7 @@ from repo import (GIT, GITHUB_KIND, NO_REMOTE, ORIGIN, OTHER_KIND, branch, find_
                   unpushed)
 
 PUSH_TIMEOUT = 180
-ACCOUNTS = Path.home() / ".claude" / "outils" / "comptes"
+ACCOUNTS_VAR = "CLAUDE_SKILLS_ACCOUNTS"
 SHELL = "sh"
 SERVICE = "github"
 ACCOUNTS_RUN = "run"
@@ -25,9 +26,15 @@ def _push_args(name, upstream):
     return ["push"] if upstream else ["push", "-u", ORIGIN, name]
 
 
-def _command(root, target, args, accounts=ACCOUNTS):
+def _accounts_tool():
+    value = os.environ.get(ACCOUNTS_VAR)
+    return Path(value) if value else None
+
+
+def _command(root, target, args, accounts=None):
+    accounts = accounts or _accounts_tool()
     git = [GIT, "-c", "credential.helper=", "-c", TOKEN_HELPER, *args]
-    if target["kind"] == GITHUB_KIND and accounts.exists():
+    if target["kind"] == GITHUB_KIND and accounts and accounts.exists():
         return [shutil.which(SHELL) or SHELL, str(accounts), ACCOUNTS_RUN, SERVICE, target["owner"], "--cwd",
                 root.as_posix(), "--", *git]
     return [GIT, *args]

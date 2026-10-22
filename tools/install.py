@@ -27,7 +27,7 @@ def main(argv):
         return REFUSED
     registry_path = state_file(repo, INSTALLED_FILE)
     registry = read_json(registry_path)
-    registry, lines = unsync(config, registry) if argv else sync(repo, config, registry)
+    registry, lines = unsync(repo, config, registry) if argv else sync(repo, config, registry)
     write_json(registry_path, registry)
     for _, text in lines:
         print(text)

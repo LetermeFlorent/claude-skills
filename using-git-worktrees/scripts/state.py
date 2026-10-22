@@ -14,10 +14,6 @@ import place
 from common import guard
 
 TOOL = "using-git-worktrees"
-HELPER = "!f() { echo username=x-access-token; echo password=\\$GH_TOKEN; }; f"
-COMPTES = "~/.claude/outils/comptes run github {owner} --cwd {repo} -- git -c credential.helper= " \
-          "-c \"credential.helper={helper}\" fetch origin (with the account-keys skill), or git -C {repo} " \
-          "fetch origin with the user's own credentials"
 
 
 def isolation(root):
@@ -31,8 +27,9 @@ def report_remote(root):
     if not url:
         print("remote: none, nothing to fetch")
     elif owner:
-        print(f"remote: github {owner}. Fetch only when the base must be fresh:")
-        print("  " + COMPTES.format(owner=owner, repo=root.as_posix(), helper=HELPER))
+        print(f"remote: github {owner}. Fetch only when the base must be fresh, "
+              "through the account-keys skill when it is installed, else with:")
+        print(f"  git -C {root.as_posix()} fetch origin")
     else:
         print(f"remote: {url} (not GitHub, nothing is fetched here)")
 

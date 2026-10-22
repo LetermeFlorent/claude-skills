@@ -21,8 +21,9 @@ Avant chaque commit, il lance le linter et la vérification de types du projet s
 commit, s'ils existent. Une erreur dans ces fichiers bloque le commit. Une erreur ailleurs ne
 bloque rien, elle est signalée. La suite de tests complète reste au travail d'avant.
 
-Le push passe par la skill account-keys quand elle est installée, sinon par un `git push` simple avec
-tes propres identifiants. Un push refusé n'est jamais forcé.
+Le push passe par l'outil de comptes que désigne la variable `CLAUDE_SKILLS_ACCOUNTS` quand elle est
+définie (par exemple l'outil de la skill account-keys), sinon par un `git push` simple avec tes propres
+identifiants. Un push refusé n'est jamais forcé.
 
 ## Quand une autre skill l'appelle
 
