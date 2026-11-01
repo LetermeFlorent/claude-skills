@@ -3,7 +3,7 @@ from pathlib import PurePosixPath
 
 KINDS = ("normal", "worktree", "detached")
 BASE_NAMES = ("main", "master", "develop", "trunk")
-OWNED_FOLDERS = (".worktrees", "worktrees")
+OWNED_FOLDERS = ((".worktrees",), ("worktrees",), (".ia", "worktrees"))
 ATTRIBUTION = re.compile(
     r"^(co-authored-by:.*(claude|anthropic|codex|copilot|cursor|gemini|jules|devin|aider|openai))"
     r"|^claude-|generated with|claude\.ai/code|claude\.com/claude-code|^made-with:|^agent-logs-url",
@@ -55,7 +55,8 @@ def owned_worktree(path, main_root):
         relative = PurePosixPath(path).relative_to(PurePosixPath(main_root))
     except ValueError:
         return False
-    return bool(relative.parts) and relative.parts[0] in OWNED_FOLDERS
+    return any(relative.parts[:len(folder)] == folder and len(relative.parts) > len(folder)
+               for folder in OWNED_FOLDERS)
 
 
 def removal(owned, landed, dirty, ia_files):

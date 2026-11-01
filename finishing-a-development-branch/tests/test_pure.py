@@ -53,11 +53,14 @@ class WorktreeTest(unittest.TestCase):
     def test_owned_folders(self):
         self.assertTrue(verdict.owned_worktree("/r/.worktrees/a", "/r"))
         self.assertTrue(verdict.owned_worktree("/r/worktrees/a", "/r"))
+        self.assertTrue(verdict.owned_worktree("/r/.ia/worktrees/a", "/r"))
 
     def test_foreign_paths(self):
         self.assertFalse(verdict.owned_worktree("/elsewhere/a", "/r"))
         self.assertFalse(verdict.owned_worktree("/r/src/a", "/r"))
         self.assertFalse(verdict.owned_worktree("/r", "/r"))
+        self.assertFalse(verdict.owned_worktree("/r/.ia/notes", "/r"))
+        self.assertFalse(verdict.owned_worktree("/r/.ia/worktrees", "/r"))
 
     def test_removal_needs_landed_clean_and_owned(self):
         self.assertFalse(verdict.removal(False, True, 0, 0)[0])
