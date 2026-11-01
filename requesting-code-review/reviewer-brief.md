@@ -81,10 +81,6 @@ Findings
 Outside the range
 path:line  one line each, defects in code this range did not touch. Never graded.
 
-Declined to judge
-One line per behaviour you considered and set aside as outside the plan or the spec, with the reason.
-The executor rules on each. Write "none" if you set nothing aside.
-
 Commands run
 Each command, then its result in one line. Include the range checks, measure.py, every scan.py call
 (or "one call per changed file: N files, M rows"), and the test run or why it was not run.

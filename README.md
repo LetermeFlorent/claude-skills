@@ -33,7 +33,7 @@ Chaque ligne donne la commande qui lance la skill et ce qu'elle fait.
 | stop-resume-agents | `/stop-all`, `/resume-all` | arrête tout, sous-agents compris, et reprend plus tard là où chacun en était |
 | subagent-driven-development | `/executer` | exécute un plan tâche par tâche avec des sous-agents |
 | systematic-debugging | `/deboguer` | cherche la cause d'un bug avant de proposer une correction |
-| test-driven-development | `/test-dabord` | écrit le test qui échoue avant le code |
+| test-driven-development | `/test-dabord` | écrit le test avant le code, un test qui peut vraiment échouer |
 | using-git-worktrees | `/isoler` | isole un travail dans une copie de travail à part |
 | verification-before-completion | `/verifier` | lance la vérification avant d'annoncer que c'est fini |
 | writing-plans | `/planifier` | découpe une conception en tâches courtes, chacune avec son test |

@@ -14,10 +14,8 @@ terminer : lancer `state.py` depuis ce dossier. Si elle est vide, prendre le dos
 jamais le choix de l'utilisateur : fusion, pull request, garde ou suppression se demandent toujours avec
 `AskUserQuestion`, la recommandation en premier.
 
-Les tests passent avant la question, et se relisent apres une fusion. Le push passe par `push.py` de clean-commits, la
-pull request par la skill account-keys quand elle est installee, sinon avec les identifiants git de l'utilisateur,
-jamais par un `git push` direct, et jamais de force. Le corps de la pull request suit le modele du depot et n'a aucune
-mention d'outil d'IA. La suppression du travail liste ce qui sera perdu dans la question.
+Les regles de la skill valent telles quelles : tests verts avant la question, quatre choix proposes avec
+`AskUserQuestion`, aucun push ni force direct, aucune mention d'outil d'IA.
 
 Reponse finale en francais, courte : le choix fait, ce qui a bouge (branche fusionnee, adresse de la pull
 request, chemin garde, commits supprimes), ce qui a ete nettoye, ce qui est laisse et pourquoi.

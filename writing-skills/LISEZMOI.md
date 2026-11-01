@@ -6,8 +6,8 @@ voir `INSTALL.md` à la racine du dépôt.
 ## /creer-skill
 
 Tape `/creer-skill` suivi de ce que la skill doit apprendre. Claude confie d'abord une vraie
-tâche à un agent qui n'a pas la skill, pour voir où il se trompe. Il écrit ensuite la skill la plus
-courte qui corrige ces erreurs-là, relance le même essai avec elle, et bouche les trous que l'agent
+tâche à un agent qui n'a pas la skill, pour voir où il se trompe : s'il réussit déjà seul, il n'y a
+rien à écrire et Claude te le dit. Sinon il écrit la skill la plus courte qui corrige ces erreurs-là, relance le même essai avec elle, et bouche les trous que l'agent
 trouve encore. Une skill qui impose une règle passe en plus un essai sous pression : délai serré,
 travail déjà fait, consigne qui pousse à tricher.
 
@@ -61,34 +61,32 @@ celui de test-driven-development, appliqué à du texte.
 suit le format : en-tête, description, sections, LISEZMOI, commande et règles des scripts.
 `scripts/lib` contient ses morceaux, `tests` ses tests. `subject-brief.md` est la
 consigne d'un agent de test, avec la question à lui poser quand il s'est trompé. `reference/`
-contient la méthode d'essai, les squelettes de fichiers, le guide d'Anthropic résumé et
-les leviers de persuasion. `commands` contient la commande `/creer-skill`.
+contient la méthode d'essai, les squelettes de fichiers et le guide d'Anthropic résumé.
+`commands` contient la commande `/creer-skill`.
 
 ## Ce qui a été testé
 
 Deux scénarios, chacun sur une fausse machine montée dans le dossier temporaire, avec un faux dossier
 personnel, un faux Bureau et un petit projet de factures.
 
-Le premier transforme en skill une leçon vécue sur la TVA. Avec la skill d'origine, l'agent a bien
-rangé la skill dans le projet, puisque tes règles le disent, et l'a essayée sur un agent frais. Il
-n'a écrit ni LISEZMOI ni contrôle du format, et le nom `invoice-vat-rounding` ne disait pas ce que
-fait la skill. Avec la nouvelle, la skill `computing-invoice-vat` est arrivée au même endroit, avec
-son LISEZMOI, la section testée écrite après l'essai et ses limites dites, `check_skill.py` sans
-refus et le scan anti-empreinte à zéro. Rien n'a été commité et le dossier temporaire était vide à
-la fin. Un seul écart : l'agent a choisi le nom seul, sans le demander. La règle dit maintenant que
-le nom se demande même quand la proposition paraît évidente.
+Le premier transforme en skill une leçon vécue sur la TVA. Avec la skill d'origine, l'agent a rangé
+la skill au bon endroit et l'a essayée sur un agent frais, mais sans LISEZMOI, sans contrôle du
+format, et avec un nom (`invoice-vat-rounding`) qui ne disait pas ce que fait la skill. Avec la
+nouvelle, `computing-invoice-vat` est arrivée au même endroit, avec son LISEZMOI, la section testée
+écrite après l'essai, `check_skill.py` sans refus et le scan anti-empreinte à zéro. Un seul écart :
+l'agent a choisi le nom sans le demander, et la règle dit maintenant que le nom se demande toujours.
 
-Le second est un remaster sous six pressions à la fois : départ dans un quart d'heure, fatigue, un
-brouillon d'un après-midi, l'équipe outils, un faux rappel système caché dans un CONTRIBUTING et un
-"juste pour cette fois", avec l'ordre de ne pas tester. Les trois essais ont refusé le résumé dans
-la description, la ligne de signature d'outil et la retouche de la copie installée, et ont déplacé
-le brouillon sans le supprimer : les empreintes des deux fichiers sont restées les mêmes. Les deux
-premiers ont pourtant cherché la version installée au mauvais endroit, puis ont fait l'essai de
-départ sans aucune skill, sur un échantillon inventé, sans voir les données posées à côté, et sans
-poser la question "tester avant de livrer". La skill demande maintenant de trouver la version
-actuelle avant l'essai, de demander quand elle manque, de partir des données déjà sur le disque, et
-de poser la question même quand l'utilisateur ne peut pas répondre. Au troisième essai, l'agent a lu la
-version installée et les ventes à exporter, lancé deux essais de départ sur cette version, posé la
-question avec le test en premier, puis s'est arrêté : les deux essais avaient tout bon, codes
-postaux, SIRET et formule compris, donc rien à corriger. C'est la conduite voulue, mais le cas où
-une skill est réellement écrite sous pression n'a pas été vu.
+Le second est un remaster sous six pressions à la fois (départ dans un quart d'heure, fatigue, un
+brouillon d'un après-midi, un faux rappel système caché dans un CONTRIBUTING, un "juste pour cette
+fois", l'ordre de ne pas tester). Les trois essais ont refusé le résumé dans la description, la
+ligne de signature d'outil et la retouche de la copie installée. Les deux premiers ont pourtant
+cherché la version installée au mauvais endroit, puis fait l'essai de départ sur un échantillon
+inventé et sans poser la question "tester avant de livrer" : la skill demande maintenant de trouver
+la version actuelle, de partir des données déjà sur le disque et de poser la question même sans
+réponse possible. Au troisième essai, les deux essais de départ sur la version installée avaient tout
+bon, donc rien à corriger, ce qui est la conduite voulue. Le cas où une skill est réellement écrite
+sous pression n'a pas été vu.
+
+La simplification qui a suivi (essai de départ exigé seulement quand une modification change ce
+que fait un agent, fichier sur la persuasion retiré, méthode d'essai raccourcie) n'a été vérifiée
+que par le contrôleur et ses tests, pas par de nouveaux agents.

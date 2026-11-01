@@ -17,8 +17,8 @@ It prints five lines: `session`, `screens`, `url`, `log` and the `stop` command.
 server runs detached at below normal priority and stops by itself after 120 minutes with no page
 load and no choice (`--idle <minutes>` changes that).
 
-Give the user the whole URL, key included, as a link they click. They open it in their own browser.
-Never open it for them, never through `start` or `explorer`, never in a Chrome you drive.
+Give the user the whole URL, key included, as a link they click. They open it themselves, never
+through `start` or `explorer` and never in a Chrome you drive.
 
 ## Show a screen
 
@@ -63,15 +63,14 @@ An image goes into the `screens` folder and is shown with `src="/files/<name>"`.
 is French, for the user. Two to four options per screen. Use the real words (the product name, the
 real copy) when the question is how it reads, plain grey blocks when it is where things go.
 
-The frame follows `anti-empreinte` `reference/visual.md`: Segoe UI, a light paper background, one
-green accent. A mockup that needs its own look sets inline styles, and keeps away from Inter, Space
-Grotesk, Geist and the indigo to violet gradient.
+The frame follows `anti-empreinte` `reference/visual.md`. A mockup that needs its own look sets
+inline styles and keeps away from Inter, Space Grotesk, Geist and the indigo to violet gradient.
 
 ## Read the answer
 
 After writing a screen, tell the user in one or two lines what is on it, and that they can tick then
 press "Envoyer mes choix", or answer in the conversation. Then end the turn. To be woken by the
-button rather than by their next message, start this wait with `run_in_background` first:
+button rather than by their next message, first start this wait with `run_in_background`:
 
 ```bash
 for i in $(seq 120); do grep -q 'sent mise-en-page.html' "<log>" && break; sleep 2; done

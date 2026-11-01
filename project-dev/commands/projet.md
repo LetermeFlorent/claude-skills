@@ -11,9 +11,4 @@ Charger la skill `project-dev` avec le tool `Skill` et suivre ses etapes dans l'
 Demande : $ARGUMENTS. Si elle est vide et que le dossier courant a un `.ia/`, reprendre le projet la
 ou le disque dit qu'il s'est arrete. Sinon, demander en une seule question ouverte quel projet lancer.
 
-La premiere question d'un projet est toujours "As-tu des images de reference ?". Les images sont
-copiees dans `.ia/references/` du projet, jamais commitees. Rien n'est construit avant l'accord sur
-la spec puis sur le plan, et rien n'est dit fini avant la comparaison d'une capture avec les images.
-
-Reponse finale en francais, courte : l'etape atteinte, les images utilisees, ce qui a ete compare,
-puis la question de l'etape suivante.
+Reponse finale en francais, courte, comme la section Report de la skill le dit.

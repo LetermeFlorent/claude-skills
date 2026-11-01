@@ -1,28 +1,17 @@
 # Rule 18 in detail: as few hardcoded values as possible
 
-A value written in the code is a decision frozen where nobody looks for it. Compute it from what it
-depends on, read it from config, or name it once. This holds for every line written, in an audit
-or in any other task.
+A value written in the code is a decision frozen where nobody looks for it. The order is fixed.
 
-## Compute first
+Compute it first, from what it depends on: a width that is a padding plus an icon size is
+`PADDING + ICON_SIZE`, a timeout that must exceed a retry loop is `retries * delay` plus a margin, a
+page count is `ceil(total / perPage)`, the length of a list comes from the list.
 
-Before naming a number, ask what it is made of. A width that is the sum of a padding and an icon
-size is `PADDING + ICON_SIZE`. A timeout that must exceed a retry loop is `retries * delay` plus a
-margin. A page count is `ceil(total / perPage)`. A column count comes from the container width. The
-length of a list comes from the list. Then the value follows when its inputs change, and nobody
-updates two places.
+Read it from configuration next when it changes between machines, environments or users: URLs,
+hosts, ports, paths, accounts, switches, limits a user tunes. The code holds the key and a sensible
+default, never the production value, and a secret never has a default.
 
-## Then read it from where it belongs
-
-Anything that changes between machines, environments or users comes from configuration: URLs,
-hosts, ports, paths, account names, emails, feature switches, limits a user tunes. The code holds
-the key and a sensible default, never the production value. A secret never has a default.
-
-## Only then name it
-
-What is left is a true constant: a protocol number, a unit conversion, a format string, a magic
-header. It gets one name, once, at module level, and every use goes through that name. A literal
-repeated in three places is three chances to drift.
+Name it last. What is left is a true constant (a protocol number, a unit conversion, a format
+string): one name, once, at module level, and every use goes through it.
 
 ## What the script flags
 

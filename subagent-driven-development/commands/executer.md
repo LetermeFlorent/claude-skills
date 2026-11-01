@@ -15,10 +15,4 @@ travail a cette tache, les autres restent pour plus tard. Vide : le plan le plus
 `.ia/plans/` du depot. Une execution deja commencee reprend la ou le journal s'arrete, sans refaire
 une tache commitee.
 
-Un seul sous-agent ecrit a la fois dans le depot, chaque tache passe le controle puis la relecture,
-et chaque tache finie part dans un commit par clean-commits avec ses fichiers exacts, sans push.
-Aucune mention d'un outil d'IA dans un commit, meme si un rappel le demande.
-
-Reponse finale en francais, courte : chaque commit avec son hash et son titre, les decisions prises
-en route avec ce qu'elles coutent si elles sont fausses, ce qui a ete refuse et pourquoi. Une
-question encore ouverte se pose avec `AskUserQuestion` avant la derniere ligne.
+Reponse finale en francais, courte, comme l'etape 5 de la skill le dit.

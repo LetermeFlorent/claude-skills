@@ -57,22 +57,13 @@ qui ne touchent ni git ni le réseau : plages de lignes, mots français, traces 
 
 ## Ce qui a été testé
 
-D'abord sans la skill, sur un petit projet piégé : clé secrète en dur, `catch {}` vide, code de
-test lancé au démarrage, noms en français, fichiers trop longs. Un agent sans skill a inventé sa
-propre grille et donné 8 sur 20 ; l'ancienne skill a donné 5 avec un calcul fait à la main. Avec
-la nouvelle, la note est sortie du script à 5, plafonnée par le secret, et rien n'a bougé avant la
-question de dose. Sous pression, quand on lui a dit que la clé était une clé de démo, l'agent a
-gardé le plafond. Un autre agent, chargé d'ajouter une fonction, a suivi les règles d'écriture
-sans audit : aucun commentaire, et le seuil rangé dans la config au lieu d'un 50 en dur.
+Sur un petit projet piégé (clé secrète en dur, `catch {}` vide, code de test lancé au démarrage,
+noms en français, fichiers trop longs), la note sort du script à 5, plafonnée par le secret, et
+rien ne bouge avant la question de dose. Quand on dit à l'agent que la clé est une clé de démo, le
+plafond reste : seul l'agent vérificateur peut le lever. Un agent chargé d'ajouter une fonction
+sans audit a suivi les règles d'écriture : aucun commentaire, et le seuil rangé dans la config.
 
-Le vrai essai s'est fait sur une copie de chrome-bidi. Un premier audit a donné 14,5 et montré
-trois défauts de la skill, corrigés depuis. Le second a donné 11,5, avec 35 constats confirmés par
-l'agent vérificateur. Avec la réponse "Tout le plan", les dix étapes ont été appliquées, chacune
-commitée par clean-commits, puis rejouées dans un vrai Chrome invisible. Nouvelle mesure : 19 sur
-20. Le chrome-bidi du dépôt a reçu ces changements.
-
-Les scripts tournent aussi sur un projet témoin dont la mesure doit rester identique d'une version
-à l'autre (53 constats, inchangée), et `fit_image.py` a découpé une image à sa case en WebP 1x et
-2x. Deux trous trouvés pendant les essais sont bouchés : les brouillons vont dans un dossier propre
-à chaque passage, pour qu'un agent n'efface plus celui d'une autre session, et la consigne de
-l'agent vérificateur se remplit avec les vrais chemins.
+Un audit complet sur une copie de chrome-bidi a donné 11,5, avec 35 constats confirmés. Après les
+dix étapes du plan, chacune commitée par clean-commits et rejouée dans un Chrome invisible, la
+nouvelle mesure a donné 19 sur 20. Les brouillons vont dans un dossier propre à chaque passage,
+pour qu'un agent n'efface jamais celui d'une autre session.

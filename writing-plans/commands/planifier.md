@@ -12,10 +12,9 @@ Precision donnee : $ARGUMENTS. Si elle designe une specification, c'est l'entree
 prendre la plus recente du dossier `.ia/specs/` du depot, et poser une seule question avec `AskUserQuestion`
 quand deux se valent. Sans aucune specification, ne rien ecrire et proposer `/concevoir`.
 
-Le plan va dans `.ia/plans/`, jamais ailleurs, et ne part dans aucun commit sauf demande de l'utilisateur dans cette
-conversation. Aucun fichier du projet n'est touche en dehors du plan. Avant de conclure, lancer `plan_lint.py`
-et la relecture par le sous-agent, et lire leurs sorties.
+Avant de conclure, lancer `plan_lint.py`, puis la relecture par le sous-agent quand le plan compte trois taches
+ou plus, et lire leurs sorties.
 
 Reponse finale courte, dans la langue de l'utilisateur : le chemin du plan, le nombre de taches,
-le resultat du controle et de la relecture, la methode choisie pour la suite avec la commande a taper.
+le resultat du controle et de la relecture (s'il y en a une), la methode choisie pour la suite avec la commande a taper.
 Une decision qui lui revient se pose avant la derniere ligne, pas en liste d'attente.

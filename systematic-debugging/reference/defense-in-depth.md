@@ -1,14 +1,13 @@
 # Defense in depth
 
-## Overview
-
-Once the source is fixed, one check at one place feels enough. Another code path, a refactor or a
-mock can still go around it. When bad data crossed several layers on its way to the failure, give
-each layer it crossed a check of its own, so the bug cannot come back by another road.
+Once the source is fixed, one check at one place can still be gone around by another code path, a
+refactor or a mock. When bad data crossed several layers on its way to the failure, give each layer it
+crossed a check of its own, so the bug cannot come back by another road.
 
 ## The four layers
 
-Each layer catches cases the others let through.
+Each layer catches cases the others let through: code paths that skip the entry check, mocks that skip
+the business check, a platform edge case only the guard stops, a misuse found from the logs.
 
 | Layer | Its job | In the empty `projectDir` case |
 |---|---|---|
@@ -39,20 +38,13 @@ def git_init(directory):
     ...
 ```
 
-The diagnostics layer goes through the project's own logger, at debug level, and only when the
-project already logs that kind of event. A stray `print` left from the investigation is not a
-layer: it comes out. No comment explains a check; its error message does.
+The diagnostics layer goes through the project's own logger, at debug level, and only when the project
+already logs that kind of event. A stray `print` left from the investigation is not a layer: it comes
+out. No comment explains a check; its error message does.
 
 ## Applying it
 
-Start from the trace that found the source.
-
-1. Follow the data from where it is born to where it failed (`root-cause-tracing.md`).
-2. List every point it passes through.
-3. Add the check that fits each point. A check on a path no data takes is dead code: add checks
-   where the bad data travelled, not everywhere.
-4. Test each check: go around the first layer in a test and watch the second one catch it.
-
-In the session this comes from, each of the four layers caught a case the others missed: code paths
-that skipped the entry check, mocks that skipped the business check, a platform edge case only the
-guard stopped, and a misuse found from the logs.
+Start from the trace that found the source (`root-cause-tracing.md`) and list every point the data passes
+through. Add the check that fits each point: a check on a path no data takes is dead code, so checks go
+where the bad data travelled, not everywhere. Test each check by going around the first layer in a test
+and watching the second one catch it.

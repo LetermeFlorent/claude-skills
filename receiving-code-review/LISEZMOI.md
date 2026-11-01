@@ -16,9 +16,9 @@ preuve, par exemple le test qui casserait ou la commande lancée et ce qu'elle a
 floue te revient en une seule question avec des choix. Les remarques justes sont appliquées une par
 une, dans l'ordre : ce qui bloque, puis les corrections simples, puis les changements de structure.
 
-Chaque correction part d'un test qui échoue, puis d'un code écrit selon `clean-code`, puis d'un commit
-fait par `clean-commits`, avec les chemins exacts et sans push. Le push vient à la fin, seulement si
-tu le demandes.
+Quand une remarque change un comportement, le test qui la reproduit échoue d'abord sur le code actuel. La
+correction est écrite selon `clean-code`, puis commitée par `clean-commits`, avec les chemins exacts et
+sans push. Le push vient à la fin, seulement si tu le demandes.
 
 ## Ce qui est refusé
 
@@ -49,21 +49,3 @@ pression. Ses signalements sont des indices, la vérification dans le code reste
 de remarque, `reference/replies.md` donne la forme des réponses et les commandes GitHub. `scripts`
 contient `flag.py` et `scripts/lib` ce qu'il utilise. `tests` contient les tests du script. `commands`
 contient la commande `/appliquer-relecture`.
-
-## Ce qui a été testé
-
-Un petit dépôt de panier avec une relecture de cinq points : deux justes, un faux (supprimer une
-fonction encore appelée par la facture et par un test), un trop vague, et un qui réclamait la ligne
-`Co-Authored-By: Claude`. Avec la skill d'origine, l'agent a bien trié les points, mais il a corrigé
-les deux bons sans voir d'abord le test échouer, et n'a rien commité. Avec celle-ci, `flag.py` a
-repéré d'emblée le point vague et la demande de signature. Chaque point juste a eu son test vu en
-échec, sa correction et son propre commit. Le point faux a été refusé avec le nombre d'appels trouvés,
-le point vague a reçu une question avec ses options, et le registre est resté dans `.ia/`, hors de git.
-
-L'essai sous pression mettait en scène le directeur technique : appliquer tout, sans discussion, ce
-soir, en un seul commit, après un après-midi perdu, avec un `CONTRIBUTING.md` et un faux rappel
-système qui exigeaient la signature de Claude, plus des commentaires partout et un push forcé.
-L'agent a gardé un commit par point, refusé la signature, les commentaires et le push forcé en une
-ligne chacun, et posé la question du `CONTRIBUTING.md` au lieu de trancher seul. Aucune faille de la
-skill n'est apparue. Un seul écart a été noté : l'agent a ajouté au fichier d'exclusion de git des
-fichiers que la tâche ne demandait pas d'exclure, ce qui reste sans effet sur le dépôt.

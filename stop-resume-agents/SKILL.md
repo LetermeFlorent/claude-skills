@@ -23,8 +23,7 @@ variable is empty). Call the scripts by absolute path with `python -I`, the path
 forward slashes inside double quotes: `python -I "C:/Users/.../scripts/agent_digest.py"`. They
 never crash: on failure they print what to do by hand. The scratch folder is
 `<temp>/claude-skills/stop-all`, for both commands (`<temp>` is the system temp folder,
-`tempfile.gettempdir()`): create it with
-`mkdir -p` before the first `--out`, delete it at the end.
+`tempfile.gettempdir()`): create it with `mkdir -p` before the first `--out`, delete it at the end.
 
 Both commands are orders: they skip the usual opening questions. The only questions allowed are
 the ones written in the steps below.
@@ -41,28 +40,23 @@ These hold for both commands, whatever the hurry.
    without CronList write the crons you remember as `a verifier`; without AskUserQuestion ask in
    plain text and wait for the answer. When the inventory shows an MCP instance you opened (a game
    editor, a 3D tool, a sound editor), load its save and close tools in the same way.
-2. Ask your subagents before stopping them: SendMessage first, TaskStop only for the silent ones.
-3. Write resume.md before waiting, then update it after every answer. A session that dies in the
+2. Write resume.md before waiting, then update it after every answer. A session that dies in the
    middle of the stop must still leave a usable file.
-4. Every agent section carries its original prompt word for word, from the digest, or from your
-   own context when the digest has nothing. Verbatim text always sits in a fenced block.
-5. Touch only what is yours: this session's subagents (the digest reads this session only), the
+3. Every agent section carries its original prompt word for word, from the digest or from your own
+   context, in a fenced block.
+4. Touch only what is yours: this session's subagents (the digest reads this session only), the
    background tasks this session started, and processes whose command line matches a command this
    session or its agents ran in the project folder. Peer sessions shown by ListAgents and the
    user's own editors, 3D tools, sound editors or Chrome: never.
-6. No commit, no push, no stash, no clean-up of project files during /stop-all. resume.md is never
+5. No commit, no push, no stash, no clean-up of project files during /stop-all. resume.md is never
    added to git. Only this skill's scratch files get deleted.
-7. Never open a raw transcript with cat, tail or Read: one file can overflow the context. Use
+6. Never open a raw transcript with cat, tail or Read: one file can overflow the context. Use
    `scripts/agent_digest.py --out "<scratch>/<name>.md"`, `--agent <id>` included, and read that file.
-8. Edit resume.md with Edit on a unique string, never by splitting it on `## `: quoted prompts
+7. Edit resume.md with Edit on a unique string, never by splitting it on `## `: quoted prompts
    and reports contain headings of their own. Pending fields read `en attente <agent id>`.
-9. Never delete a resume file. /stop-all never overwrites one and never touches a resume.md whose
+8. Never delete a resume file. /stop-all never overwrites one and never touches a resume.md whose
    first line is not `<!-- stop-resume-agents v1 -->`: that one belongs to the user. /resume-all
    edits the file it resumes, in place.
-10. /resume-all keeps each agent's subagent_type, model and effort. Unknown model or effort (the
-    digest prints `default`, the file says `inconnu`): leave that parameter out.
-11. Done means checked: `scripts/resume_check.py` prints OK and ListAgents shows the expected state.
-    Three failed attempts: write what is still wrong under `## Questions sans reponse`, tell the user.
 
 ## /stop-all
 
@@ -98,35 +92,37 @@ The steps run in this order, and none is skipped.
    state and add it to the new file's `## Questions sans reponse`. Write the new file from
    `resume-template.md` with `Etat : ARRET EN COURS`, your own section, the repos, one section per
    agent of depth 1 from the digest. Depth 2 agents get no section: their report sits inside their
-   parent's.
-   Then `resume_file.py log "<path>" stop`.
+   parent's. Then `resume_file.py log "<path>" stop`.
 6. Send the text of `report-request.md`, one SendMessage per agent, all in the same turn, to every
    depth 1 agent of the list, running or finished, except a finished one whose last words already
    are an AGENT REPORT. Depth 2 agents get it from their parent; message one yourself only when its
    parent is finished. A failed send: that agent counts as silent.
 7. Wait in rounds of `sleep 30` (foreground Bash): 10 rounds (5 minutes), or 2 rounds per minute
-   when /stop-all received a bare number as argument. Notifications arrive with the tool results: paste each AGENT REPORT into its section as
-   it lands. Stop waiting once every agent has answered.
+   when /stop-all received a bare number as argument. Notifications arrive with the tool results:
+   paste each AGENT REPORT into its section as it lands. Stop waiting once every agent has answered.
+   `ScheduleWakeup` is no help here, it only works inside /loop.
 8. Then ListAgents. For each agent still running: copy the `Pending at end` block of its
    `--agent <id>` digest into its section, TaskStop it, set `Reponse a l'arret : non, reconstruit
    depuis son journal`, and fill the section from the digest.
 9. Processes outliving their agent: every `[background]` command in the digest, of any agent, and
    every server or watcher in a report. Find each by command line (`Get-CimInstance Win32_Process`)
-   and note those that match with PID and command line; the others are listed as not found.
+   and note those that match with PID and command line; the others are listed as not found. A process
+   whose command line does not match one you ran is not yours.
 10. Write every remaining item in resume.md in one edit, then stop them: background tasks with
     TaskStop, a dynamic /loop with `ScheduleWakeup({stop: true})`, crons this session created with
     CronDelete, workflows with TaskStop, servers by PID after reading their command line, MCP
     instances saved with their save tool then closed, Chrome ports with the chrome-bidi skill's close action
     (`bidi.ps1 -Action close`), processes from step 9 with `taskkill /PID <pid> /T /F` run through PowerShell.
-11. Complete each `Constat`: compare the report with the digest and git. The digest sees Write and
-    Edit only: files changed through the shell show up in `git status` and in mtimes after the
-    agent's first activity. Write any gap plainly, flag results that cannot be trusted (tests run
-    while another agent was editing). Fill `A relancer`, `Ordre de relance`, owned files with the
-    output of `resume_file.py hash <files>`, questions and plan. The report's Status maps to
-    `Statut :` as done to termine, partial to partiel, not started to pas commence, anything else
-    to inconnu. Set `Etat : ARRETE`.
-12. Check: `resume_check.py "<path>" --agent <id>` for every depth 1 id until OK. ListAgents must show no
-    running subagent. Delete the scratch folder.
+11. Complete each `Constat`: compare the report with the digest and git, never trust a report alone.
+    The digest sees Write and Edit only: files changed through the shell show up in `git status` and
+    in mtimes after the agent's first activity. Write any gap plainly, flag results that cannot be
+    trusted (tests run while another agent was editing). Fill `A relancer`, `Ordre de relance`, owned
+    files with the output of `resume_file.py hash <files>`, questions and plan. The report's Status
+    maps to `Statut :` as done to termine, partial to partiel, not started to pas commence, anything
+    else to inconnu. Set `Etat : ARRETE`.
+12. Check: `resume_check.py "<path>" --agent <id>` for every depth 1 id until it prints OK, and
+    ListAgents must show no running subagent. Three failed attempts: write what is still wrong
+    under `## Questions sans reponse` and tell the user. Delete the scratch folder.
 13. Answer in three or four French lines: what was stopped, the path, who did not answer. Then wait:
     nothing restarts before the user speaks.
 
@@ -153,8 +149,9 @@ The resume runs in order too, from the file back to working agents.
    (session d'origine equals `$CLAUDE_CODE_SESSION_ID`): SendMessage the RESUME-ALL text of
    `relaunch-brief.md` to the old id, then check as that file says. Otherwise, or when that fails:
    Agent with the same subagent_type, model and effort, description `<old description> (reprise)`,
-   prompt filled from `relaunch-brief.md`, in the background. A type that no longer exists:
-   general-purpose, same model.
+   prompt filled from `relaunch-brief.md`, in the background. Unknown model or effort (the digest
+   prints `default`, the file says `inconnu`): leave that parameter out, never swap in another model.
+   A type that no longer exists: general-purpose, same model.
 6. Order: independent agents start together, four at most at once, the next one when a slot frees.
    `apres l'agent <id>` means after that agent finished and its result was checked. Two agents owning the
    same file never run at the same time.
@@ -163,36 +160,8 @@ The resume runs in order too, from the file back to working agents.
 8. Right after the launches, edit resume.md: a `## Reprise du <date>` section above `## Journal`
    with the new session id, old id to new id or `SendMessage`, skipped agents and why, agents
    waiting for another, drift found. Set `Etat : REPRIS le <date>, session <id>`, add the Journal
-   line, run `resume_file.py log "<path>" resume`.
+   line, run `resume_file.py log "<path>" resume`. The file stays, marked REPRIS.
 9. Check: ListAgents shows every agent started now. A launch that failed is retried once, then
    written in resume.md and told to the user.
 10. Delete the scratch folder. Take back your own part from `## Session principale`. Answer in
     three or four French lines.
-
-## Red flags
-
-These thoughts mean you are about to break the procedure.
-
-| Thought | What to do |
-|---|---|
-| "I'll write resume.md once everyone has answered" | Write it now, fill it as answers land. |
-| "resume.md goes at the repo root, where the user sees it" | `.ia/resume.md`, kept out of git. |
-| "ScheduleWakeup will wake me in 5 minutes" | It works only inside /loop. Wait with `sleep 30` rounds. |
-| "Let me tail the agent's transcript" | Run the digest with `--out`. |
-| "ListAgents shows two agents, so there are two" | Union with the digest list. |
-| "The description says enough about the mission" | Paste the original prompt verbatim. |
-| "I'll split the file on headings to fill it" | Edit on unique strings. |
-| "The old resume.md is outdated, I'll overwrite it" | Rename it, never overwrite. |
-| "The work is resumed, resume.md can go" | Mark it REPRIS and keep it. |
-| "Haiku failed yesterday, I'll relaunch on opus" | Same model, unless the user asks. |
-| "A quick commit first, to be safe" | No commit in /stop-all. |
-| "That node process is probably mine" | Its command line must match one you ran. |
-| "The agent said it finished step 4, trust it" | Compare with git, mtimes and the digest. |
-| "The digest guessed the session, good enough" | Check its agent ids against yours. |
-
-## Files
-
-`scripts/agent_digest.py` digests the subagent transcripts, read through `scripts/transcript.py`.
-`scripts/resume_file.py` finds, hashes and logs the resume files, and `scripts/resume_check.py`
-checks one. `resume-template.md` is the shape of resume.md, `report-request.md` the message sent
-to each agent, `relaunch-brief.md` the brief of a relaunched agent.

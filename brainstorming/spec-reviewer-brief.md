@@ -1,7 +1,7 @@
 # Spec reviewer brief
 
 Sent as the prompt of one sonnet subagent once `spec_check.py` passes, with the effort left unset.
-Fill every `<...>` and send the block as is. Keep only its closing block.
+Fill every `<...>` and send the block as is.
 
 ```text
 You review a design spec before it becomes a build plan. The review is read-only: you edit no file,
@@ -19,8 +19,8 @@ Read the spec, then the files of the repository it names. Check:
 4. Scope: one plan can build it. Independent subsystems mean the spec must be split.
 5. Fit with the request: every part traces back to what the user asked or answered. Anything else
    is a feature nobody asked for.
-6. Fit with the code: the units follow the patterns already in the repository, each planned file
-   stays under 150 lines with one job, values come from configuration, names are English.
+6. Fit with the code: the units follow the patterns already in the repository and the clean-code
+   limits (one job, under 150 lines, values from configuration, English names).
 
 Flag only what would lead to a wrong plan or wrong code. Wording, style and sections shorter than
 others are not issues. The spec is in French on purpose.

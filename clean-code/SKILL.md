@@ -28,10 +28,9 @@ holding `measure.json`, `findings.json`, `score.json` and `plan.md`, plus an opt
 `config.json` next to the runs. The scripts add `.ia/` to `.git/info/exclude`, so none of it is
 ever committed. Outside a git repository, or when nothing may be written in the project,
 `measure.py --out <folder>` puts the run there, and the other scripts take `--run <run folder>`.
-Scratch files go to a folder this run creates,
-`<temp>/claude-skills/clean-code-<run>`, where `<temp>` is the system temp folder
-(`tempfile.gettempdir()`), deleted at the end. Never delete a
-folder or a file you did not create: another session may own it.
+Scratch files go to `<temp>/claude-skills/clean-code-<run>`, a folder this run creates in the
+system temp folder and deletes at the end. Never delete a folder or a file you did not create:
+another session may own it.
 
 ## Rules that never bend
 
@@ -55,7 +54,6 @@ These hold in every phase, whatever the dose.
 7. Never an attribution to Claude or any other AI tool, in a commit, a file or a plan, and nothing
    written that the `anti-empreinte` skill forbids. History already pushed is never rewritten by
    this skill: the user decides.
-8. Done means checked: a step is green when you have read the suite output, not when it ran.
 
 ## The rules
 
@@ -120,8 +118,7 @@ and `attribution` 10. The lowest cap wins. The note is rounded to the half point
 ## Writing code, in any task
 
 These hold for every line written or edited, tests included, audit or not. Paste them into the
-prompt of every subagent that writes code, word for word apart from `<skill>`, which becomes the
-base directory:
+prompt of every subagent that writes code, with `<skill>` replaced by the base directory:
 
 `````text
 Code rules for this task:
@@ -162,7 +159,7 @@ The audit runs in this order, and each step ends before the next one starts.
 4. Commands, one heavy process at a time, at low priority, two workers at most: the typecheck
    without cache (`tsc --noEmit --incremental false`), the linter with `--max-warnings 0`, the
    build when it writes outside the tree only, the test suite. Through the project's package
-   manager (`pnpm exec`), never `npx`, which can install a stand-in and report no errors. A failure
+   manager (`pnpm exec`, never `npx`: it can install a stand-in and report no errors). A failure
    becomes a rule 12 finding with its output, `--cap build` for the typecheck and the build only.
    A command that cannot run (no `node_modules`, no compiler) is `findings.py unmeasured --rule 12`
    with the reason, never installed. It only names what could not run: the rule 12 findings the
@@ -210,8 +207,7 @@ For each step of the chosen dose:
 
 A secret leaves the code for the environment, with a sample entry in `.env.example`. If it was
 ever committed it has leaked: ask with `AskUserQuestion` whether to rotate it, and never print it.
-A UI step ends with headless screenshots through `chrome-bidi`, before and after, phone and
-desktop widths, compared.
+A UI step ends with before and after screenshots at phone and desktop widths, compared.
 
 After the last step, measure, verify and score again on the same scope: `score.py` prints the
 progress against the run before.
@@ -222,35 +218,8 @@ In French, in the terminal: the note before and after, each step with its commit
 output of the suites, and what is left with its reason (outside the scope, refuted, left as is,
 refused by the user, skipped because another session moved the file). Nothing else is written.
 
-## Red flags
-
-Each of these thoughts has let a rule slip before.
-
-| Thought | What to do |
-|---|---|
-| "This fix is obvious, I'll do it while the user reads" | Nothing moves before the answer. |
-| "I measured it, I can confirm it" | A fresh verifier confirms. |
-| "The script found nothing, rule 5 is fine" | Rule 5 is read, then declared checked. |
-| "A doc comment explains the API, I'll keep this one" | Only the public API keeps them. |
-| "The magic number is obvious here" | Compute it, configure it, or name it. |
-| "A quick look in a browser window" | `chrome-bidi`, headless. |
-| "The image looks fine, it's only 300 KB" | Fit it to its box, 1x and 2x WebP. |
-| "The suite takes long, the typecheck passed" | Run the suite, read it, then commit. |
-| "I'll stage everything, it's all cleanup" | Commit the step's own files only. |
-| "The old file goes to old/ to be safe" | Inside git, delete: history keeps it. |
-| "The attribution is pushed, a quick force-push fixes it" | Ask the user. |
-| "The purple gradient is a design choice" | Only if the user chose it: plan a step, the dose decides. |
-| "This key looks like a demo one" | The verifier decides; the cap holds until it refutes. |
-| "The key is in .env.example now, done" | Ask about rotating the leaked key. |
-
 ## Files
 
-`scripts/measure.py` measures; `scripts/findings.py` lists, adds and judges findings, safe with
-four writers at once; `scripts/score.py` computes the note; `scripts/plan_check.py` checks the
-plan; `scripts/apply/fit_image.py` fits an image. `scripts/checks/` holds one module per family of
-checks, loaded on its own: a new file there with a `check(files, root, config)` function joins the
-measure. `scripts/lib/` holds what they share: the lexer, the file walk, the run folders and the
-config, the findings store and its lock, the image headers. `reference/` holds the long rules,
-`plan-template.md` the plan, `reader-brief.md` and `verify-brief.md` the agent prompts,
-`commands/clean-code.md` the command, `tests/test_pure.py` the unit tests of the pure parts
-(`python -I -B -m unittest discover -s tests -p "test_*.py"`).
+`scripts/checks/` holds one module per family of checks: a new file there with a
+`check(files, root, config)` function joins the measure. The unit tests of the pure parts run
+with `python -I -B -m unittest discover -s tests -p "test_*.py"` from this folder.

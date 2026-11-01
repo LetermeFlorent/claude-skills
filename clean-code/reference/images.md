@@ -1,8 +1,7 @@
 # Rule 19 in detail: every image fitted to its box
 
 An image ships at the size of the box that shows it, cropped to that box's ratio, compressed, and
-in WebP, with a 1x and a 2x file. An SVG stays SVG. This holds in an audit and every time code
-places an image.
+in WebP, with a 1x and a 2x file. An SVG stays SVG.
 
 ## 1. What the code says
 
@@ -21,8 +20,8 @@ the static guess: CSS, a grid or `object-fit` can change it.
 
 ## 2. What the page shows
 
-When the project renders pages, measure the real boxes, always through the `chrome-bidi` skill and
-always headless: no window ever opens on the user's screen. Start the dev server, then:
+When the project renders pages, measure the real boxes through the `chrome-bidi` skill, headless.
+Start the dev server, then:
 
 ```bash
 python -I "<chrome-bidi>/scripts/measure_images.py" --url <page url> --widths 390,1440 --out "<run>/boxes-home.json"

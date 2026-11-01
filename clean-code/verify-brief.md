@@ -21,9 +21,10 @@ For each one, open the file at the line and try to prove it wrong. It is wrong w
 - a file "never imported" is an entry point: a route file, a config the framework loads by name,
   a bin or script in the manifest, a dynamic import, a worker, a CLI;
 - an unused import is there for its side effect (polyfill, CSS, registration);
-- every hardcoded value listed is already named once, is 0, 1, -1, an empty string or a boolean,
-  or is a keyword a library defines for its own arguments (`action="store_true"`). A protocol number, a method name or a unit written in place is still rule 18: it gets
-  one name (reference/values.md). When only some values of a finding hold, the finding stands;
+- every hardcoded value listed is a case of "Not a finding" in reference/values.md, or a keyword a
+  library defines for its own arguments (`action="store_true"`). A protocol number, a method name
+  or a unit written in place is still rule 18. When only some values of a finding hold, the
+  finding stands;
 - a French-looking identifier is English, a proper noun, or a key fixed by an outside contract;
 - a folder over the file limit follows the framework's own layout;
 - a secret is a placeholder, a public key, or a sample value in a file marked as an example.
@@ -46,8 +47,6 @@ from 0.5 to 3.
 
 Finish with this block and nothing after it:
 VERIFIER REPORT
-confirmed: <count>
-refuted: <count>
 caps kept: <ids and cap names, or none>
 doubts: <ids where the call was close, with the reason, or none>
 `````

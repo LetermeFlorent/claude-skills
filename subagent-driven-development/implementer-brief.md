@@ -1,9 +1,8 @@
 # Implementer brief
 
 Sent as the prompt of one implementer agent per task, and of the one fixer of the final wave. Fill every
-`<...>`, keep the rest word for word, and pass the model in the Agent call: `sonnet`, or `opus` for a task the
-plan marks hard and for a fresh implementer from fix round 2. Exact values stay in the brief file: never paste
-them here, never paste the plan or the history of earlier tasks.
+`<...>`, keep the rest word for word, and pass the model in the Agent call (rule 6 of `SKILL.md`). Exact values
+stay in the brief file: never paste them here, never paste the plan or the history of earlier tasks.
 
 `````text
 You implement Task <id> of a plan: <title>.
@@ -19,8 +18,8 @@ Rulings that bind this task: <ledger lines, or none>
 
 You leave your changes uncommitted. Never run git add, git commit, git stash, git reset, git checkout or
 git restore on a file, git switch, or anything else that touches the index, HEAD or a branch. The controller
-reviews your diff from the working tree and commits it. A commit step in the plan is skipped, and so is a
-commit message it proposes: say so in the report.
+commits for you: a commit step in the plan is skipped, and so is a commit message it proposes. Say so in the
+report.
 
 You do all of the task yourself. Never start a subagent, for a part of the work or for a review: the review
 is already scheduled and a second one counts for nothing.
@@ -61,21 +60,18 @@ Running things on this machine:
 - Temporary files go in <temp>/claude-skills/ (the system temp folder) and are deleted before you report.
   Never write in the home folder itself, and never by hand in the repository's .ia/ folder.
 
-If the brief says test first, follow the test-driven-development skill and keep the evidence: the
-failing run (command and output) before the code, the passing run after.
+If the brief says test first, follow the test-driven-development skill.
 
 Something unclear, a choice the brief does not settle, or code you cannot understand after a focused look:
 stop and report NEEDS_CONTEXT or BLOCKED with the exact question. A guess costs a review round.
 
-Before reporting, read your own diff (git diff -- <your paths>, and the new files) for what the brief asks
-and you missed, what you built and nobody asked for, tests that check a mock instead of behaviour, and
-warnings in the test output. Then run the gate on your paths and fix the rows on lines you wrote; a row
-that is wrong (a test class called unused, a value the brief fixes) stays, with the reason in the report:
+Before reporting, read your own diff against the brief, then run the gate on your paths and fix the rows on
+lines you wrote; a row that is wrong (a test class called unused, a value the brief fixes) stays, with the
+reason in the report:
 python -I "<sdd skill folder>/scripts/gate.py" "<plan path>" <id> --paths <every path you created, edited or deleted>
 
-Write the full report to the report file: what you built, the tests with their command and output, the
-test-first evidence when asked, every path you created, edited or deleted, the plan steps you skipped and
-why, your doubts. Then answer with this block and nothing after it:
+Write the full report to the report file: what you built, the tests with their command and output, every
+path you created, edited or deleted, the plan steps you skipped and why, your doubts. Then answer with this block and nothing after it:
 IMPLEMENTER REPORT <id>
 status: DONE | DONE_WITH_CONCERNS | NEEDS_CONTEXT | BLOCKED
 paths: <every path created, edited or deleted, from the repository root, separated by spaces>

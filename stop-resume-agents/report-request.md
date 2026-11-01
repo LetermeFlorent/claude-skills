@@ -1,9 +1,9 @@
 # Message sent to each subagent on /stop-all
 
 Send this text unchanged with SendMessage, one call per subagent, all calls in the same turn.
-It was tested live: a running agent reads it at its next tool round, stops, and answers with
-the filled template as its final answer, which reaches the main session as a task notification.
-An agent that had already finished is woken up by the message and answers the same way.
+A running agent reads it at its next tool round, stops, and answers with the filled template as its
+final answer, which reaches the main session as a task notification. An agent that had already
+finished is woken up by the message and answers the same way.
 
 ````text
 STOP-ALL: the main session is stopping all work now, reply with a status report and end your turn.

@@ -33,17 +33,8 @@ aux agents, le modèle de `resume.md` et la consigne donnée aux agents relancé
 `scripts` résume les journaux des agents, retrouve les fichiers de reprise et vérifie qu'un
 `resume.md` est complet. `commands` contient les deux commandes.
 
-## Ce qui a été testé
-
-Un vrai arrêt suivi d'une vraie reprise, avec trois agents factices : tous ont répondu, l'un a
-repris sa tâche là où il s'était arrêté, un autre a été remplacé par un nouvel agent qui a fini le
-travail sans rien faire en double. Les scripts ont aussi été passés sur des cas tordus : journal
-abîmé, fichier introuvable, `resume.md` qui ne vient pas de la skill, numéro de session absent.
-
-Le passage dans `.ia/` a été essayé sur des dépôts jetables. `/pause`, `/stop` et devflow y
-écrivent leur fichier, `.ia/` part dans le fichier exclude du dépôt et rien n'est commité. La
-reprise lit encore un `PAUSE.md` resté à la racine, et `/resume-all` trouve aussi bien
-`.ia/resume.md` qu'un ancien `resume.md` à la racine.
+## Les commandes voisines
 
 `/stop` (arrêt avec commit et push) et `/pause` (fichier `.ia/PAUSE.md`) existent toujours à côté.
-`/stop` écrit son `RESTE-A-FAIRE` dans `.ia/` lui aussi, et ne le commite jamais.
+`/stop` écrit son `RESTE-A-FAIRE` dans `.ia/` lui aussi, et ne le commite jamais. `/resume-all` trouve
+aussi bien `.ia/resume.md` qu'un ancien `resume.md` resté à la racine.

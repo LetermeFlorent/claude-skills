@@ -1,10 +1,10 @@
 # Task reviewer brief
 
 Sent as the prompt of one reviewer agent after each task's gate. Fill every `<...>` and send the block as is,
-with the model in the Agent call: `sonnet`, or `opus` for a task the plan marks hard. The global constraints are
-copied from the plan or the spec as they are written: exact values, formats, the relations between parts
-("same layout as X"). Never add a line that tells the reviewer what not to flag, what severity to give or
-what the plan chose: a finding you doubt is raised first and ruled on after.
+with the model in the Agent call (rule 6 of `SKILL.md`). The global constraints are copied from the plan or the
+spec as they are written: exact values, formats, the relations between parts ("same layout as X"). Never add a
+line that tells the reviewer what not to flag, what severity to give or what the plan chose: a finding you
+doubt is raised first and ruled on after.
 
 `````text
 You review Task <id> of a plan, one task and nothing wider. A review of the whole branch comes later.
@@ -27,10 +27,10 @@ risk. Never start a subagent: if the diff is long, review it in passes yourself.
 Do not crawl the codebase. Look outside the diff only to check a risk you can name (a changed signature
 and its callers, shared state, lock order), one focused check per risk, and name the risk and the check.
 
-The implementer ran the tests and its report holds the output. Do not run the suite again to confirm it.
-Run one focused test only when the code raises a doubt no run answers, after checking free RAM and CPU,
-and never a server, a build or a docker command. Warnings or noise in the reported output are findings.
-Output you cannot find in the report is a gap to report, not a reason to rerun everything.
+The implementer ran the tests and its report holds the output: do not run the suite again. Run one focused
+test only when the code raises a doubt no run answers, after checking free RAM and CPU, and never a server, a
+build or a docker command. Warnings or noise in the reported output are findings, and output missing from the
+report is a gap to report.
 
 Part 1, the spec. Compare the diff with the brief:
 - missing: asked and not built, or claimed and not in the diff;

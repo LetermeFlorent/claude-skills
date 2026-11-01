@@ -37,14 +37,14 @@ These hold whatever the hurry or the size, and breaking the letter of one breaks
    even for a tool with no screen, and before any colour, font or layout is chosen. Images named in
    the request are read first, and the question becomes "En as-tu d'autres ?".
 2. Images live in `<project>/.ia/references/`, copied there by `references.py add`, never moved or
-   edited at their source. Each one gets a line in `references.md`: what to take from it, and what
-   not to. `.ia/` stays out of git and is never committed.
+   edited at their source, each with its line in `references.md`. `.ia/` stays out of git and is
+   never committed.
 3. A spec comes before the plan and the plan before any product code, even for a small site and
    even when the user says to skip them. Under pressure they get shorter, never skipped.
 4. Each gate is one `AskUserQuestion`, recommended answer first, on what the user can see: the spec
-   path, the plan path and the finish options. A "go ahead" given before they saw it
-   passes no gate. When they said they are away, take the recommended answer, say so in one line, and go
-   on.
+   path (brainstorming's own step 7 question is that gate, not a second one), the plan path and the
+   finish options. A "go ahead" given before they saw it passes no gate. When they said they are away,
+   take the recommended answer, say so in one line, and go on.
 5. Every plan task that changes something visible names its images by absolute path with what to
    take from each, and its implementer opens them before writing code.
 6. Something visible is not finished until a capture of it has been compared with each image that
@@ -139,26 +139,8 @@ The answer to the user is in French and short: where the project stands in the c
 use, the answer at each gate passed, the comparison line per image, and the question of the next
 gate asked before the last line.
 
-## Red flags
-
-Each row is a thought that came before a project drifted from what the user had in mind.
-
-| Thought | Reality |
-|---|---|
-| "They gave no images, blue and white will do" | Ask first. A default colour is a guess they will have to undo. |
-| "The images are on the Desktop, I will point at them" | Copy them with `add`. The Desktop gets tidied; the project keeps its references. |
-| "I looked at the images, that is enough" | Write what to take from each in `references.md`. Agents read that file, not your memory. |
-| "Brainstorming is not installed, I go straight to the plan" | It sits next to this skill. Read it there; the spec comes first. |
-| "Small site, no spec needed" | The spec gets shorter, it never vanishes. |
-| "They said go ahead, the gates are passed" | A gate is passed on what they saw. |
-| "Tests pass and every box is ticked, it is done" | Capture and compare first. |
-| "The implementer will guess the look from the spec" | Its task names the images by absolute path. |
-| "A visible window makes the comparison easier" | The headless shot has the same pixels. |
-| "The worktree has no `.ia/references/`" | Read it from the main checkout by absolute path. |
-
 ## Files
 
-`scripts/references.py` copies, lists and checks the reference images; `scripts/lib/` holds the
-image headers, the `references.md` format and the git exclude. `tests/test_pure.py` tests them
-(`python -I -B -m unittest discover -s tests -p "test_*.py"`). `commands/projet.md` is the `/projet`
-command and `LISEZMOI.md` the French notes.
+`scripts/references.py` copies, lists and checks the reference images, with `scripts/lib/` for what it
+shares. The unit tests run with `python -I -B -m unittest discover -s tests -p "test_*.py"` from this
+folder. `commands/projet.md` is `/projet`, `LISEZMOI.md` the French notes.

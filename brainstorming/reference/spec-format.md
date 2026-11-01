@@ -2,8 +2,7 @@
 
 A spec is read twice: by the user, who approves it, and by `writing-plans`, which turns it into
 tasks. It is written in French; code names, paths, commands and identifiers stay as they are. It
-follows `anti-empreinte` like any file: no em dash, no curly quote, sentence case headings, no bold
-lead-in, no closing recap.
+follows `anti-empreinte` like any file.
 
 ## Path and name
 
@@ -24,6 +23,7 @@ filled with "à définir".
 | `## Ce que l'utilisateur a demandé` | their request in their words, then the answers they gave during the grill |
 | `## Ce qui a été supposé` | each choice taken without asking, so they can overturn it |
 | `## Décisions` | each decision, the options dropped and why |
+| `## Références` | only when `project-dev` runs: each reference image with its line from `references.md`, or "Aucune image de référence" |
 | `## Conception` | the units: file or module, its one job, its interface, what it depends on; then how data moves |
 | `## Erreurs` | what can fail and what the person in front of the screen sees then |
 | `## Tests` | what proves each requirement, at which level, with which data |
@@ -36,9 +36,3 @@ may change (a delay, a limit, an address) are named as configuration, with their
 
 As long as the design needs and no longer. A feature fits in one or two pages. A spec that runs
 much longer usually holds two projects: split it and say so to the user before writing the second.
-
-## What the check does not see
-
-`spec_check.py` finds placeholders, empty sections, a wrong path and a tracked file. It cannot see
-a requirement that reads two ways, two sections that disagree, or a part nobody asked for. Read
-the spec once for those before the reviewer gets it.

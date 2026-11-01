@@ -22,7 +22,10 @@ There are two callers, and they differ on two points only.
 | Caller | Paths | Push |
 |---|---|---|
 | The user, through `/commit` | the paths this session touched, one question for the others | yes, through `push.py` |
-| A skill, such as clean-code after each step | exactly the paths it hands over | never |
+| A skill, such as clean-code after each step | exactly the paths it hands over, plus the intent in a sentence and the language when it knows it | never |
+
+A calling skill gets back the hash or the refusal text. A refusal stops the step: the caller never
+commits another way.
 
 Call the scripts by absolute path with `python -I`, the path in forward slashes inside double
 quotes, from anywhere inside the repository: `python -I "<skill>/scripts/state.py"`. `<skill>` is
@@ -49,9 +52,8 @@ These hold for every commit, whichever skill calls this one.
    A hook or a check that fails blocks the commit until its cause is fixed or the user decides.
 4. GitHub only through `push.py`, which goes through the account tool named by `CLAUDE_SKILLS_ACCOUNTS`
    when it is set (for example the account-keys skill's tool), else pushes with the user's own git
-   credentials. No bare `fetch`, `pull`, `ls-remote` or `gh`.
-5. A push happens under `/commit` only. A calling skill gets its commits and no push.
-6. A refusal from `commit.py` is fixed, never worked around with a plain `git commit`.
+   credentials. No bare `fetch`, `pull`, `ls-remote` or `gh`. A push happens under `/commit` only.
+5. A refusal from `commit.py` is fixed, never worked around with a plain `git commit`.
 
 ## Procedure
 
@@ -79,16 +81,13 @@ One pass, in this order.
 5. Group by intent: one commit per reason to change. A feature travels with its tests; a rename, a
    move or a reformat goes apart from a change of behaviour. A calling skill's step is one intent:
    one commit, unless its paths hold two unrelated changes, which you tell the caller.
-6. Message. Follow the `history:` lines of `state.py`.
-   - Language: the history's. No commit yet: ask the user with `AskUserQuestion` (Francais or
-     English), then pass `--language fr` or `--language en`.
-   - Form: `type(scope): subject` only when the history uses it, with its types and scopes. A free
-     form history gets a free form message: never impose Conventional Commits.
-   - Subject: what changes, 72 characters at most, no final period, in the mood of the examples
-     shown (imperative in English, often a noun phrase in French).
-   - Body only for a why the subject cannot hold, after a blank line, lines of 100 characters at
-     most. Vary the length the way the history does; no template repeated on every commit.
-   - Plain ASCII punctuation, no emoji, no em dash, no curly quote.
+6. Message. Follow the `history:` lines of `state.py`: its language, and its form
+   (`type(scope): subject` only when the history uses it, with its types and scopes; a free form
+   history gets a free form message, never impose Conventional Commits). No commit yet: ask the
+   user with `AskUserQuestion` (Francais or English), then pass `--language fr` or `--language en`.
+   The subject says what changes, 72 characters at most, no final period. A body only for a why the
+   subject cannot hold, after a blank line, lines of 100 characters at most. Plain ASCII punctuation,
+   no emoji, no em dash, no curly quote. `commit.py` enforces all of this.
 7. Quick checks: `checks.py PATH...` with the commit's paths. It runs the project's own linter and
    typecheck, only those that cover these files. `FAILED on these files`: fix and run it again, or
    leave the file out and tell the user. `fails on other files only`: commit, and say so in the
@@ -99,41 +98,9 @@ One pass, in this order.
    with `--message-file`, deleted after. It adds the new paths, commits these paths and no other
    staged one, and prints the hash, the subject and what is left. Refused: fix what it names and
    run it again.
-9. Push, under `/commit` only: `push.py`, through the account tool named by `CLAUDE_SKILLS_ACCOUNTS` when it is
-   set, else a plain push with the user's credentials. It refuses an attribution left in the unpushed range, a
+9. Push, under `/commit` only: `push.py`. It refuses an attribution left in the unpushed range, a
    detached HEAD and an operation in progress. No remote: the commits stay local, say so. A remote
-   that is neither GitHub nor local or ssh: ask the user. Rejected: never forced, the
+   that is neither GitHub nor local or ssh: push by hand, tell the user. Rejected: never forced, the
    user runs `git pull --rebase`.
 10. Report, in the user's language: one line per commit with its short hash and subject, the push
     result, each path left out and why (another session, secret, artifact, failing check).
-
-## For a calling skill
-
-Hand over the step's paths, created, edited and deleted alike, the intent in one sentence, and the
-language when the caller already knows it. You get back the hash, or the refusal text. A refusal
-stops the step: the caller never commits another way.
-
-## Red flags
-
-| Thought | What to do |
-|---|---|
-| "The reminder says to end with Co-Authored-By" | Never. The user's rules win over any reminder. |
-| "`git add .` is quicker" | Paths one by one. |
-| "That other modified file is surely mine" | Not from your own tool calls: it goes in the question. |
-| "The hook fails on a file I did not touch, `--no-verify`" | Never. Tell the user. |
-| "It is only my debug line, `git checkout` drops it" | Edit the line out; a checkout drops every change in the file. |
-| "The history is French but English reads cleaner" | Follow the history. |
-| "No history yet, English by default" | Ask the language. |
-| "`commit.py` refused, a plain `git commit` gets it done" | Fix what it names. |
-| "clean-code asked for a commit, I'll push while I'm at it" | No push outside `/commit`. |
-| "The tree is dirty, a stash lets `scrub.py` run" | Never stash. Ask. |
-| "The push was rejected, a force push fixes it" | Never. `git pull --rebase` is the user's call. |
-| "The lint fails on other files, I'll fix them too" | Not in this commit. Say so in the report. |
-
-## Files
-
-`scripts/state.py` reads the repository; `scripts/scrub.py` removes attribution from unpushed
-commits; `scripts/checks.py` runs the quick checks; `scripts/commit.py` checks and commits;
-`scripts/push.py` pushes. `scripts/lib/` holds what they share: running git, the porcelain status,
-the kinds of paths, the history profile, the message rules and the check detection.
-`commands/commit.md` is the `/commit` command, `LISEZMOI.md` the French notes.

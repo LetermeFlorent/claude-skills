@@ -47,7 +47,8 @@ These hold for every task, whoever asks.
    `--remote-debugging-port=<your port>` or `--port=<your port + 1000>`. One without it belongs to
    the user or to another session.
 4. Act through native input only (`input.performActions`, `input.setFiles`, WebDriver element
-   calls). JavaScript reads the page, it never clicks, types or scrolls.
+   calls). JavaScript reads the page, it never clicks, types or scrolls: a scripted click skips focus,
+   hover and `isTrusted` checks.
 5. Close with `bidi.py close --port <p>` before the task ends: it ends Chrome, stops chromedriver
    and frees both ports. Then check nothing of yours is left (procedure, step 5).
 6. Before a launch, check free RAM, CPU load and disk activity (the user's instructions, CLAUDE.md). One Chrome
@@ -56,7 +57,7 @@ These hold for every task, whoever asks.
 
 ## Procedure
 
-The steps run in this order.
+Five steps, in this order.
 
 1. Start Chrome. The port is picked between 9300 and 9899 when `--port` is missing; reuse a fixed
    port only to get back a profile that is already signed in.
@@ -182,29 +183,3 @@ Each of these has broken a run before.
 
 Site notes: in a web chat app, an app warning may offer to open the app anyway; take that link, since the
 "open in the browser tab" one can loop. In a ticket app, a `scroll` placed on the conversation panel moves it.
-
-## Red flags
-
-These thoughts mean you are about to break a rule above.
-
-| Thought | Reality |
-|---|---|
-| "The user will want to see it" | Headless, unless the user asked for `--visible`. The headless shot has the same pixels. |
-| "That chrome.exe has no window, it must be a leftover" | Only a command line holding your port is yours. |
-| "A quick `element.click()` in `eval` is simpler" | A script event skips focus, hover and `isTrusted` checks. Native input passes them. |
-| "I'll close it at the very end, after the next task" | `bidi.py close --port <p>` before this task ends. |
-| "Two calls in parallel on the same port will go faster" | One call at a time on a port. |
-| "Reload to see if it changed" | `wait` or `shot`. Reloads restart loaders and replay sign-ins. |
-| "A viewport 2000 high shows everything" | The shot is scaled down. Scroll and shoot, or `fullshot` to archive. |
-| "That port is free, take it" | Its profile may hold the user's own session. Pick another port. |
-| "The old chromedriver in AppData works, point at it" | launch.py keeps the one in `bin/` matched to Chrome; let it. |
-
-## Files
-
-The folder holds four entry scripts and the modules they share.
-
-`scripts/launch.py` starts Chrome and its chromedriver on a port, `scripts/bidi.py` runs every action
-on that port, `scripts/measure_images.py` measures the box of every displayed image and `scripts/visual_test.py`
-shoots a page at several widths and measures its images. `scripts/actions/` holds the actions, `scripts/core/` the session, the processes
-and the binaries, `scripts/window/` the window placement, `bin/` the chromedriver and `tests/` the
-unit tests. `commands/test-visuel.md` is the `/test-visuel` command and `LISEZMOI.md` the French notes.

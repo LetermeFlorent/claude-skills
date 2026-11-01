@@ -1,24 +1,15 @@
 # Root cause tracing
 
-## Overview
-
 A bug often surfaces far from where it starts: a `git init` that runs in the wrong folder, a file
-written to the wrong place, a database opened on the wrong path. Fixing the line that fails treats
-the symptom. Walk the calls backward until you reach the first place the value went wrong, and fix
-it there.
-
-## When to trace
-
-Trace when the error happens deep in the run rather than at the entry point, when the stack trace
-is long, when nobody knows where a bad value came from, or when you need to know which test or
-caller sets it off. When the trail goes cold (a value from outside the process, a callback whose
-caller is gone), fix as close as you can to where that value enters, and add the checks from
-`defense-in-depth.md`.
+written to the wrong place, a database opened on the wrong path. Fixing the line that fails treats the
+symptom. Walk the calls backward until you reach the first place the value went wrong, and fix it there.
+When the trail goes cold (a value from outside the process, a callback whose caller is gone), fix as
+close as you can to where that value enters, and add the checks from `defense-in-depth.md`.
 
 ## The steps
 
-Each step asks one question and answers it with something you saw, never something you assumed.
-The example comes from a real session, in a TypeScript project.
+Each step asks one question and answers it with something you saw, never something you assumed. The
+example comes from a real session, in a TypeScript project.
 
 1. Symptom, the exact error: `git init failed in ~/project/packages/core`.
 2. Immediate cause, the line that does it: `execFileAsync('git', ['init'], { cwd: projectDir })`.
@@ -58,20 +49,9 @@ console.error('DEBUG git init', { directory, cwd: process.cwd(), stack: new Erro
 Write to stderr: test runners often swallow the project's logger, rarely stderr. Log before the
 operation, not after it fails, and include the folder, the working directory and the environment
 variables involved. Run once with the output going to `$SCRATCH`, then filter it:
-`npm test 2>&1 | grep 'DEBUG git init' > "$SCRATCH/trace.log"`. Read the stacks for test file
-names, the line that triggers the call, and what repeats (the same test, the same argument).
+`npm test 2>&1 | grep 'DEBUG git init' > "$SCRATCH/trace.log"`. Read the stacks for test file names, the
+line that triggers the call, and what repeats (the same test, the same argument). These lines are
+temporary and come out by an edit before the fix is committed.
 
-These lines are temporary. They come out by an edit before the fix is committed.
-
-## Finding the test that pollutes
-
-When the bad state appears during the suite and nobody knows which test causes it,
-`scripts/find_polluter.py` finds it (see "Test pollution" in SKILL.md). Without the script, the
-bisection by hand goes like this: run the victim alone, it must pass; run every other file then the
-victim, it must fail; then keep whichever half still makes the victim fail, until one file is left.
-When neither half fails on its own, two files are needed together: report both halves.
-
-## The principle
-
-Never fix only where the error appears. Go up one level at a time until the level above holds good
-data: the boundary you just crossed is the source.
+When the bad state appears during the suite and nobody knows which test causes it, run
+`scripts/find_polluter.py` (see "Test pollution" in SKILL.md).

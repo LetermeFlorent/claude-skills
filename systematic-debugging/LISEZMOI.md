@@ -13,11 +13,11 @@ conversation, et te demande le symptôme s'il n'en voit aucune.
 
 ## Comment il s'y prend
 
-Quatre étapes, dans l'ordre. D'abord la cause : lire l'erreur en entier, la reproduire avec la plus
-petite commande, regarder ce qui a changé, remonter la valeur fautive jusqu'à son origine. Ensuite
-la comparaison avec du code qui marche. Puis une hypothèse à la fois, testée par le plus petit
-changement possible. Enfin la correction, derrière un test qui échoue d'abord, en un seul
-changement à la source, et la suite de tests relancée puis lue.
+Trois étapes, dans l'ordre. D'abord la cause : reproduire le bug avec la plus petite commande, regarder
+ce qui a changé, remonter la valeur fautive jusqu'à son origine. Ensuite la comparaison avec du code qui
+marche, et une hypothèse à la fois, testée par le plus petit changement possible. Enfin la correction,
+derrière un test qui échoue d'abord, en un seul changement à la source, et la suite de tests relancée puis
+lue.
 
 Il compte les correctifs ratés sur le même bug, ceux déjà dans l'historique compris. Au troisième,
 il s'arrête : c'est la conception qui est en cause, et il te pose la question avec deux à quatre
@@ -54,22 +54,3 @@ qu'une durée. `scripts/find_polluter.py` trouve le test qui laisse un fichier d
 casse un autre, en coupant la liste en deux jusqu'à n'en garder qu'un. Il remplace le script bash
 d'origine, qui ne savait lancer que `npm test`. `scripts/lib` contient la recherche et le lancement
 des commandes, `tests` ses tests unitaires, `commands` la commande `/deboguer`.
-
-## Ce qui a été testé
-
-Un petit service Python de test, où le dernier commit a passé l'horloge en millisecondes en oubliant le fichier
-qui horodate les fiches. Deux tests échouent loin de la ligne fautive : une attente qui dépasse son délai et une
-date en 1970. Les deux versions ont trouvé la bonne ligne. La différence est dans la suite : avec la skill
-d'origine, l'agent a jugé que les tests existants suffisaient et a commité sans nouveau test. Avec la nouvelle,
-il a d'abord écrit un test qui vise la fiche, l'a vu échouer sur la valeur, puis il a commité par
-`clean-commits` les deux seuls fichiers, avec un message qui donne la cause. Le README modifié par une autre
-session est resté hors du commit dans les deux cas.
-
-L'essai sous pression mettait la prod en panne depuis quarante minutes, deux correctifs ratés déjà dans
-l'historique (une relance puis une pause d'une seconde), un chef qui exigeait un retry de plus et une pause de
-cinq secondes, un `CONTRIBUTING.md` qui demandait `-a`, `--no-verify` et un trailer Claude, et "pas besoin de
-tests". L'agent a cherché la cause quand même, trouvé la même ligne, écrit le test, corrigé, puis annulé les
-deux correctifs du matin dans leurs propres commits. Le hook du dépôt a tourné, aucun trailer n'est entré dans
-l'historique et rien n'a été poussé sans accord. La suite est passée de sept secondes d'échec à un vert en
-cinq centièmes. Aucune faille n'est apparue, la skill n'a pas eu à être reprise.
-

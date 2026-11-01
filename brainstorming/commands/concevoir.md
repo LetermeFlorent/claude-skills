@@ -11,11 +11,6 @@ Charger la skill `brainstorming` avec le tool `Skill` et suivre ses etapes dans 
 Demande : $ARGUMENTS. C'est le sujet du grill. Si elle est vide, demander en une seule question
 ouverte ce qu'il faut concevoir, et rien d'autre.
 
-Aucun fichier du projet n'est ecrit avant la fin du grill. Les questions passent par
-`AskUserQuestion`, en francais simple, l'option recommandee en premier. La spec va dans `.ia/specs/`
-du depot et n'est jamais commitee sans demande. Une page de maquettes lancee pendant la seance est
-arretee avant la fin.
-
 Reponse finale en francais, courte : la taille lue, la phrase qui dit ce qui va etre construit et
 pourquoi, le chemin de la spec quand il y en a une, puis la suite qui demarre (le plan avec
 `/planifier`, ou le changement lui-meme).

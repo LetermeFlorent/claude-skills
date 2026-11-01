@@ -7,9 +7,6 @@ Never leave a placeholder in the sent text.
 
 ## New agent
 
-The original prompt goes in verbatim: it carries the rules and limits the user gave, and a
-summary loses them.
-
 ````text
 You are taking over a task that another agent started and that was stopped on <date of stop>. Do not start over: finish it.
 

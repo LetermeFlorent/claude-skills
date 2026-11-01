@@ -36,26 +36,7 @@ petites fonctions sans lancer Chrome. Tout est en Python sans rien à installer.
 script compare sa version avec celle de Chrome et télécharge le bon chez Google quand Chrome a été
 mis à jour.
 
-## Ce qui change par rapport à l'ancienne version
+## Ce qui n'a pas été essayé
 
-Chaque action reprend la même page, au même endroit, avec les formulaires déjà remplis : avant,
-chaque appel rouvrait un onglet vide et rechargeait la page, d'où des boucles. Un clic
-sur un élément hors de l'écran fait d'abord défiler la page jusqu'à lui. Les listes déroulantes
-et les champs de formulaire ont leurs actions `select` et `fill`. Une erreur ne sort jamais en
-pavé technique : une ligne qui dit ce qui a raté, une ligne qui dit comment le faire à la main.
-
-## Ce qui a été testé
-
-Sur une page de test locale, en mode invisible : navigation, onglets, lecture, clics, saisie,
-liste déroulante, envoi de fichier, cadre intégré, alertes, captures, PDF, mode téléphone,
-position et fuseau simulés, console, requêtes réseau, cookies, puis la mesure des images et
-`/test-visuel` sur un dossier et sur une adresse. Après chaque fermeture, plus aucun Chrome ni
-pilote du test ne tournait.
-
-Le code est ensuite passé par la nouvelle skill clean-code, sur une copie : 11,5 sur 20 au premier
-audit, 19 après les dix étapes du plan. Les deux points qui restent sont un `2` laissé en dur et
-l'absence de linter. Toutes les actions ont été rejouées dans un vrai Chrome invisible après ces
-changements, et les 24 tests de `tests` passent.
-
-Pas testé : le mode fenêtre et le placement sur un bureau virtuel, faute de module
+Le mode fenêtre et le placement sur un bureau virtuel n'ont pas été essayés, faute de module
 `VirtualDesktop` et parce qu'aucune fenêtre ne devait s'ouvrir chez toi.

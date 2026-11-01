@@ -33,7 +33,8 @@ façons de faire, présente la conception, puis écrit une spec en français dan
 
 Le dossier `.ia/` est ajouté à `.git/info/exclude` : la spec ne part jamais dans un commit, sauf si
 tu le demandes. Un script vérifie la spec : pas de trou laissé pour plus tard, pas de section vide,
-le bon dossier. Un agent sonnet la relit, puis Claude te demande si on passe au plan. La suite
+le bon dossier. Un agent sonnet la relit (sauf pour une spec d'une page qui ne porte qu'une seule pièce),
+puis Claude te demande si on passe au plan. La suite
 revient à la skill writing-plans, `/planifier`.
 
 ## Les maquettes

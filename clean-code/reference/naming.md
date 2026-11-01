@@ -8,13 +8,9 @@ rest: names that lie, synonyms, casing.
 
 ## What a script cannot see
 
-Casing follows the language of each file: camelCase locals in TS, JS, Java and Kotlin, snake_case
-in Python and Rust, PascalCase types everywhere, SCREAMING_CASE constants. A deviation applied
-everywhere in the project is its house convention: note it, leave it.
-
-Single letters live only in loop counters, short lambdas and coordinates. Alone, `data`, `info`,
-`tmp`, `flag`, `value`, `manager` and `helper` say nothing. A collection is plural and a scalar
-singular. One concept has one word: `user`, `account` and `member` for the same row is drift.
+A deviation from the language's casing that is applied everywhere in the project is its house
+convention: note it, leave it. Alone, `data`, `info`, `tmp`, `flag`, `value`, `manager` and `helper`
+say nothing, and one concept has one word (`user`, `account` and `member` for the same row is drift).
 
 The names that pay off most are the ones that lie about type or unit: a tick counter called
 `seconds`, a squared distance called `distance`, an index called `pinned` as if it were a boolean,

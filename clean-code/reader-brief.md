@@ -41,7 +41,6 @@ A finding without a file, a line and a quoted proof is a guess: drop it. Framewo
 
 Finish with this block and nothing after it:
 READER REPORT <n>
-folders: <your folders>
 files read: <count>
 added: <ids, or none>
 per rule: 2 <count>, 5 <count>, 6 <count>, 7 <count>, 8 <count>, 9 <count>, 11 <count>, 16 <count>, 0 <count>

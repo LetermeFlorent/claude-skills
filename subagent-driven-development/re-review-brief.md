@@ -1,9 +1,8 @@
 # Re-review brief
 
 Sent as the prompt of one reviewer agent after each fix round, and once after the final fix wave. Fill every
-`<...>` and send the block as is, with the model in the Agent call: `sonnet`, or `opus` for a task the plan
-marks hard and from fix round 2 on. The findings are copied from the previous review notes as they are
-written, with their ids.
+`<...>` and send the block as is, with the model in the Agent call (rule 6 of `SKILL.md`). The findings are
+copied from the previous review notes as they are written, with their ids.
 
 `````text
 You check one fix round of Task <id>, round <R>. A full review already happened: you verdict each finding
@@ -21,8 +20,7 @@ You are read-only. Never edit a file, never run git add, commit, stash, reset, c
 never touch the index or HEAD. Never start a subagent.
 
 Check that the fix report names the tests that cover the amended code, the command and its output. Do not
-rerun the suite to confirm it; one focused test only for a doubt no run answers, after checking free RAM
-and CPU.
+rerun the suite; one focused test only for a doubt no run answers, after checking free RAM and CPU.
 
 A finding is addressed when the defect it names no longer exists, shown at a file:line. "Attempted" is not
 addressed. Problems the fix itself brought in count, with their severity. An issue in code the fix did not

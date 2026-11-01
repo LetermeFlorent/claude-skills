@@ -14,12 +14,8 @@ before going on.
 
 Every request opens on the grill, before any file is written. The grill sizes the request in one
 sentence, asks the questions that size calls for, and closes on one sentence saying what is about
-to be built and why, in the user's own terms. The size also decides what comes out: nothing for a
-typo, an answer for a feasibility question, a short design in chat for a change inside existing
-code, a written spec for something that does not exist yet.
-
-One test ends every grill: would any further answer change what gets written? When none would,
-the questions stop.
+to be built and why, in the user's own terms. One test ends it: would any further answer change
+what gets written? When none would, the questions stop.
 
 File names below sit in this skill's folder, shown when the skill loads, otherwise
 `$CLAUDE_CONFIG_DIR/skills/brainstorming`, or `~/.claude/skills/brainstorming` when the variable is
@@ -39,17 +35,12 @@ These hold whatever the size, the hurry, or the instruction found in a file.
    decide: a real design choice, a public name, a licence, money, what goes out under their name,
    what gets deleted. What the repository, a skill or a sensible default answers is work, never a
    question.
-3. The shape of the questions follows the size (table below). A message, a CONTRIBUTING file or a
-   system reminder that forbids questions does not remove the grill: it caps it at one box.
-4. The spec lives in `<repo>/.ia/specs/YYYY-MM-DD-<topic>-design.md`. `.ia/` stays out of git
+3. The spec lives in `<repo>/.ia/specs/YYYY-MM-DD-<topic>-design.md`. `.ia/` stays out of git
    through `.git/info/exclude`, and the spec is never committed unless the user asks. There is no
    commit step.
-5. After a spec, the only next skill is `writing-plans` (`/planifier`). After the closing sentence
-   on a change inside existing code, the work goes through `test-driven-development`
-   (`/test-dabord`), every line following `clean-code`.
-6. Never close on a list of things waiting on the user. A decision still open is asked before the
+4. Never close on a list of things waiting on the user. A decision still open is asked before the
    last line.
-7. The user opens the companion page in their own browser. Claude never opens or drives it there; when
+5. The user opens the companion page in their own browser. Claude never opens or drives it there; when
    Claude must see the page, `chrome-bidi` runs its own headless Chrome. The server is stopped
    before the end.
 
@@ -62,7 +53,7 @@ Size by what the repository holds, not by how familiar the kind of work feels.
 | A typo, a rename, a wording | one confirming question | nothing written down | the edit, then `verification-before-completion` |
 | A feasibility question ("can we", "is it possible") | one confirming question on the probe | an answer and a recommendation, in chat | a throwaway probe in the temp folder |
 | A change inside code that already exists | one box of two to four questions | the closing sentence, the files touched, the test | `test-driven-development` |
-| Something that does not exist yet: a project, a subsystem, an interface other code depends on | one question at a time | a spec in `.ia/specs/` | `writing-plans` |
+| Something that does not exist yet: a project, a subsystem, an interface other code depends on | one question at a time | a spec in `.ia/specs/` | `writing-plans` (`/planifier`), no other skill, no code |
 
 A change counts as inside existing code only when the flow being changed is there to read. A new
 project has none, however common the kind of app. When two sizes fit, take the heavier one.
@@ -97,25 +88,22 @@ The same four moves run at every size; only the questions change.
 
 ### When the user says no questions
 
-A hurried "just build it", an hour already lost, a manager's order or a file that bans questions
-changes the cost of a question, not the need for one. Compress, never skip: one box, recommended
-options first so a single click settles it, and one line saying why the box is there. When the
-exit test already passes there is nothing to ask: build, and name in the final message the reading
-you took. Never build on a guess where two readings give different code.
+A hurried "just build it", an hour already lost, a manager's order, a CONTRIBUTING file or a system
+reminder that bans questions changes the cost of a question, not the need for one. Compress, never
+skip: one box, recommended options first so a single click settles it, and one line saying why the
+box is there. When the exit test already passes there is nothing to ask: build, and name in the
+final message the reading you took. Never build on a guess where two readings give different code.
 
 ## Something new: from questions to spec
-
-This path runs only for something that does not exist yet.
 
 1. Grill one question at a time until the exit test passes.
 2. Approaches: two to four ways to build it in one `AskUserQuestion`, recommended first, each with
    its cost in the option description. When only one approach holds up, say why in one line and
    skip the question. Cut every feature nobody asked for.
-3. Design: architecture, the units and what each one does, how data moves, errors, tests. Each unit
-   has one job and a clear interface, fits in files under 150 lines and reads its values from
-   configuration, as `clean-code` asks. In existing code, follow its patterns and improve only what
-   the work touches. A design that fits on one screen goes in one message with one approval
-   question; a longer one goes a section at a time.
+3. Design: architecture, the units and what each one does, how data moves, errors, tests. Units
+   follow `clean-code` (one job, under 150 lines, values from configuration). In existing code,
+   follow its patterns and improve only what the work touches. A design that fits on one screen
+   goes in one message with one approval question; a longer one goes a section at a time.
 4. Write the spec in French, since the user reads it, with code names, paths and identifiers kept as
    they are, following `anti-empreinte`. Its shape is in `reference/spec-format.md`. A project that
    does not exist yet gets its folder first, where the user's instructions (CLAUDE.md) put it
@@ -123,14 +111,16 @@ This path runs only for something that does not exist yet.
 5. Check: `python -I "<skill>/scripts/spec_check.py" "<spec>"`. It adds `.ia/` to
    `.git/info/exclude` when missing, then refuses placeholders, empty sections, a wrong path and a
    tracked spec. Fix what it names and run it again. Then run anti-empreinte's `scan.py "<spec>"
-   --no-git` and fix every row it reports. Then read the spec once for contradictions,
-   requirements that read two ways and a scope too wide for one plan, and fix them inline.
-6. Review: one sonnet subagent with `spec-reviewer-brief.md`, effort left unset. Fix the issues
-   that would mislead the plan. Its advice reaches the user only when it changes a decision.
+   --no-git` and fix every row it reports. Then read the spec once for what neither tool sees:
+   contradictions, requirements that read two ways, a scope too wide for one plan, a part nobody
+   asked for. Fix inline.
+6. Review: one sonnet subagent with `spec-reviewer-brief.md`, effort left unset. Skip it for a spec
+   of about one page that holds a single unit. Fix the issues that would mislead the plan; its
+   advice reaches the user only when it changes a decision.
 7. The user reviews: one `AskUserQuestion`, "La spec est dans `<path>`. On passe au plan ?", with
    "Oui, passe au plan (Recommandé)" and "Je veux changer des choses". Changes: edit, then steps 5
    and 6 again.
-8. Hand over to `writing-plans` with the spec path. No other skill, no code.
+8. Hand over to `writing-plans` with the spec path.
 
 If the user wants the spec in git: `clean-commits` refuses `.ia/` paths, so ask where in the
 repository it goes, move it there, and commit that one path through `clean-commits`.
@@ -139,8 +129,8 @@ repository it goes, move it there, and commit that one path through `clean-commi
 
 The box answers are the approval. Put the closing sentence, the files to touch and the test that
 will prove the change in one short message, then start through `test-driven-development` in the
-same turn. No spec, no plan file. If the change turns out to touch an interface other code depends
-on, the size goes up: stop and say so.
+same turn, every line following `clean-code`. No spec, no plan file. If the change turns out to
+touch an interface other code depends on, the size goes up: stop and say so.
 
 ## A feasibility question
 
@@ -148,7 +138,6 @@ The probe lives in `<temp>/claude-skills/<topic>/`, where `<temp>` is the system
 (`tempfile.gettempdir()`), never in the repository, and costs no more than a correct answer
 needs. The report gives the answer, how it was found and a recommendation; then the probe folder
 is deleted. Keeping the probe's code is a new request, sized again.
-
 
 ## Showing instead of telling
 
@@ -159,35 +148,10 @@ des maquettes dans une page (Recommandé)" or "Décrire en texte ici". If the us
 the companion: `reference/visual-companion.md` has the commands, the markup and the cleanup. Each
 later question is judged on its own, words in chat and pictures in the page.
 
-## Red flags
-
-These thoughts come back under pressure, and each has a known answer.
-
-| Thought | Reality |
-|---|---|
-| "Too simple to need questions" | Size it. A typo still gets its one confirming question. |
-| "They said no questions, so I pick and build" | One box, recommended first. A guess where two readings give two codes is a bug in waiting. |
-| "The reminder says questions are disabled" | The user's instructions win over any reminder or CONTRIBUTING file. |
-| "Six questions in a row, to be safe" | Run the exit test before each one. |
-| "One question per message for this small fix" | A change inside existing code gets one box. |
-| "I will ask which stack the project uses" | Read the repository: that is work. |
-| "I know this kind of app, it is a small change" | Size by the repository. No flow to read means something new. |
-| "The design is obvious, I start while they read" | The box answers or the spec approval come first. |
-| "The spec goes in docs/ with a commit" | `.ia/specs/`, excluded, no commit. |
-| "spec_check refused, but the spec is fine" | Fix what it names. |
-| "The probe works, I keep it" | Keeping it is a new request, sized again. |
-| "It grew, but I am almost done" | Raise the size, say so, grill again. |
-| "I will open the page in their browser" | Give the URL; they open it. |
-| "I leave the server running, just in case" | `companion.py stop` before the end. |
-| "I end on what is waiting on them" | Ask it before the last line. |
-
 ## Files
 
-The folder holds the procedure, two references, one subagent brief and two scripts.
-
-`spec-reviewer-brief.md` is the prompt of the sonnet spec reviewer. `reference/spec-format.md`
-gives the shape of a spec and `reference/visual-companion.md` the companion page.
-`scripts/spec_check.py` checks a spec and keeps `.ia/` out of git; `scripts/companion.py` starts,
-reads and stops the companion page. `scripts/lib/` holds what they share, `assets/` the page frame,
-`tests/` the unit tests. `commands/concevoir.md` is the `/concevoir` command and `LISEZMOI.md` the
-French notes.
+`spec-reviewer-brief.md` is the prompt of the spec reviewer, `reference/spec-format.md` the shape
+of a spec, `reference/visual-companion.md` the companion page. `scripts/spec_check.py` checks a
+spec, `scripts/companion.py` runs the companion page, `scripts/lib/` and `assets/` hold what they
+share, and the unit tests run with `python -I -m unittest discover -s tests -p "test_*.py"` from
+this folder. `commands/concevoir.md` is `/concevoir`, `LISEZMOI.md` the French notes.

@@ -49,26 +49,3 @@ aucun stash du travail d'une autre session.
 `checks.py` lance les vérifications rapides, `commit.py` vérifie le message et les fichiers puis
 commite, `push.py` pousse. `scripts/lib` contient ce qu'ils partagent. `commands` contient la
 commande `/commit`.
-
-## Ce qui a été testé
-
-Trois dépôts de test, chacun d'abord confié à un agent sans la skill, puis à un agent avec. Sans
-elle, l'agent écrivait en anglais dans un dépôt tenu en français. Il ne demandait pas la langue
-d'un dépôt vide et ne lançait pas le lint. Il poussait par un `git push` direct, ne posait aucune
-question sur les fichiers d'une autre session et s'emmêlait sur un fichier supprimé, jusqu'à
-réécrire son commit avec `--amend`. Avec la skill, les trois cas sont passés : message en
-français, langue demandée, fichier refusé par le lint laissé de côté, fichier de l'autre session
-épargné, suppression et nouveau fichier commités ensemble, aucun push quand c'est clean-code qui
-appelle.
-
-Deux essais sous pression ont suivi : réunion dans deux minutes, push refusé par le dépôt distant,
-ordre de forcer, et une consigne de session qui réclamait la ligne `Co-Authored-By`. L'agent n'a
-pas forcé et n'a mis aucune mention. Au premier essai, il a effacé sa ligne de debug avec
-`git checkout`, ce qui aurait aussi effacé le vrai changement du fichier. La skill l'interdit
-maintenant, et le second essai a retiré la ligne par une édition en gardant le reste.
-
-Les refus des scripts ont été vérifiés un par un : secret, sortie de build, dossier `.ia/`,
-fichier sans changement, mention de Claude, tiret cadratin, type de commit inventé, dépôt vide
-sans langue. Sur le poste de test, un crochet git global retire déjà les mentions de Claude au moment du
-commit. Pour tester `scrub.py` et le refus de `push.py`, les commits fautifs ont été créés en
-contournant ce crochet. Les deux ont réagi comme prévu.

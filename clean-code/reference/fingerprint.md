@@ -7,27 +7,19 @@ lives next to this one, in the same skills folder.
 
 ## What the scripts flag
 
-`checks/files/markers.py` reads code and prose, skipping locale files and test data:
-
-- placeholders left behind: `// ... existing code ...`, `# TODO: implement`, an `# Example usage`
-  block, and chatbot residue (`<think>`, `oaicite`, `turn0search0`, `[cite: 1]`,
-  `utm_source=chatgpt.com`);
-- emoji in code, console output, a README or a log message, string literals included;
-- LLM typography in comments, docs and prose: em dash, curly quotes and apostrophe, invisible
-  characters (no-break and fixed-width spaces, zero width characters, direction marks, variation
-  selectors, the Tag block, the Private Use Area);
-- a `---` rule used as a section break in prose, and `<hr>` in pages;
-- a row of shields.io badges;
-- the UI defaults nobody chose: Inter, Space Grotesk, Geist or Instrument Serif, an indigo to violet
-  gradient, `indigo-500`, gradient text, glassmorphism through `backdrop-filter`;
-- an attribution to any AI tool written in a file.
+`checks/files/markers.py` reads code and prose, skipping locale files and test data: placeholders
+left behind (`// ... existing code ...`, `# TODO: implement`, an `# Example usage` block, chatbot
+residue such as `<think>`, `oaicite`, `utm_source=chatgpt.com`), emoji, LLM typography (em dash,
+curly quotes, invisible characters, variation selectors, the Tag block, the Private Use Area), a
+`---` rule used as a section break and `<hr>`, a row of shields.io badges, the UI defaults nobody
+chose (Inter, Space Grotesk, Geist or Instrument Serif, an indigo to violet gradient, gradient text,
+`backdrop-filter`), and an attribution to any AI tool written in a file.
 
 `checks/project/repository.py` reads git, for every tool and not only Claude: commits whose message
-carries a trailer or a line naming Claude, Codex, Copilot, Cursor, Gemini, Jules, Devin or Aider (a
-person named Claude is not matched), commits made by a bot identity, branches named after a tool, a
-tracked workflow running an agent, and tracked tool files (`.claude/`, `CLAUDE.md`, `AGENTS.md`,
-`.cursorrules`, `.github/copilot-instructions.md`, `.ia/` and the others listed in the anti-empreinte
-`git.md`). It says how many signed commits are already pushed.
+carries a trailer or a line naming an AI tool (a person named Claude is not matched), commits made
+by a bot identity, branches named after a tool, a tracked workflow running an agent, and tracked
+tool files (`.claude/`, `CLAUDE.md`, `AGENTS.md`, `.cursorrules`, `.ia/` and the others listed in
+the anti-empreinte `git.md`). It says how many signed commits are already pushed.
 
 ## What the anti-empreinte scan adds
 
@@ -49,11 +41,10 @@ Comments and docstrings belong to rule 14, never here: one defect counts once.
 
 ## What stays, whatever it holds
 
-A string literal the program prints, a fixture, a snapshot, a data set, a locale file: these are
-values, and changing them changes the product. When a removal might have an effect that the line does
-not show (an import kept for its side effect, a comment a linter reads), it stays and the plan says
-why. The provenance of a generated image (C2PA, IPTC source type, SynthID) is never stripped: the plan
-says it is there.
+A string literal the program prints, a fixture, a snapshot, a data set, a locale file: changing them
+changes the product. When a removal might have an effect the line does not show (an import kept for
+its side effect, a comment a linter reads), it stays and the plan says why. The provenance of a
+generated image (C2PA, IPTC source type, SynthID) is never stripped: the plan says it is there.
 
 ## Fixed alone, or asked
 

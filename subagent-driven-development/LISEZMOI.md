@@ -21,8 +21,8 @@ tours au plus. Quand la relecture est propre, Claude commite la tâche par clean
 fichiers et rien d'autre. Un fichier qu'une autre session avait déjà modifié n'entre jamais dans un
 commit sans question.
 
-Les sous-agents tournent sur sonnet. Opus ne sert que pour une tâche que le plan marque difficile,
-ou quand une tâche a déjà raté deux relectures. Un seul sous-agent écrit à la fois dans le dossier
+Les sous-agents tournent sur sonnet. Opus ne sert que pour une tâche que le plan marque difficile
+(une ligne `Difficulty: hard`, ou le mot `hard` dans son titre), ou quand une tâche a déjà raté deux relectures. Un seul sous-agent écrit à la fois dans le dossier
 du dépôt : deux tâches en même temps demandent deux worktrees séparés.
 
 Claude ne s'arrête pas entre les tâches. Il tranche lui-même ce que le plan laisse ouvert et note

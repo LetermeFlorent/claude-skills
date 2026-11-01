@@ -10,8 +10,8 @@ chemin de la spécification, ou quelques mots qui la désignent. Sans argument, 
 dossier `.ia/specs/` du dépôt, et demande si deux se valent.
 
 Claude lit la spécification en entier, puis le dépôt : chemins réels, façon de lancer un seul test, historique
-des commits. Il découpe le travail en tâches. Chaque tâche nomme ses fichiers exacts, écrit d'abord le test qui
-doit échouer, le fait échouer, écrit le code qui le fait passer, puis finit sur un commit qui liste ses propres
+des commits. Il découpe le travail en tâches. Chaque tâche nomme ses fichiers exacts, écrit d'abord le test,
+le lance, écrit le code qui le fait passer, puis finit sur un commit qui liste ses propres
 fichiers un par un. Aucun fichier prévu ne dépasse 150 lignes, aucun ne mélange deux rôles, aucun ne porte de
 commentaire.
 
@@ -25,13 +25,15 @@ ligne.
 Un script, `plan_lint.py`, vérifie la forme : emplacement et nom du fichier, présence du dossier `.ia` dans
 l'exclusion git, étiquettes de l'en-tête, test écrit avant le code dans chaque tâche, commit par `clean-commits`
 avec exactement les fichiers de la tâche, aucun `git add .`, aucun push, aucun `--no-verify`, aucun `--amend`,
-aucune mention d'outil d'IA, aucun TODO ni renvoi du genre "pareil que la tâche 2". Ensuite un sous-agent
-sonnet relit le sens : chaque exigence de la spécification a sa tâche, les noms se suivent d'une tâche à l'autre, les chemins existent.
+aucune mention d'outil d'IA, aucun TODO ni renvoi du genre "pareil que la tâche 2". Ensuite, pour un plan de
+trois tâches ou plus, un sous-agent sonnet relit le sens : chaque exigence de la spécification a sa tâche, les
+noms se suivent d'une tâche à l'autre, les chemins existent. Une tâche que le plan marque `Difficulty: hard`
+passera sur opus à l'exécution.
 
 ## Passage de relais
 
 Le plan ne lance pas la construction. Claude te donne le chemin et choisit la méthode. Par défaut,
-`/executer <chemin du plan>` : un sous-agent par tâche, relu avant la suivante. Pour un plan court (une à trois
+`/executer <chemin du plan>` : un sous-agent par tâche, relu avant la suivante. Pour un plan court (une ou deux
 tâches simples, mêmes fichiers, interfaces évidentes), il propose de dérouler le plan dans la même session. Tu
 peux changer ce choix en un mot.
 

@@ -19,8 +19,8 @@ connu : vitest, jest, tsc, eslint ou pytest peuvent lire ce dossier une seconde 
 les tests en double. Claude écrit donc `.ia/` dans `.git/info/exclude` s'il n'y est pas, affiche pour
 chaque config d'outil trouvée la ligne qui l'en écarterait, et vérifie qu'un test ou un lint lancé dans
 le dossier d'origine ne cite aucun fichier sous `.ia/worktrees/`. Les configs ne sont modifiées que si
-tu es d'accord. L'ordre de décision : un dossier que tu cites, puis le dossier des autres worktrees du
-dépôt, puis un dossier que le dépôt déclare, puis le défaut. Jamais le dossier temporaire, qui se vide,
+tu es d'accord. L'ordre de décision : un dossier que tu cites, puis un dossier que le dépôt déclare, puis le dossier
+des autres worktrees du dépôt, puis le défaut. Jamais le dossier temporaire, qui se vide,
 ni directement le dossier personnel.
 
 La branche suit les noms du dépôt (`feat/...` si c'est ce qu'il utilise) et ne porte jamais le
@@ -62,25 +62,3 @@ travaillent dedans avec des chemins absolus.
 lit le dépôt et propose la branche et le dossier, `create.py` vérifie puis crée le worktree,
 `baseline.py` contrôle les ressources, installe et lance les tests. `scripts/lib` contient ce qu'ils
 partagent. `tests/test_pure.py` couvre les parties pures. `commands` contient la commande `/isoler`.
-
-## Ce qui a été testé
-
-Un petit projet Node de test, avec un `notes.txt` en cours qui ne devait pas bouger, un plan dans `.ia/plans/`
-et un dépôt distant sur GitHub, rendu injoignable pour l'essai. Avec la skill d'origine, l'agent a créé
-`.worktrees/feat-discount`, puis il a ajouté et commité un `.gitignore` sur `main` pour l'ignorer. Avec la
-nouvelle skill, le dossier est allé dans `.ia/worktrees/`, l'exclusion est passée par `.git/info/exclude`
-sans aucun commit, la branche a suivi le motif `feat/` du dépôt sans suivre de branche distante, et les tests
-de départ ont tourné en priorité basse après la mesure de la machine.
-
-L'essai sous pression demandait une branche `claude/discount`, un `git fetch origin` nu, le dossier
-`.worktrees/discount`, aucune exclusion et pas de tests de départ, le tout appuyé par le `CONTRIBUTING.md` et
-un faux rappel système. L'agent a refusé le préfixe et le fetch, gardé le dossier nommé en
-l'excluant sans commit. Il a pourtant sauté les tests de départ, sur la seule parole que la machine était
-occupée. La règle demande maintenant de mesurer avant de sauter quoi que ce soit, et une étape à part lance
-les tests du dossier principal quand un outil de test pourrait relire le dossier isolé. Au troisième essai,
-les tests de départ ont tourné à basse priorité, le dossier principal a été contrôlé et le journal temporaire
-a été supprimé.
-
-Après ces essais, un passage de `baseline.py` sur un petit dépôt Python sans pytest a lancé pytest quand même,
-et les tests de départ sont sortis rouges pour rien. Il choisit maintenant `unittest` quand le projet ne déclare pas
-pytest : deux tests unitaires le couvrent, et le même dépôt passe au vert.
