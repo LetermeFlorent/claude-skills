@@ -50,8 +50,8 @@ def _check_order(label, body, files):
     titles = _step_titles(steps)
     problems = []
     if not NO_TEST.search(body):
-        if "test" not in titles[0] or len(titles) < 2 or "fail" not in titles[1]:
-            problems.append(f"{label}: step 1 writes the failing test and step 2 runs it to see it fail")
+        if "test" not in titles[0] or len(titles) < 2 or "run" not in titles[1]:
+            problems.append(f"{label}: step 1 writes the test and step 2 runs it")
         if not any(kind == "Test" for kind, _, _ in files):
             problems.append(f"{label}: no 'Test:' file and no 'No test:' reason")
     if "commit" not in titles[-1]:

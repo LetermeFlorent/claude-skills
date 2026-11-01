@@ -34,14 +34,14 @@ Files:
 - Create: `src/total.py` (about 40 lines)
 - Test: `tests/test_total.py`
 
-- [ ] Step 1: Write the failing test
+- [ ] Step 1: Write the test
 
 ```python
 def test_total():
     assert total([]) == 0
 ```
 
-- [ ] Step 2: Run the test and watch it fail
+- [ ] Step 2: Run the test
 
 Run: `python -m unittest tests.test_total`
 Expected: FAIL
@@ -96,8 +96,8 @@ class RulesTest(unittest.TestCase):
         self.assertTrue(any("limit" in item for item in problems(TASK.replace("40 lines", "400 lines"))))
 
     def test_test_first(self):
-        swapped = TASK.replace("Write the failing test", "Write the code").replace("Write the code\n\n```", "x\n\n```")
-        self.assertTrue(any("failing test" in item for item in problems(swapped)))
+        swapped = TASK.replace("Write the test", "Write the code").replace("Write the code\n\n```", "x\n\n```")
+        self.assertTrue(any("writes the test" in item for item in problems(swapped)))
 
     def test_no_test_needs_a_reason(self):
         bare = TASK.replace("- Test: `tests/test_total.py`\n", "").replace(", `tests/test_total.py`", "")

@@ -1,8 +1,9 @@
 # Plan reviewer brief
 
-Sent as the prompt of one reviewer after the plan passes `plan_lint.py`. Agent tool, `subagent_type`
-general-purpose, `model` sonnet, no effort setting. Fill every `<...>` and send the block as is. The reviewer
-reads and reports; it edits nothing and runs no build, no test suite and no git command that writes.
+Sent as the prompt of one reviewer after the plan passes `plan_lint.py`, for a plan of three tasks or more.
+Agent tool, `subagent_type` general-purpose, `model` sonnet, no effort setting. Fill every `<...>` and send the
+block as is. The reviewer reads and reports; it edits nothing and runs no build, no test suite and no git
+command that writes.
 
 `````text
 You review an implementation plan before anyone builds from it. You edit no file.
@@ -19,13 +20,12 @@ Check these five things, in this order.
 2. Buildability. For each task, could an engineer who sees only that task finish it? Every Modify path exists
    in the repository, every name a task consumes is defined by an earlier task with the same spelling and
    signature, every code step holds the code, every command is targeted and runs one worker.
-3. Test first. Each task writes its failing test, sees it fail, then writes the code. A task that skips this
+3. Test first. Each task writes its test and runs it before it writes the code. A task that skips this
    carries a "No test:" reason that holds up. Review focus lines each have a test in the owning task.
 4. Clean-code limits. No planned file over 150 lines or doing two jobs, no comment in the planned code, English
    identifiers, no hardcoded value that belongs in configuration, no dead code left behind.
-5. Commits and files. Every task ends on a commit through clean-commits with the exact paths of that task. No
-   step stages a whole tree, pushes, skips hooks, amends or adds a tool attribution. The plan stays in
-   .ia/plans/ and no step commits .ia/.
+5. Commits. Every task ends on a commit through clean-commits with the exact paths of that task, and no step
+   commits .ia/.
 
 Calibration. Report only what would make an implementer build the wrong thing, get stuck or break a rule above.
 Wording, taste and nice-to-haves are not issues. Approve unless there is a real gap.

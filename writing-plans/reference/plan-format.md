@@ -48,14 +48,14 @@ Files:
 Consumes: <what earlier tasks give this one, exact signatures>
 Produces: <names, parameter and return types that later tasks rely on>
 
-- [ ] Step 1: Write the failing test
+- [ ] Step 1: Write the test
 
 <complete test code in a fenced block>
 
-- [ ] Step 2: Run the test and watch it fail
+- [ ] Step 2: Run the test
 
 Run: `<one targeted command, one worker>`
-Expected: FAIL with "<the message>"
+Expected: <what it prints now: FAIL with "<the message>" for new behavior, PASS for a guard on existing behavior>
 
 - [ ] Step 3: Write the smallest code that passes
 
@@ -81,6 +81,9 @@ Rules the linter applies to this shape:
   before `Files:` and drops steps 1 to 4 for a single step that runs the check that proves the change, still
   followed by the commit step.
 - The last step of every task is the commit.
+- A task whose reasoning is hard (a tricky algorithm, a delicate migration) carries a `Difficulty: hard` line
+  before `Files:`. `subagent-driven-development` then runs it, and its reviews, on opus; every other task
+  runs on sonnet.
 
 ## What is never in a plan
 
@@ -91,4 +94,5 @@ A plan that holds one of these is refused, because the executor would have to in
 - "Similar to Task N": repeat the code, the executor may read tasks out of order.
 - A step that says what to do without showing how, where code is involved.
 - A name used in a later task that no earlier task defines, or spelled differently from where it was defined.
-- A command that stages a whole tree, pushes, pulls, fetches, skips hooks or rewrites a commit.
+- A command that stages a whole tree, pushes, pulls, fetches, skips hooks or rewrites a commit (rule 4 of
+  `SKILL.md`).
