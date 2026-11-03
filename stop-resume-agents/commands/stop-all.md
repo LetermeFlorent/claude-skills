@@ -1,11 +1,11 @@
 ---
-description: Arrete tout, sous-agents compris, et ecrit .ia/resume.md avec le compte rendu de chacun.
-argument-hint: "[raison] [delai d'attente en minutes]"
+description: Stop everything, subagents included, and write .ia/resume.md with each one's report.
+argument-hint: "[reason] [wait delay in minutes]"
 allowed-tools: Read,Write,Edit,Bash,Skill,ToolSearch,ListAgents,SendMessage,TaskStop,ScheduleWakeup,CronList,CronDelete,AskUserQuestion
 ---
 
-Arguments : $ARGUMENTS. Un nombre seul est le delai d'attente en minutes (5 par defaut), le reste est la raison.
+Arguments: $ARGUMENTS. A lone number is the wait delay in minutes (5 by default), the rest is the reason.
 
-Charger la skill `stop-resume-agents` avec le tool `Skill` et appliquer sa partie /stop-all.
+Load the `stop-resume-agents` skill with the `Skill` tool and apply its /stop-all part.
 
-Reponse finale en trois ou quatre lignes en francais, puis attendre.
+Final answer in three or four lines in the user's language, then wait.

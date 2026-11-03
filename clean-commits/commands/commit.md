@@ -1,7 +1,7 @@
 ---
-description: Commite proprement les fichiers de cette session, un commit par intention, puis pousse la branche.
-argument-hint: "[fichiers, dossier ou intention a commiter]"
+description: Commit this session's files cleanly, one commit per intent, then push the branch.
+argument-hint: "[files, folder or intent to commit]"
 allowed-tools: Read,Write,Bash,Grep,Glob,Skill,AskUserQuestion
 ---
 
-Charger la skill `clean-commits` et suivre sa procedure en mode `/commit`. Precision : $ARGUMENTS. Si elle n'est pas vide, elle restreint les fichiers ou oriente le message, sans jamais ajouter un fichier d'une autre session sans poser la question. Reponse finale en francais, courte : chaque commit (hash, titre), le push, les fichiers laisses de cote et pourquoi.
+Load the `clean-commits` skill and follow its procedure in `/commit` mode. Details: $ARGUMENTS. When not empty, they narrow the files or steer the message, never adding a file from another session without asking. Short final answer in the user's language: each commit (hash, title), the push, the files left out and why.
