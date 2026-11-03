@@ -63,13 +63,11 @@ def check(files, root, config):
             findings.append({"rule": TOOLING_RULE, "file": str(folder), "line": 0,
                              "what": "no lint or formatter configured",
                              "proof": "no lint config file, no lint entry in the manifest"})
-    tests = sum(item["test"] for item in code)
-    if code and not tests:
+    if code and not any(item["test"] for item in code):
         findings.append({"rule": TEST_RULE, "file": ".", "line": 0, "what": "no test file at all",
                          "proof": "0 test files"})
     readers = config["readers"]
     scope_depth = min(len(PurePosixPath(item["rel"]).parts) for item in code) - 1 if code else 0
-    stats = {"code_files": len(code), "test_files": tests, "over_lines": sum(f["rule"] == 1 for f in findings),
-             "languages": dict(Counter(item["path"].suffix.lower() for item in code).most_common()),
+    stats = {"code_files": len(code),
              "readers": _batches(code, scope_depth, readers) if len(code) > config["reader_threshold"] else []}
     return findings, stats

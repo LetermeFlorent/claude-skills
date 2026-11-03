@@ -98,4 +98,4 @@ def check(files, root, config):
                              "what": f"{len(named)} French translation keys: " + ", ".join(named[:SHOWN]),
                              "proof": "words.py segment match"})
     findings += _outside(files) if locales else []
-    return findings, {"has_locales": bool(locales), "locale_files": len(locales)}
+    return findings, {}

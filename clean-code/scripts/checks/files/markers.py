@@ -78,11 +78,10 @@ def _attribution(item):
 
 
 def check(files, root, config):
-    findings, carrying, scanned = [], 0, 0
+    findings = []
     for item in files:
         if item["locale"] or item["data"] or not (item["code"] or item["prose"]):
             continue
-        scanned += 1
         kinds = _code(item) if item["code"] else _prose(item["lines"])
         signed = _attribution(item)
         if signed:
@@ -90,9 +89,8 @@ def check(files, root, config):
                              "what": "AI tool attribution", "proof": "lines " + compact(signed)})
         if not kinds:
             continue
-        carrying += 1
         first = min(min(lines) for lines in kinds.values())
         what = ", ".join(f"{kind} {compact(lines)}" for kind, lines in sorted(kinds.items()))
         findings.append({"rule": RULE, "file": item["rel"], "line": first,
                          "what": f"{sum(map(len, kinds.values()))} AI markers", "proof": what})
-    return findings, {"marker_files": carrying, "marker_scanned": scanned}
+    return findings, {}

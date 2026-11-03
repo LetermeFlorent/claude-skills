@@ -1,30 +1,21 @@
 # Shape of plan.md
 
-plan.md is written in French, for the user to read before the dose question and for
-`scripts/plan_check.py` to parse. It lives in the run folder, `.ia/clean-code/<run>/plan.md`, and
-never anywhere else in the project. Keep the first line, every `## Etape <n> : ...` heading, the
-`## Laisse tel quel` heading and the field names exactly as below. The checker refuses any `<...>`
-of this template left in the file.
+Written in French at `<run>/plan.md`, parsed by `scripts/plan_check.py`. Keep the first line, the
+`## Etape <n> : ...` and `## Laisse tel quel` headings and the field names exactly. The checker
+refuses any `<...>` left in the file.
 
-Every confirmed finding id appears exactly once: on the `Constats :` line of one step, or under
-`## Laisse tel quel` with its reason. Refuted ids appear nowhere. A finding's phase comes from its
-rule, through the Apply table of SKILL.md (a secret is phase 6). A step holds findings of a single
-phase, and steps follow the phase order, so the checker refuses a phase 3 step placed after a
-phase 4 one.
+Every confirmed id appears once: on the `Constats :` line of one step, or under `## Laisse tel
+quel` with its reason. Refuted ids appear nowhere. A step holds findings of a single phase (the
+Apply table of SKILL.md, a secret is phase 6) and steps follow phase order.
 
-`Sure : oui` means the step cannot change what the program does: a comment removed, a typo or an
-emoji gone from prose, an unused import that has no side effect, a constant named without moving
-its value. Anything that renames, moves, splits, deletes a file or touches error handling is
-`Sure : non`. The answer "les sures seulement" to the dose question applies the `oui` steps only.
+`Sure : oui` only when the step cannot change behaviour: a comment removed, a typo or emoji in
+prose, an unused import without side effect, a constant named without moving its value. Renames,
+moves, splits, deletions and error handling are `Sure : non`.
 
-`Fichiers :` lists every path the step writes, separated by commas, so the commit stages those and
-nothing else: created, edited and deleted paths alike, a moved file under both names. `.ia/`,
-`.claude/` and `CLAUDE.md` never appear there.
-
-With no test suite at all, `Suite :` reads `aucune` and each `Verification :` names a command
-that runs the changed code, a script with its usual arguments or a headless chrome-bidi check,
-with the output it must give. A split that would push a folder past its file limit moves the
-group into a new subfolder.
+`Fichiers :` lists every path the step writes (created, edited, deleted, a moved file under both
+names), never `.ia/`, `.claude/` or `CLAUDE.md`. With no test suite, `Suite :` reads `aucune` and
+each `Verification :` names a command that runs the changed code, with the output it must give. A
+split that would push a folder past its file limit moves the group into a new subfolder.
 
 `````markdown
 <!-- clean-code plan v1 -->
@@ -45,7 +36,7 @@ Commit : <message de commit, sans attribution>
 
 ## Laisse tel quel
 
-- <id> : <raison pour laquelle on n'y touche pas>
+- <id> : <raison>
 `````
 
-A plan with nothing left as is keeps the heading and writes `aucun` under it.
+Nothing left as is: keep the heading and write `aucun` under it.

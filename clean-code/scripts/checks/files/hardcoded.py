@@ -70,7 +70,7 @@ def _scan(item):
 
 
 def check(files, root, config):
-    findings, carrying, counted = [], 0, 0
+    findings, counted = [], 0
     for item in files:
         if not item["code"] or item["test"] or item["data"] or item["path"].suffix.lower() in SKIPPED:
             continue
@@ -78,10 +78,9 @@ def check(files, root, config):
         kinds = _scan(item)
         if not kinds:
             continue
-        carrying += 1
         total = sum(map(len, kinds.values()))
         first = min(min(numbers) for numbers in kinds.values())
         proof = "; ".join(f"{kind} {compact(numbers)}" for kind, numbers in sorted(kinds.items()))
         findings.append({"rule": RULE, "file": item["rel"], "line": first, "what": f"{total} hardcoded values",
                          "proof": proof})
-    return findings, {"files_with_hardcoded": carrying, "valued_files": counted}
+    return findings, {"valued_files": counted}

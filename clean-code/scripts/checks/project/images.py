@@ -90,9 +90,8 @@ def _tag_problems(suffix, refs):
 def check(files, root, config):
     images = [item for item in files if item.get("image") and not item["data"]]
     refs, live = _references(files, {item["path"].name for item in images}), _boxes(config)
-    findings, weight = [], 0
+    findings = []
     for item in images:
-        weight += item["path"].stat().st_size
         name, natural = item["path"].name, dimensions(item["path"])
         if not refs[name] and not live.get(name):
             if not EXEMPT.search(item["rel"]):
@@ -105,4 +104,4 @@ def check(files, root, config):
             where = ", ".join(ref["at"] for ref in refs[name][:SHOWN]) or "the measured page"
             findings.append({"rule": IMAGE_RULE, "file": item["rel"], "line": 0, "what": "; ".join(problems),
                              "proof": f"{natural[0]}x{natural[1]} px, used at {where}" if natural else where})
-    return findings, {"images": len(images), "image_kb": weight // KILO, "live_boxes": bool(live)}
+    return findings, {}

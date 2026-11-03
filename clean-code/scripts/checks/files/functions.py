@@ -91,14 +91,13 @@ def _python(codes, lines):
 
 
 def check(files, root, config):
-    findings, measured = [], 0
+    findings = []
     limits = {"lines": config["max_function_lines"], "params": config["max_params"], "nesting": config["max_nesting"]}
 
     for item in files:
         suffix = item["path"].suffix.lower()
         if not item["code"] or item["data"] or (suffix != PYTHON_SUFFIX and suffix not in BRACE_SUFFIXES):
             continue
-        measured += 1
         codes = [row["code"] for row in item["rows"]]
         found = _python(codes, item["lines"]) if suffix == PYTHON_SUFFIX else _braced(codes)
         for name, line, *sizes in found:
@@ -106,4 +105,4 @@ def check(files, root, config):
             if over:
                 findings.append({"rule": RULE, "file": item["rel"], "line": line,
                                  "what": f"function {name}: " + ", ".join(over), "proof": "functions.py"})
-    return findings, {"function_files": measured}
+    return findings, {}

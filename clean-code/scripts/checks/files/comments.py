@@ -20,7 +20,7 @@ def _header(rows):
 
 def check(files, root, config):
     public = public_files(files, config)
-    findings, counted, carrying = [], 0, 0
+    findings, counted = [], 0
     for item in files:
         if not item["code"] or item["data"]:
             continue
@@ -37,8 +37,6 @@ def check(files, root, config):
                 continue
             hits.append(number)
         if hits:
-            carrying += 1
             findings.append({"rule": RULE, "file": item["rel"], "line": hits[0],
                              "what": f"{len(hits)} comment lines", "proof": "lines " + compact(hits)})
-    stats = {"comment_scanned": counted, "files_with_comments": carrying, "public_api": sorted(public)}
-    return findings, stats
+    return findings, {"comment_scanned": counted}

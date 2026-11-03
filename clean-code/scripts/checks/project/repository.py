@@ -75,14 +75,12 @@ def _tracked(root):
         elif ENV_FILE.search(rel) and not rel.endswith(ENV_SAMPLES):
             findings.append({"rule": 0, "file": rel, "line": 0, "cap": "secret", "points": 0,
                              "what": "environment file tracked by git", "proof": LISTED_BY})
-    return findings, len(listed)
+    return findings
 
 
 def check(files, root, config):
     if git(root, REV_PARSE, "--is-inside-work-tree") is None:
-        return [], {"git": False}
-    findings, tracked = _tracked(root)
+        return [], {}
+    findings = _tracked(root)
     findings += _history(root)
-    branch = (git(root, REV_PARSE, "--abbrev-ref", "HEAD") or "").strip()
-    dirty = sorted(line[3:] for line in (git(root, "status", "--porcelain") or "").splitlines())
-    return findings, {"git": True, "branch": branch, "tracked_files": tracked, "dirty_files": dirty}
+    return findings, {}

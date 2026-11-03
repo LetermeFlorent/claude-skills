@@ -1,67 +1,44 @@
-# Rule 13 in detail: no LLM fingerprint
+# Rule 13: no LLM fingerprint
 
-The `anti-empreinte` skill is the grid for this rule. Read its `SKILL.md` and the reference that matches
-the files in scope (`writing.md`, `code.md`, `visual.md`, `files.md`, `git.md`) at the start of the
-audit instead of trusting memory: the tools change their signatures, and the skill follows them. It
-lives next to this one, in the same skills folder.
+The `anti-empreinte` skill (next to this one) is the full grid. Read its `SKILL.md` and the
+reference matching the files in scope at the start of the audit.
 
-## What the scripts flag
+`checks/files/markers.py` flags in code and prose (locale files and test data skipped): left-behind
+placeholders and chatbot residue, emoji, LLM typography (em dash, curly quotes, invisible
+characters), `---` used as a section break, `<hr>`, shields.io badge rows, UI defaults nobody chose
+(Inter, Space Grotesk, Geist, Instrument Serif, indigo to violet gradient, gradient text,
+`backdrop-filter`), and an attribution to any AI tool.
 
-`checks/files/markers.py` reads code and prose, skipping locale files and test data: placeholders
-left behind (`// ... existing code ...`, `# TODO: implement`, an `# Example usage` block, chatbot
-residue such as `<think>`, `oaicite`, `utm_source=chatgpt.com`), emoji, LLM typography (em dash,
-curly quotes, invisible characters, variation selectors, the Tag block, the Private Use Area), a
-`---` rule used as a section break and `<hr>`, a row of shields.io badges, the UI defaults nobody
-chose (Inter, Space Grotesk, Geist or Instrument Serif, an indigo to violet gradient, gradient text,
-`backdrop-filter`), and an attribution to any AI tool written in a file.
+`checks/project/repository.py` reads git: commits with an AI trailer or line, bot authors, branches
+named after a tool, tracked agent workflows, tracked tool files (`.claude/`, `CLAUDE.md`,
+`AGENTS.md`, `.cursorrules`, `.ia/`...). It counts the signed commits already pushed.
 
-`checks/project/repository.py` reads git, for every tool and not only Claude: commits whose message
-carries a trailer or a line naming an AI tool (a person named Claude is not matched), commits made
-by a bot identity, branches named after a tool, a tracked workflow running an agent, and tracked
-tool files (`.claude/`, `CLAUDE.md`, `AGENTS.md`, `.cursorrules`, `.ia/` and the others listed in
-the anti-empreinte `git.md`). It says how many signed commits are already pushed.
-
-## What the anti-empreinte scan adds
-
-Run it on the scope as part of the measure, and add its rows as rule 13 findings:
+Add the anti-empreinte scan as rule 13 findings. It sees banned vocabulary, Title Case headings,
+bold lead-ins, README outline and document metadata:
 
 ```
 python -I "<skills folder>/anti-empreinte/scripts/scan.py" <scope> --no-git
 ```
 
-It sees what `markers.py` does not: banned words and phrases in English and French, Title Case
-headings, bold lead-ins, a list right under a heading, a nested fence closed too short, the stock README
-outline, and the metadata of documents, notebooks and images. Its `--fix` mode is the cosmetic step of
-the plan for prose files.
+Its `--fix` mode is the cosmetic step for prose files. Comments and docstrings belong to rule 14,
+never here.
 
-Reading adds what a pattern misses: a broad `try` that ends on a print, an import added in case, three
-identical cards in a grid, the rhythm of the prose.
+## What stays
 
-Comments and docstrings belong to rule 14, never here: one defect counts once.
+String literals the program prints, fixtures, snapshots, data sets, locale files. Anything whose
+removal might have an effect the line does not show stays, and the plan says why. The provenance of
+a generated image (C2PA, IPTC, SynthID) is never stripped.
 
-## What stays, whatever it holds
+## Fixing
 
-A string literal the program prints, a fixture, a snapshot, a data set, a locale file: changing them
-changes the product. When a removal might have an effect the line does not show (an import kept for
-its side effect, a comment a linter reads), it stays and the plan says why. The provenance of a
-generated image (C2PA, IPTC source type, SynthID) is never stripped: the plan says it is there.
-
-## Fixed alone, or asked
-
-Cosmetic fixes go in a `Sure : oui` step: typography, emoji in prose, `---` rules, placeholders,
-example blocks, badges.
-
-An attribution in commits not pushed yet is fixed by the anti-empreinte script, on the current branch
-and the local range only, author kept:
+Cosmetic fixes (typography, emoji in prose, `---` rules, placeholders, badges) go in a `Sure : oui`
+step. An attribution in commits not yet pushed:
 
 ```
 python -I "<skills folder>/anti-empreinte/scripts/history.py" --fix
 ```
 
-An attribution already pushed is never rewritten by this skill: the plan leaves it as is, gives the
-count, the branches and the commands (`git filter-repo`, then `push --force-with-lease` once open pull
-requests are merged or closed), and the user decides through `AskUserQuestion`. A bot identity as
-author is reported, never rewritten. A branch named after a tool is renamed only when the user says so.
-
-A UI default (font, palette) is a design choice: the plan proposes a replacement, and the step is
-`Sure : non`.
+An attribution already pushed is never rewritten: the plan gives the count, branches and commands
+(`git filter-repo`, then `push --force-with-lease`) and the user decides through `AskUserQuestion`.
+A bot author is reported, never rewritten. A branch named after a tool is renamed only on request. A
+UI default is a design choice: `Sure : non`, with a proposed replacement.

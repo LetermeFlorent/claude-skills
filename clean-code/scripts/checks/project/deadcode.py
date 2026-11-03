@@ -93,14 +93,13 @@ def check(files, root, config):
     referenced, clauses = _references(files, index)
     words = {item["rel"]: _words(item) for item in files}
     everywhere = sum(words.values(), Counter())
-    findings, checked = [], 0
+    findings = []
     for item in files:
         if not item["code"] or item["data"]:
             continue
         _add(findings, item, [(number, "") for number in _commented_code(item)], "commented-out code lines")
         if item["path"].suffix.lower() not in CHECKED:
             continue
-        checked += 1
         entry = _entry(item, public, scripts)
         if item["rel"] not in referenced and not entry:
             findings.append({"rule": RULE, "file": item["rel"], "line": 1, "what": "file never imported",
@@ -109,4 +108,4 @@ def check(files, root, config):
             _add(findings, item, _unused_symbols(item, words[item["rel"]], everywhere), "symbols used nowhere")
         _add(findings, item, _unused_imports(item, words[item["rel"]], clauses.get(item["rel"], [])),
              "unused imports")
-    return findings, {"dead_checked": checked, "referenced_files": len(referenced)}
+    return findings, {}

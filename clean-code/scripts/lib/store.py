@@ -7,7 +7,7 @@ from runs import FINDINGS
 
 CANDIDATE, CONFIRMED, REFUTED = "candidate", "confirmed", "refuted"
 CAPS = ("secret", "build", "swallowed", "test-in-prod", "attribution")
-SECRET, BUILD, SWALLOWED, TEST_IN_PROD, ATTRIBUTION = CAPS
+SECRET, _, SWALLOWED, TEST_IN_PROD, ATTRIBUTION = CAPS
 NO_CAP = "none"
 LOCK = "findings.lock"
 SCRATCH = "findings.tmp"
