@@ -22,8 +22,7 @@ what the new one must do: only the lines where they differ are the test.
 
 ## Subjects
 
-A fresh subagent through the Agent tool, `sonnet`, effort unset, never a fork (a fork knows the answer).
-Another model only when the skill will run on it. Subjects cannot talk to the user: questions go under
+A fresh subagent through the Agent tool, never a fork (a fork knows the answer). Subjects cannot talk to the user: questions go under
 QUESTIONS with options and the recommended one, then the subject takes it and goes on. Independent runs
 go out in one message, two at a time at most, one at a time when free memory is under 1.5 GB or CPU over
 85 %. Remove a stopped subject at once.

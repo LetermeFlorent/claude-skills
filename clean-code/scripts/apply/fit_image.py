@@ -15,7 +15,7 @@ BOX = re.compile(r"^(?P<width>\d+)x(?P<height>\d+)(?::(?P<below>\d+))?$")
 DENSITIES = (1, 2)
 KILO = 1024
 CENTER = 0.5
-EFFORT = 6
+WEBP_METHOD = 6
 DIGITS = 2
 VECTOR = ".svg"
 FOCUS_HINT = "focus reads X,Y with both between 0 and 1"
@@ -60,7 +60,7 @@ def crop(size, aspect, point):
 
 def _encoded(image, quality):
     best = None
-    modes = ((f"quality {quality}", {"quality": quality, "method": EFFORT}), ("lossless", {"lossless": True}))
+    modes = ((f"quality {quality}", {"quality": quality, "method": WEBP_METHOD}), ("lossless", {"lossless": True}))
     for mode, options in modes:
         buffer = io.BytesIO()
         image.save(buffer, "WEBP", **options)

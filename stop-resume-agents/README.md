@@ -8,7 +8,7 @@ Claude stops its own work and asks each subagent for a report: mission, what is 
 
 ## /resume-all
 
-Claude finds the latest `resume.md`, checks that nothing has moved since the stop (branch, agents' files) and asks you what to do if something changed. It then relaunches each unfinished agent with the same type, the same model and the same effort. The file is never deleted: it moves to the `RESUMED` state.
+Claude finds the latest `resume.md`, checks that nothing has moved since the stop (branch, agents' files) and asks you what to do if something changed. It then relaunches each unfinished agent with the same type. The file is never deleted: it moves to the `RESUMED` state.
 
 ## What is in the folder
 

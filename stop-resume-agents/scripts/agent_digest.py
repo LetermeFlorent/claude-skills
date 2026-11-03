@@ -42,8 +42,7 @@ def render(agent_id, path):
     report = next((t for t in reversed(data["texts"]) if "AGENT REPORT" in t), "")
     lines = [f"## Agent {agent_id}", "",
              f"description: {meta.get('description', 'unknown')}",
-             f"type: {meta.get('agentType', 'unknown')}, model: {meta.get('model', 'default')}, "
-             f"effort: {meta.get('effort', 'default')}, depth: {meta.get('spawnDepth', 1)}",
+             f"type: {meta.get('agentType', 'unknown')}, depth: {meta.get('spawnDepth', 1)}",
              f"finished flag: {meta.get('finished', 'unknown')}, tool calls: {data['calls']}",
              f"cwd: {data['cwd'] or 'unknown'}, git branch: {data['branch'] or 'none'}",
              f"first activity: {data['first']}, last activity: {data['last']}",

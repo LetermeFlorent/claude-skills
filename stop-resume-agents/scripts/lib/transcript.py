@@ -65,7 +65,7 @@ def add_tool_use(data, part, stamp):
     elif name == "Bash":
         data["commands"].append(f"{stamp} {bash_text(args)}")
     elif name in ("Agent", "Task"):
-        data["spawned"].append(f"{stamp} {args.get('description', '')} ({args.get('model', 'default')})")
+        data["spawned"].append(f"{stamp} {args.get('description', '')}")
 
 
 def collect(entries):

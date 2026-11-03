@@ -21,7 +21,7 @@ class Transcript(unittest.TestCase):
             {"type": "text", "text": "starting"},
             {"type": "tool_use", "id": "u1", "name": "Write", "input": {"file_path": "/p/a.py"}},
             {"type": "tool_use", "id": "u2", "name": "Bash", "input": {"command": "make", "run_in_background": True}},
-            {"type": "tool_use", "id": "u3", "name": "Agent", "input": {"description": "child", "model": "sonnet"}}]}},
+            {"type": "tool_use", "id": "u3", "name": "Agent", "input": {"description": "child"}}]}},
         {"type": "user", "timestamp": "t3", "message": {"content": [
             {"type": "tool_result", "tool_use_id": "u1"}, {"type": "tool_result", "tool_use_id": "u3"}]}},
         {"type": "user", "timestamp": "t4", "message": {"content": "also do this"}},
@@ -35,7 +35,7 @@ class Transcript(unittest.TestCase):
         self.assertEqual((data["first"], data["last"], data["calls"]), ("t1", "t5", 3))
         self.assertEqual(data["files"], {"/p/a.py": {"written"}})
         self.assertEqual(data["commands"], ["t2 [background] make"])
-        self.assertEqual(data["spawned"], ["t2 child (sonnet)"])
+        self.assertEqual(data["spawned"], ["t2 child"])
         self.assertEqual(data["followups"], ["t4 also do this"])
         self.assertEqual(list(data["open"].values()), ["t2 Bash [background] make"])
 
@@ -53,7 +53,7 @@ class Transcript(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder, "agent-a1.jsonl")
             path.write_text("\n".join(json.dumps(e) for e in self.ENTRIES), encoding="utf-8")
-            Path(folder, "agent-a1.meta.json").write_text('{"description": "fix", "model": "sonnet"}', encoding="utf-8")
+            Path(folder, "agent-a1.meta.json").write_text('{"description": "fix"}', encoding="utf-8")
             text = agent_digest.render("a1", str(path))
         self.assertIn("## Agent a1", text)
         self.assertIn("description: fix", text)

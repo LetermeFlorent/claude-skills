@@ -15,7 +15,7 @@ from common import MARKER
 
 AGENT = """## Agent a1 : fix the build
 
-Type: general-purpose. Model: sonnet. Effort: medium. Depth: 1.
+Type: general-purpose. Depth: 1.
 Answer at stop: yes, at 10:00
 Status: done
 To relaunch: no, because finished

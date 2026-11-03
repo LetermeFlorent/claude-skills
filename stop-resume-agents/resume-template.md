@@ -42,7 +42,7 @@ One block per repository touched, raw output:
 
 ## Agent <id> : <description>
 
-Type: <agentType>. Model: <model>. Effort: <effort>. Depth: <1 or 2, parent if 2>.
+Type: <agentType>. Depth: <1 or 2, parent if 2>.
 Started at <time>, last activity at <time>.
 Answer at stop: <yes, at HH:MM | no, rebuilt from its log | no, finished before the stop>
 Status: <done | partial | not started | unknown>

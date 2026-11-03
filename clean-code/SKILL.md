@@ -22,6 +22,8 @@ end. Delete nothing you did not create.
 
 ## Rules that never bend
 
+These hold in every mode, whatever the user asks.
+
 1. Read-only until the user answers the dose question: nothing written in the project apart from
    `.ia/`. Silence, "ok" or "continue" is no answer: ask again.
 2. Scope first: the `/clean-code` argument, else one question. In doubt, the narrowest. Outside the
@@ -125,10 +127,10 @@ In this order, each step ending before the next.
    suite. A failure is a rule 12 finding with its output. A command that cannot run is
    `findings.py unmeasured --rule 12 --why "<reason>"`, never installed.
 5. Read. Up to `reader_threshold` files, read them yourself. Past that, one agent per batch,
-   `readers` at most [4], sonnet at medium effort, prompt from `reader-brief.md`, all in one
+   `readers` at most [4], prompt from `reader-brief.md`, all in one
    message. Every reading rule ends with findings, `findings.py checked --rule <n> --why "..."` or
    `findings.py unmeasured --rule <n> --why "..."`.
-6. Verify: one fresh Agent call (never a fork), sonnet at medium effort, prompt from
+6. Verify: one fresh Agent call (never a fork), prompt from
    `verify-brief.md` with its `<...>` filled. Disagree with a verdict only by sending it back with
    the proof it missed.
 7. Score: `python -I "<skill>/scripts/score.py"`. It refuses while a candidate has no verdict or a

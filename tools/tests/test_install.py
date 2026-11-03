@@ -91,12 +91,12 @@ class InstallTest(unittest.TestCase):
 
     def test_hooks_are_added_once_next_to_other_settings(self):
         (self.world.config / "settings.json").parent.mkdir(parents=True, exist_ok=True)
-        (self.world.config / "settings.json").write_text('{"model": "opus"}', encoding=ENCODING)
+        (self.world.config / "settings.json").write_text('{"theme": "dark"}', encoding=ENCODING)
         self.world.run("install.py")
         done = self.world.run("install.py")
         self.assertIn("update hook: already there", done.stdout)
         data = self.settings()
-        self.assertEqual(data["model"], "opus")
+        self.assertEqual(data["theme"], "dark")
         entries = data["hooks"]["SessionStart"]
         self.assertEqual(len(entries), 1)
         self.assertIn("claude-skills/tools/update.py", entries[0]["hooks"][0]["command"])

@@ -120,10 +120,8 @@ In order, from the file back to working agents.
    `Status: done` or `To relaunch: no`: skip, write why. File written by this same session
    (origin session equals `$CLAUDE_CODE_SESSION_ID`): SendMessage the RESUME-ALL text of
    `relaunch-brief.md` to the old id and check as that file says. Otherwise, or if that fails: Agent in
-   the background with the same subagent_type, model and effort, description `<old description> (resumed)`,
-   prompt filled from `relaunch-brief.md`. Unknown model or effort (digest `default`, file `unknown`):
-   leave the parameter out, never swap in another model. A type that no longer exists: general-purpose,
-   same model.
+   the background with the same subagent_type, description `<old description> (resumed)`, prompt filled
+   from `relaunch-brief.md`. A type that no longer exists: general-purpose.
 6. Independent agents start together, four at most at once, the next when a slot frees. `after agent
    <id>` means after that agent finished and its result was checked. Two agents owning the same file
    never run together.

@@ -5,13 +5,13 @@ description: Use when a skill must be created, edited or reviewed, when the user
 
 # Writing skills
 
-A skill is worth writing only for what a current model does wrong without it, so a baseline comes first:
+A skill is worth writing only for what an agent does wrong without it, so a baseline comes first:
 a fresh subagent runs a real task with no skill, and its exact choices and excuses are the material. If it
 already does the right thing there is no skill. If it fails, write the smallest text that answers that
 failure, rerun the same task with the skill, and close the loopholes the runs still show. A constraint a
 regex or a hook can enforce is a script or a hook, not a skill; the account of one session is not a skill.
 
-Models in `<claude-skills>` (the clone of this repository, `${CLAUDE_CONFIG_DIR:-$HOME/.claude}/claude-skills`):
+Examples in `<claude-skills>` (the clone of this repository, `${CLAUDE_CONFIG_DIR:-$HOME/.claude}/claude-skills`):
 open the closest before writing.
 
 ## Rules
@@ -75,7 +75,7 @@ One skill goes through the whole loop before the next one starts.
 3. Build the test material following `reference/testing.md`, on data already on disk and the current
    version's own examples (a sample made up by an agent who knows the traps passes for the wrong reason).
    Each scenario has a checklist of observable results with at least one line that splits old from new.
-4. Red: one fresh sonnet subagent per scenario, prompt from `subject-brief.md`, never a fork. Record what it
+4. Red: one fresh subagent per scenario, prompt from `subject-brief.md`, never a fork. Record what it
    chose and its excuses word for word. No failure on the real material: stop and tell the user, with the
    reports.
 5. Write the form that fits the failure, nothing for a case no run showed. A subject that breaks a rule under

@@ -53,7 +53,7 @@ Short final answer in the user's language: <what it contains>.
 
 `<role>-brief.md` at the root: one paragraph on when it is sent and how it is filled, then the prompt in
 a fence of five backticks with `text` as language, every value to fill as `<...>`, ending on a fixed
-report block so several answers read side by side. Models: `clean-code/reader-brief.md`, `subject-brief.md`.
+report block so several answers read side by side. Examples: `clean-code/reader-brief.md`, `subject-brief.md`.
 
 ## Scripts
 
@@ -72,7 +72,7 @@ Each script follows all of these.
 6. A subprocess runs at BelowNormal priority with a timeout; git with `GIT_TERMINAL_PROMPT=0` and
    `GCM_INTERACTIVE=never`. GitHub goes through the account-keys skill when installed, never a bare
    `fetch` or `push`.
-7. Output is short lines a model reads: one finding per line, counts at the end. Flags live in `--help`,
+7. Output is short lines an agent reads: one finding per line, counts at the end. Flags live in `--help`,
    not in `SKILL.md`.
 
 ## Unit tests

@@ -1,6 +1,6 @@
 # Subject brief
 
-The prompt of one test subject: a fresh `sonnet` subagent, never a fork. Fill every `<...>` and send the
+The prompt of one test subject: a fresh subagent, never a fork. Fill every `<...>` and send the
 first block as it is. Baseline and green run get the same text and differ by the skill line only; a
 baseline with no skill drops that line.
 
@@ -18,12 +18,12 @@ Test rules, which are not part of the task:
   <run>/tmp for <temp>/claude-skills. Use the stand-in wherever the task or a skill names the real path.
   A script of an existing skill runs from its real path; only what you write goes to the stand-ins.
 - You may read any file on this machine. You write only under <run>. No push, no network.
-- A subagent you launch gets these test rules word for word and runs on sonnet.
+- A subagent you launch gets these test rules word for word.
 
 End with this report and nothing after it:
 SUBJECT REPORT
 steps, in order: <what you did, one line each>
-subagents: <each one: its prompt in one line, its model, what it did>
+subagents: <each one: its prompt in one line, what it did>
 files written: <absolute paths>
 commands that decided something, with their output: <command, then the deciding lines>
 shortcuts considered, taken or refused, and why: <in your own words>
