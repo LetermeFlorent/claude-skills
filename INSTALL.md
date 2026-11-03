@@ -8,7 +8,8 @@ output, and tell the user what happened.
 The repository holds 9 skills, one folder each with a `SKILL.md`, and the slash commands that start
 them, in each skill's `commands/` folder. Installing clones the repository into the Claude Code
 configuration folder, links every skill folder into its `skills/` folder and copies every command
-into its `commands/` folder. Nothing outside the configuration folder changes.
+into its `commands/` folder. When OpenCode is installed (`~/.config/opencode` exists), the commands are
+also copied into `~/.config/opencode/commands/`. Nothing else outside the configuration folder changes.
 
 Below, `<config>` is that folder: the value of `CLAUDE_CONFIG_DIR` when the variable is set, else
 `~/.claude`. In a shell it reads `"${CLAUDE_CONFIG_DIR:-$HOME/.claude}"`.
@@ -57,7 +58,7 @@ Five steps, in this order.
 ## Check
 
 `ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills"` lists the 9 skill folders and
-`ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/commands"` the 8 command files, next to whatever the user
+`ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/commands"` the 10 command files, next to whatever the user
 had before. Then run the update check once:
 
 ```bash
@@ -72,13 +73,15 @@ Each command starts one skill.
 
 | Command | Skill |
 |---|---|
-| `/anti-empreinte` | anti-empreinte |
-| `/test-visuel` | chrome-bidi |
+| `/strip-ai-traces` | strip-ai-traces |
+| `/chrome-bidi` | chrome-bidi |
 | `/clean-code` | clean-code |
 | `/commit` | clean-commits |
 | `/stop-all`, `/resume-all` | stop-resume-agents |
-| `/isoler` | using-git-worktrees |
-| `/creer-skill` | writing-skills |
+| `/isolate` | using-git-worktrees |
+| `/limited-run` | limited-run |
+| `/resource-guard` | resource-guard |
+| `/write-skill` | writing-skills |
 
 ## Updates
 
@@ -106,6 +109,15 @@ The installer also adds a `PreToolUse` hook (matcher `Bash`) that runs
 Heavy ones (builds, tests, docker, node, python...) wait until free RAM, CPU load and disk activity
 are back under the thresholds, five minutes at most, then the call is blocked with the reason.
 `resource-guard/SKILL.md` lists the thresholds and the variables that change them.
+
+## OpenCode
+
+OpenCode reads skills from `~/.claude/skills` on its own, so an install into `~/.claude` serves both.
+The installer copies the commands into `~/.config/opencode/commands/` and keeps them in step on every
+update; the variable `CLAUDE_SKILLS_OPENCODE_DIR` points it at another folder, or turns it off when
+empty. OpenCode has no hook without a plugin, so it runs the resource check by hand: its instructions
+file (`~/.config/opencode/AGENTS.md`, or `~/.claude/CLAUDE.md` when that file is missing) should tell
+it to run `resource-guard/scripts/guard.py wait` before heavy commands.
 
 ## Uninstall
 

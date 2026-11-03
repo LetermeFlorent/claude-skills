@@ -2,20 +2,27 @@ import os
 import shutil
 
 from links import is_link, make_link, manual_command, points_at, remove_link, same_path
-from paths import COMMANDS_DIR, SKILLS_DIR, command_files, skill_names
+from paths import COMMANDS_DIR, SKILLS_DIR, command_files, opencode_dir, skill_names
 from registry import file_hash
 
 UNCHANGED = "already there"
 AGAIN = "move it away and run install.py again"
 SKILLS_KEY = "skills"
 COMMANDS_KEY = "commands"
+OPENCODE_KEY = "opencode_commands"
+OPENCODE_LABEL = "opencode "
 
 
 def sync(repo, config, registry):
     lines = []
     skills = sync_skills(repo, config, registry.get(SKILLS_KEY, []), lines)
-    commands = sync_commands(repo, config, registry.get(COMMANDS_KEY, {}), lines)
-    return {SKILLS_KEY: skills, COMMANDS_KEY: commands}, lines
+    commands = sync_commands(repo, config / COMMANDS_DIR, registry.get(COMMANDS_KEY, {}), lines)
+    result = {SKILLS_KEY: skills, COMMANDS_KEY: commands}
+    other = opencode_dir()
+    if other:
+        known = registry.get(OPENCODE_KEY, {})
+        result[OPENCODE_KEY] = sync_commands(repo, other / COMMANDS_DIR, known, lines, OPENCODE_LABEL)
+    return result, lines
 
 
 def unsync(repo, config, registry):
@@ -24,6 +31,9 @@ def unsync(repo, config, registry):
         drop_skill(name, config / SKILLS_DIR / name, repo / name, lines)
     for name, recorded in registry.get(COMMANDS_KEY, {}).items():
         drop_command(name, config / COMMANDS_DIR / name, recorded, lines)
+    other = opencode_dir()
+    for name, recorded in registry.get(OPENCODE_KEY, {}).items() if other else ():
+        drop_command(OPENCODE_LABEL + name, other / COMMANDS_DIR / name, recorded, lines)
     return {}, lines
 
 
@@ -67,16 +77,15 @@ def drop_skill(name, link, target, lines):
     lines.append((True, f"skill {name}: removed"))
 
 
-def sync_commands(repo, config, known, lines):
+def sync_commands(repo, folder, known, lines, label=""):
     kept = {}
-    folder = config / COMMANDS_DIR
     wanted = command_files(repo)
     for name, source in wanted.items():
-        recorded = place_command(name, source, folder / name, known.get(name), lines)
+        recorded = place_command(label + name, source, folder / name, known.get(name), lines)
         if recorded:
             kept[name] = recorded
     for name in sorted(set(known) - set(wanted)):
-        drop_command(name, folder / name, known[name], lines)
+        drop_command(label + name, folder / name, known[name], lines)
     return kept
 
 

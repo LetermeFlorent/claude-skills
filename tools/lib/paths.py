@@ -2,6 +2,8 @@ import os
 from pathlib import Path
 
 CONFIG_VAR = "CLAUDE_CONFIG_DIR"
+OPENCODE_VAR = "CLAUDE_SKILLS_OPENCODE_DIR"
+OPENCODE_DEFAULT = (".config", "opencode")
 DEFAULT_CONFIG = ".claude"
 REPO_NAME = "claude-skills"
 STATE_DIR = ".ia"
@@ -18,6 +20,15 @@ def config_dir(environ=None, home=None):
     if value:
         return Path(value).expanduser()
     return Path(home or Path.home()) / DEFAULT_CONFIG
+
+
+def opencode_dir(environ=None, home=None):
+    environ = os.environ if environ is None else environ
+    if OPENCODE_VAR in environ:
+        value = environ[OPENCODE_VAR].strip()
+        return Path(value).expanduser() if value else None
+    folder = Path(home or Path.home()).joinpath(*OPENCODE_DEFAULT)
+    return folder if folder.is_dir() else None
 
 
 def repo_dir():

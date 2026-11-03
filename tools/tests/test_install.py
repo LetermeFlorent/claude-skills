@@ -62,6 +62,15 @@ class InstallTest(unittest.TestCase):
         self.assertFalse(self.world.command("alpha.md").exists())
         self.assertTrue((self.world.clone / "alpha" / "SKILL.md").is_file())
 
+    def test_commands_also_go_to_opencode(self):
+        done = self.world.run("install.py")
+        self.assertIn("command opencode alpha.md: copied", done.stdout)
+        opencode = self.world.opencode / "commands" / "alpha.md"
+        self.assertEqual(opencode.read_text(encoding=ENCODING), COMMAND_TEXT.format("alpha"))
+        done = self.world.run("install.py", "--uninstall")
+        self.assertIn("command opencode alpha.md: removed", done.stdout)
+        self.assertFalse(opencode.exists())
+
     def test_uninstall_keeps_a_link_the_user_re_pointed(self):
         self.world.run("install.py")
         link, own = self.world.skill_link("alpha"), self.world.root / "own-alpha"

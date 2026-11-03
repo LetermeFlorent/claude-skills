@@ -44,6 +44,7 @@ class World:
         self.origin = self.root / "origin.git"
         self.config = self.root / "config"
         self.clone = self.config / "claude-skills"
+        self.opencode = self.root / "opencode"
         shutil.copytree(TOOLS, self.source / "tools", ignore=shutil.ignore_patterns("tests", "__pycache__"))
         (self.source / ".gitignore").write_text(IGNORED, encoding=ENCODING)
         git(self.source, "init", "-q")
@@ -85,6 +86,7 @@ class World:
     def run(self, script, *args, path=None, tools=None):
         env = {key: value for key, value in os.environ.items() if key != SESSION_VAR}
         env[CONFIG_VAR] = str(self.config)
+        env["CLAUDE_SKILLS_OPENCODE_DIR"] = str(self.opencode)
         if path is not None:
             env["PATH"] = str(path)
         folder = tools or self.clone / "tools"
