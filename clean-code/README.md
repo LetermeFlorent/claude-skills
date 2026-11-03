@@ -6,9 +6,9 @@ A skill and a command for Claude Code. To install it, see `INSTALL.md` at the ro
 
 `/clean-code` followed by a folder, an app or a file. With no argument, Claude asks for the scope. The skill also starts on a request to audit or tidy up, or when a file or folder has grown too big.
 
-The audit touches nothing before you answer. A script measures what can be counted (file and folder sizes, dead code, comments, French names, hardcoded values, text outside translation files, images, AI traces, secrets), Claude reads the rest, and a fresh agent confirms or rejects each finding. The score out of 20 comes from a script, with caps: secret 5, broken build 8, swallowed error, shipped test code or AI signature 10.
+The audit touches nothing before its plan is checked. On a scope past 150 code files, a graphify map comes first and the readers use it to find dead and duplicate code faster. A script measures what can be counted (file and folder sizes, dead code, comments, French names, hardcoded values, text outside translation files, images, AI traces, secrets), Claude reads the rest, and a fresh agent confirms or rejects each finding. The score out of 20 comes from a script, with caps: secret 5, broken build 8, swallowed error, shipped test code or AI signature 10.
 
-Below 20, Claude writes a step-by-step plan, has it checked, then asks you: the whole plan, the safe steps only, or nothing. Each step is committed by `clean-commits`, never on failing tests, never pushed.
+Below 20, Claude writes a step-by-step plan, has it checked, shows the score alone in large type, then applies the whole plan without asking. After each step it runs that step's check and the tests of the files it touched, and `clean-commits` commits it, never pushed. At the end of each phase the full typecheck and test suite run; when they fail, the phase's steps are reverted newest first until the one that broke them is found.
 
 ## Writing rules
 

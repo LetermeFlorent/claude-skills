@@ -8,7 +8,7 @@ from common import DECODE_ERRORS, ENCODING
 MAX_BYTES = 2_000_000
 SKIP_DIRS = {"node_modules", "build", "dist", "out", "target", "run", ".git", ".gradle", "generated", ".next",
              ".nuxt", ".svelte-kit", ".turbo", ".cache", "coverage", "vendor", "__pycache__", ".venv", "venv",
-             "obj", "bin", ".claude", ".ia", ".idea", ".vscode", "old"}
+             "obj", "bin", ".claude", ".ia", ".idea", ".vscode", "old", "graphify-out"}
 TEST_DIRS = {"test", "tests", "__tests__", "spec", "specs", "e2e", "testing", "gametest"}
 DATA_DIRS = {"fixtures", "fixture", "__snapshots__", "snapshots", "testdata", "test-data", "__fixtures__"}
 LOCALE_DIRS = {"i18n", "locales", "locale", "lang", "langs", "translations", "l10n"}

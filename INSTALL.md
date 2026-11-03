@@ -132,6 +132,10 @@ that every account and OpenCode share the same copy:
   written to `~/.config/opencode/ponytail-ultra.md` and listed under `instructions` in the OpenCode
   config file.
 
+Ponytail marks a deliberate shortcut with a `shortcut:` comment, which the `clean-code` skill flags as
+a comment in code. To keep code free of them, add this line to your `CLAUDE.md` or `AGENTS.md`, as
+Ponytail's own FAQ suggests: "Never write `shortcut:` comments; name each shortcut in the reply."
+
 The variable `CLAUDE_SKILLS_PONYTAIL_URL` points the checkout at another copy of the repository.
 
 ## Graphify

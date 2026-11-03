@@ -24,14 +24,14 @@ end. Delete nothing you did not create.
 
 These hold in every mode, whatever the user asks.
 
-1. Read-only until the user answers the dose question: nothing written in the project apart from
-   `.ia/`. Silence, "ok" or "continue" is no answer: ask again.
+1. Read-only until `plan_check.py` prints `plan ok`: nothing written in the project apart from
+   `.ia/` and `graphify-out/`.
 2. Scope first: the `/clean-code` argument, else one question. In doubt, the narrowest. Outside the
    scope, findings are reported, never fixed.
 3. A finding needs `file:line` and a proof. Verdicts come from a fresh agent that never saw the
    measuring, never from you.
 4. The repository is shared with other sessions: commit only your own paths, never `git add .`,
-   never on a red suite, never push, no stash, revert or clean on changes you did not make.
+   never on a red check, never push, no stash, revert or clean on changes you did not make.
 5. Removed code is deleted, git keeps it. Outside git, move it to `old/`.
 6. Visual checks go through the `chrome-bidi` skill, headless.
 7. No attribution to any AI tool anywhere. Pushed history is never rewritten: the user decides.
@@ -107,6 +107,7 @@ Code rules for this task:
 - Visual checks go through chrome-bidi, headless.
 - Typecheck, lint and tests run through the project's package manager, never npx.
 - Defects in code you did not touch are reported, not fixed.
+- No `shortcut:` or other note comment either: name the shortcut in your reply.
 `````
 
 A comment your change makes false leaves with the code it described. Other existing comments wait
@@ -126,9 +127,10 @@ In this order, each step ending before the next.
    cache, linter with `--max-warnings 0`, the build only when it writes outside the tree, the test
    suite. A failure is a rule 12 finding with its output. A command that cannot run is
    `findings.py unmeasured --rule 12 --why "<reason>"`, never installed.
-5. Read. Up to `reader_threshold` files, read them yourself. Past that, one agent per batch,
-   `readers` at most [4], prompt from `reader-brief.md`, all in one
-   message. Every reading rule ends with findings, `findings.py checked --rule <n> --why "..."` or
+5. Read. Up to `reader_threshold` files, read them yourself. Past that, map the scope first with
+   `graphify update <scope>` when `graphify` is on the PATH: no model call, it writes or refreshes
+   `<scope>/graphify-out/`, which measure.py keeps out of git and out of the measure. Then one agent
+   per batch, `readers` at most [4], prompt from `reader-brief.md`, all in one message. Every reading rule ends with findings, `findings.py checked --rule <n> --why "..."` or
    `findings.py unmeasured --rule <n> --why "..."`.
 6. Verify: one fresh Agent call (never a fork), prompt from
    `verify-brief.md` with its `<...>` filled. Disagree with a verdict only by sending it back with
@@ -137,8 +139,8 @@ In this order, each step ending before the next.
    reading rule is uncovered. At 20, stop: no plan, no question.
 8. Plan: write `<run>/plan.md` from `plan-template.md`, in English, then run
    `python -I "<skill>/scripts/plan_check.py"` until it prints `plan ok`.
-9. Ask with `AskUserQuestion`, plan path in the question: "The whole plan", "Safe steps
-   only", "Nothing, keep the score and the plan".
+9. Print the note alone as a heading, `# 12/20`, with no word around it, then apply the whole
+   plan without asking.
 
 ## Apply
 
@@ -153,16 +155,20 @@ Steps run in phase order; splitting files comes last, once the tests guard it.
 | 5 | 1, 2, 4 (`git mv`) |
 | 6 | 10, 11, secrets |
 
-For each step of the chosen dose:
+For each step of the plan:
 
 1. Check its files have not moved since the plan (`git status`, `git diff`). One that moved belongs
    to another session: skip it and say so.
-2. Change the listed files only, then run the step's check, the typecheck without cache and the
-   full suite.
+2. Change the listed files only, then run the step's check and the tests of the touched files.
 3. Green: commit through the `clean-commits` skill as a caller, with the step's `Files:` paths
    only (deleted ones included), no push. Without that skill, stop and say so.
 4. Red: restore the step's own files, report the output, continue only with steps that do not
    depend on it.
+
+At the end of each phase, run the typecheck without cache and the full suite. Red: revert the
+phase's step commits newest first with `git revert --no-edit` until it turns green. The last one
+reverted broke it: report its output. Bring back the newer ones by reverting their revert commits
+and run the suite again; one that turns it red goes back out and is reported with the culprit.
 
 A secret moves to the environment with a sample entry in `.env.example`. If it was ever committed it
 has leaked: ask whether to rotate it, and never print it. A UI step ends with before and after
@@ -172,8 +178,9 @@ After the last step, measure, verify and score again on the same scope.
 
 ## Report
 
-In the user's language: the note before and after, each step with its commit hash, the raw suite output, and what
-is left with its reason.
+The note after alone as a heading, `# 17/20`, then in the user's language each step with its commit
+hash, the raw output of the last full suite, and what is left with its reason. A question comes
+only for what the user alone decides, such as rotating a leaked secret.
 
 ## Files
 

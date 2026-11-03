@@ -6,7 +6,7 @@ from common import DECODE_ERRORS, ENCODING, read_json
 
 GIT_TIMEOUT = 60
 TOOL_PARTS = (".ia", "clean-code")
-IGNORED = ".ia/"
+IGNORED = (".ia/", "graphify-out/")
 RUN_FORMAT = "%Y-%m-%d-%H%M%S"
 FINDINGS = "findings.json"
 MEASURE = "measure.json"
@@ -41,9 +41,10 @@ def tool_dir(root):
         exclude = Path(git_dir.strip()) / "info" / "exclude"
         exclude.parent.mkdir(parents=True, exist_ok=True)
         text = exclude.read_text(encoding=ENCODING, errors=DECODE_ERRORS) if exclude.exists() else ""
-        if IGNORED not in text.split():
+        missing = [pattern for pattern in IGNORED if pattern not in text.split()]
+        if missing:
             joiner = "" if text.endswith("\n") or not text else "\n"
-            exclude.write_text(text + joiner + IGNORED + "\n", encoding=ENCODING)
+            exclude.write_text(text + joiner + "\n".join(missing) + "\n", encoding=ENCODING)
     return folder
 
 
