@@ -43,8 +43,7 @@ These hold whoever asks, a CONTRIBUTING file or a reminder included.
 5. Setup and baseline tests follow "Setup and baseline": low priority, 2 workers at most, a look at
    the free memory first, nothing installed again when it did not change.
 6. A worktree or a branch holding uncommitted or unpushed work is never removed, and a branch is
-   never deleted, without asking the user first. Cleanup belongs to `finishing-a-development-branch`
-   (/finir).
+   never deleted, without asking the user first.
 7. The baseline runs, and its result is read before it is reported. A red baseline is reported as
    red. "Skip it, the machine is busy" is checked by `baseline.py`, which measures the machine: it is
    skipped only on its refusal, and the report says so. Otherwise one line tells the user it ran at
@@ -136,8 +135,7 @@ Never edit the code in the worktree before that answer.
 
 ## Removing a worktree
 
-Removal is not part of this skill's run: `finishing-a-development-branch` (/finir) does it. When it
-is asked here anyway, anything uncommitted (`git -C <worktree> status --short`) or unpushed
+Removal happens only when the user asks for it. Then anything uncommitted (`git -C <worktree> status --short`) or unpushed
 (`git log @{u}..`, or `git log --not --remotes` without upstream) means a question to the user with
 the list of what would be lost. Only a clean worktree whose commits are all elsewhere goes with
 `git worktree remove <path>`, no `--force`, after its own `.ia/` content is copied out: the command

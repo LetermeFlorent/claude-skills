@@ -59,7 +59,7 @@ These hold <in which phases>.
 Read the description alone and ask "should I load this now?". It names situations and symptoms,
 never what the skill does step by step, and it is written in the third person, since it lands in the
 system prompt. The name is the folder's name: lowercase letters, digits and hyphens, 64 characters at
-most, verb-first or a gerund (`condition-based-waiting`, `writing-plans`), never `helper` or `utils`.
+most, verb-first or a gerund (`condition-based-waiting`, `using-git-worktrees`), never `helper` or `utils`.
 
 ## LISEZMOI.md
 

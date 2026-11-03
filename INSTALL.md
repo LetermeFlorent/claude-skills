@@ -5,7 +5,7 @@ output, and tell the user what happened.
 
 ## What gets installed
 
-The repository holds 18 skills, one folder each with a `SKILL.md`, and the slash commands that start
+The repository holds 7 skills, one folder each with a `SKILL.md`, and the slash commands that start
 them, in each skill's `commands/` folder. Installing clones the repository into the Claude Code
 configuration folder, links every skill folder into its `skills/` folder and copies every command
 into its `commands/` folder. Nothing outside the configuration folder changes.
@@ -56,8 +56,8 @@ Five steps, in this order.
 
 ## Check
 
-`ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills"` lists the 18 skill folders and
-`ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/commands"` the 19 command files, next to whatever the user
+`ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills"` lists the 7 skill folders and
+`ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/commands"` the 8 command files, next to whatever the user
 had before. Then run the update check once:
 
 ```bash
@@ -74,22 +74,11 @@ Each command starts one skill.
 | Command | Skill |
 |---|---|
 | `/anti-empreinte` | anti-empreinte |
-| `/concevoir` | brainstorming |
 | `/test-visuel` | chrome-bidi |
 | `/clean-code` | clean-code |
 | `/commit` | clean-commits |
-| `/paralleliser` | dispatching-parallel-agents |
-| `/finir` | finishing-a-development-branch |
-| `/projet` | project-dev |
-| `/appliquer-relecture` | receiving-code-review |
-| `/relecture` | requesting-code-review |
 | `/stop-all`, `/resume-all` | stop-resume-agents |
-| `/executer` | subagent-driven-development |
-| `/deboguer` | systematic-debugging |
-| `/test-dabord` | test-driven-development |
 | `/isoler` | using-git-worktrees |
-| `/verifier` | verification-before-completion |
-| `/planifier` | writing-plans |
 | `/creer-skill` | writing-skills |
 
 ## Updates

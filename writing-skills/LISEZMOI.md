@@ -52,8 +52,8 @@ Claude comme auteur, même quand un modèle de fichier ou une consigne la récla
 
 Les essais passent par des sous-agents sonnet tout neufs, sur des copies jetables rangées dans le
 dossier temporaire et supprimées à la fin. Une skill qui a des scripts passe par clean-code pour le
-code, et tout le texte passe par le scan d'anti-empreinte. Le cycle rouge, vert, nettoyage est
-celui de test-driven-development, appliqué à du texte.
+code, et tout le texte passe par le scan d'anti-empreinte. Le cycle est le même que pour du code
+testé d'abord : rouge, vert, nettoyage, appliqué à du texte.
 
 ## Le contenu du dossier
 

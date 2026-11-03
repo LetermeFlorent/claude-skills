@@ -48,13 +48,7 @@ une fois les tests du dossier principal pour voir s'il apparaît dans la sortie.
 ## Le ménage
 
 Cette skill ne supprime rien d'elle-même. Un worktree ou une branche qui porte du travail non commité
-ou non poussé n'est jamais retiré sans ton accord. Le rangement final revient à `/finir`. Retirer un worktree efface aussi ses fichiers ignorés, donc le contenu de son propre `.ia/` est copié ailleurs avant.
-
-## Quand une autre skill l'appelle
-
-Les skills qui exécutent un plan (`subagent-driven-development`, `writing-plans`) commencent par
-elle. Elles reçoivent le chemin du worktree, la branche et le résultat des tests de départ, puis
-travaillent dedans avec des chemins absolus.
+ou non poussé n'est jamais retiré sans ton accord. Retirer un worktree efface aussi ses fichiers ignorés, donc le contenu de son propre `.ia/` est copié ailleurs avant.
 
 ## Le contenu du dossier
 
