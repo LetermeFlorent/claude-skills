@@ -1,15 +1,12 @@
+import sys
 import time
 from urllib.parse import urlsplit
 
-from actions.shared import index_of, tree, url_of
-from core.browser import BLANK, NAV_TIMEOUT, stop
+sys.dont_write_bytecode = True
 
-HISTORY_SETTLE = 0.8
-ACTIVATE = "browsingContext.activate"
-CREATE = "browsingContext.create"
-NAVIGATE = "browsingContext.navigate"
-TAB = "tab"
-COMPLETE = "complete"
+from core.browser import stop
+from core.common import BLANK, NAV_TIMEOUT
+from actions.page import index_of, tree, url_of
 
 
 def reusable_tab(page):
@@ -18,23 +15,23 @@ def reusable_tab(page):
                  if entry["url"].startswith("http") and urlsplit(entry["url"]).hostname == host]
     blank = [entry for entry in page.contexts if entry["url"] == BLANK]
     found = (same_site or blank or [None])[0]
-    return found["context"] if found else page.call(CREATE, {"type": TAB})["context"]
+    return found["context"] if found else page.call("browsingContext.create", {"type": "tab"})["context"]
 
 
 def nav(page):
     context = page.context
     if page.options.tab is None and page.options.frame is None:
         context = reusable_tab(page)
-        page.call(ACTIVATE, {"context": context})
-    page.call(NAVIGATE, {"context": context, "url": page.value, "wait": COMPLETE}, NAV_TIMEOUT)
+        page.call("browsingContext.activate", {"context": context})
+    page.call("browsingContext.navigate", {"context": context, "url": page.value, "wait": "complete"}, NAV_TIMEOUT)
     print(f"tab {index_of(tree(page), context)}")
     print(url_of(page, context))
 
 
 def newtab(page):
-    created = page.call(CREATE, {"type": TAB})["context"]
+    created = page.call("browsingContext.create", {"type": "tab"})["context"]
     if page.value:
-        page.call(NAVIGATE, {"context": created, "url": page.value, "wait": "none"})
+        page.call("browsingContext.navigate", {"context": created, "url": page.value, "wait": "none"})
     print(f"tab {index_of(tree(page), created)} opened")
 
 
@@ -51,7 +48,7 @@ def closetab(page):
 
 
 def activate(page):
-    page.call(ACTIVATE, {"context": page.context})
+    page.call("browsingContext.activate", {"context": page.context})
     print(f"tab {page.options.tab or 0} in front")
 
 
@@ -63,13 +60,13 @@ def url(page):
 def history(step):
     def move(page):
         page.call("browsingContext.traverseHistory", {"context": page.context, "delta": step})
-        time.sleep(HISTORY_SETTLE)
+        time.sleep(0.8)
         print(url_of(page))
     return move
 
 
 def reload(page):
-    page.call("browsingContext.reload", {"context": page.context, "wait": COMPLETE}, NAV_TIMEOUT)
+    page.call("browsingContext.reload", {"context": page.context, "wait": "complete"}, NAV_TIMEOUT)
     print(url_of(page))
 
 

@@ -5,13 +5,10 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from core.browser import DEFAULT_SIZE, LaunchOptions, start
-from core.session import DEFAULT_PROMPT
-from core.common import downloads_dir, driver_port, free_port, guard, profile_dir
+from core.browser import Launch, start
+from core.common import DEFAULT_PROMPT, DEFAULT_SIZE, downloads_dir, driver_port, free_port, guard, profile_dir
 from core.processes import own_chrome
-from window.desktops import pick_desktop, show
-
-PROMPT_CHOICES = (DEFAULT_PROMPT, "accept", "ignore")
+from core.window import pick_desktop, show
 
 
 def size_of(text):
@@ -29,7 +26,7 @@ def main():
     parser.add_argument("--login", action="store_true", help="no remote control, for a human sign-in")
     parser.add_argument("--desktop", help="virtual desktop index, or 'current'")
     parser.add_argument("--profile", type=Path)
-    parser.add_argument("--prompt", choices=PROMPT_CHOICES, default=DEFAULT_PROMPT,
+    parser.add_argument("--prompt", choices=(DEFAULT_PROMPT, "accept", "ignore"), default=DEFAULT_PROMPT,
                         help="what the session does with an alert; ignore leaves it to the prompt action")
     options = parser.parse_args()
     if options.login and not options.visible:
@@ -41,7 +38,7 @@ def main():
         return
     desktop = pick_desktop(options.desktop) if options.visible and not options.login else None
     profile = options.profile or profile_dir(port)
-    settings = LaunchOptions(options.url, options.size, not options.visible, options.login, options.prompt)
+    settings = Launch(options.url, options.size, not options.visible, options.login, options.prompt)
     pid, driver_note = start(port, profile, settings)
     if options.login:
         print(f"chrome started WITHOUT remote control for sign-in, pid {pid}, profile {profile}")

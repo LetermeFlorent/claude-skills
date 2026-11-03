@@ -5,13 +5,12 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from actions import capture, classic, dialogs, emulation, inputs, reading, tabs
-from actions.shared import Page, flatten
+from actions import capture, emulation, forms, inputs, reading, tabs
 from core.common import guard, port_free
+from actions.page import Page, flatten
 from core.session import open_session
 
-DEFAULT_WAIT = 10
-ACTIONS = {name: action for module in (tabs, reading, inputs, dialogs, capture, emulation, classic)
+ACTIONS = {name: action for module in (tabs, reading, inputs, forms, capture, emulation)
            for name, action in module.ACTIONS.items()}
 
 
@@ -29,7 +28,7 @@ def main():
     parser.add_argument("--port", type=int, required=True)
     parser.add_argument("--tab", type=int, help="tab index from the tabs action, 0 when missing")
     parser.add_argument("--frame", help="part of the url of the iframe to act in")
-    parser.add_argument("--timeout", type=float, default=DEFAULT_WAIT, help="seconds for wait <selector>")
+    parser.add_argument("--timeout", type=float, default=10, help="seconds for wait <selector>")
     options = parser.parse_args()
     options.value = " ".join(options.value)
     if port_free(options.port):

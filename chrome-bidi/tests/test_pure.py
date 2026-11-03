@@ -9,10 +9,10 @@ import launch
 import measure_images
 import visual_test
 from actions import inputs, reading
-from actions.classic import literal
-from actions.shared import flatten, index_of, locator, plain
-from core.binaries import build_of
 from core.common import driver_port, split_value
+from core.driver import build_of
+from actions.forms import literal
+from actions.page import flatten, index_of, locator, plain
 from core.wsclient import apply_mask
 
 

@@ -1,21 +1,14 @@
 import sys
+import sys
 
-from core.session import COMMAND_TIMEOUT
+sys.dont_write_bytecode = True
 
-XPATH_START = ("/", "(")
-XPATH = "xpath"
-CSS = "css"
-PAIR = 2
-EXCEPTION = "exception"
-SCRIPT_FAILED = "page script failed: {detail}"
+from core.common import COMMAND_TIMEOUT
 
 
 class Page:
     def __init__(self, session, context, contexts, options):
-        self.session = session
-        self.context = context
-        self.contexts = contexts
-        self.options = options
+        self.session, self.context, self.contexts, self.options = session, context, contexts, options
         self.value = options.value
 
     def call(self, method, params=None, timeout=COMMAND_TIMEOUT):
@@ -34,8 +27,8 @@ class Page:
 
 
 def checked(result):
-    if result.get("type") == EXCEPTION:
-        raise RuntimeError(SCRIPT_FAILED.format(detail=result["exceptionDetails"].get("text")))
+    if result.get("type") == "exception":
+        raise RuntimeError(f"page script failed: {result['exceptionDetails'].get('text')}")
     return result
 
 
@@ -49,7 +42,7 @@ def plain(remote):
 
 
 def locator_kind(selector):
-    return XPATH if selector.lstrip().startswith(XPATH_START) else CSS
+    return "xpath" if selector.lstrip().startswith(("/", "(")) else "css"
 
 
 def locator(selector, kind=None):

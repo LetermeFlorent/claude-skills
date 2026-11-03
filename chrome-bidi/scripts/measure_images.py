@@ -6,9 +6,10 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from core.browser import NAV_TIMEOUT, first_context, throwaway
-from actions.shared import checked
-from core.common import LOCALHOST, guard
+from core.browser import throwaway
+from core.common import LOCALHOST, NAV_TIMEOUT, guard
+from actions.page import checked
+from core.session import first_context
 from core.target import Target
 
 DEFAULT_WIDTHS = "390,1440"

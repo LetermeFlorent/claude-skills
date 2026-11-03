@@ -1,105 +1,68 @@
 ---
 name: chrome-bidi
-description: Use when a task needs a web page opened, read, clicked, filled, screenshotted, printed or measured on this machine, when the user types /test-visuel, when a page must be checked at phone and desktop widths, when image sizes on a page must be compared with their files, or when a Chrome or chromedriver left by an earlier task has to be found and closed.
+description: Use when a page must be opened, read, clicked, filled, screenshotted, printed or measured, checked at phone and desktop widths (/test-visuel), compared with its image files, or when a leftover Chrome or chromedriver must be closed.
 ---
 
 # Chrome over WebDriver BiDi
 
-## Overview
+The scripts start Chrome with a debugging port and a throwaway profile, a chromedriver of the same
+version on port + 1000 (kept in `bin/`, downloaded from Chrome for Testing when the build differs),
+and talk BiDi over a websocket. Call every script as
+`python -I "<skill dir>/scripts/<name>.py"` with forward slashes. Stdlib only. A failure prints
+`chrome-bidi: <Type>: <message>` and a `by hand:` line, exit 1.
 
-Once per session, before following this skill, run
-`python -I "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/claude-skills/tools/update.py"` and read the line it prints.
-When that file does not exist, go on without it. After a line that starts with `updated`, read this file again
-before going on.
+Scripts: `launch.py` (start, prints the port), `bidi.py` (one action on a running Chrome),
+`measure_images.py` (box of every displayed image per width, JSON), `visual_test.py` (the /test-visuel run).
 
-Chrome is the only browser driven here, unless the user's instructions (CLAUDE.md) say otherwise.
-The scripts start it with a debugging port and a throwaway profile, start a chromedriver of the same version
-on port + 1000, and talk WebDriver BiDi to it over a websocket. Everything runs headless: no window
-reaches the user's screen unless the user asked to watch and `--visible` is passed.
+## Rules
 
-File names below sit in this skill's base directory (shown when the skill loads, otherwise
-`$CLAUDE_CONFIG_DIR/skills/chrome-bidi`, or `~/.claude/skills/chrome-bidi` when the variable is
-empty). Call every script with `python -I` and an absolute path in double quotes, forward slashes.
-Python standard library only, nothing to install. A failing script prints
-`chrome-bidi: <Type>: <message>`, then a `by hand:` line saying how to do the same step without it,
-and exits 1. Exit 2 means a question for the user (virtual desktop, see below).
+These hold for every task, whatever the page.
 
-| Script | Role |
-|---|---|
-| `scripts/launch.py` | starts Chrome and chromedriver, prints the port |
-| `scripts/bidi.py` | one action on a running Chrome, then hands the session back |
-| `scripts/measure_images.py` | box of every displayed image at several widths, to JSON |
-| `scripts/visual_test.py` | the /test-visuel run: screenshots per width plus the image measures |
-
-chromedriver lives in `bin/`. At each launch the script compares its version with the installed
-Chrome and, only when the build differs, downloads the right one from Chrome for Testing.
-
-## Rules that never bend
-
-These hold for every task, whoever asks.
-
-1. Headless by default, for every task, test and capture. `--visible` only when the user asked to
-   watch the browser in this task. Never ask "headless or window?": the answer is headless.
-2. One port per task, never shared. Profile `<temp>/claude-skills/chrome-<port>`, where `<temp>` is the system temp
-   folder (`tempfile.gettempdir()`), downloads in `chrome-<port>-downloads`, session in
-   `chrome-<port>.session`. Never the user's own profile.
+1. Pick the mode yourself and never ask about it. `--visible` when a person has to see or act in the
+   window: a sign-in, a code or phone check, the user saying they want to watch. Headless for
+   everything else (reading, checks, screenshots, /test-visuel).
+2. One port per task, never shared. Profile `<temp>/claude-skills/chrome-<port>`, downloads in
+   `chrome-<port>-downloads`, session in `chrome-<port>.session`. Never the user's profile.
 3. Never stop a `chrome.exe` or `chromedriver.exe` whose command line lacks
-   `--remote-debugging-port=<your port>` or `--port=<your port + 1000>`. One without it belongs to
-   the user or to another session.
-4. Act through native input only (`input.performActions`, `input.setFiles`, WebDriver element
-   calls). JavaScript reads the page, it never clicks, types or scrolls: a scripted click skips focus,
-   hover and `isTrusted` checks.
-5. Close with `bidi.py close --port <p>` before the task ends: it ends Chrome, stops chromedriver
-   and frees both ports. Then check nothing of yours is left (procedure, step 5).
-6. Before a launch, check free RAM, CPU load and disk activity (the user's instructions, CLAUDE.md). One Chrome
-   at a time per session.
-7. Never move, hide, resize or close a window you did not start.
+   `--remote-debugging-port=<your port>` or `--port=<your port + 1000>`: it belongs to the user or
+   another session. Never move, hide, resize or close a window you did not start.
+4. Native input only (`input.performActions`, `input.setFiles`, WebDriver element calls). JavaScript
+   reads the page, it never clicks, types or scrolls.
+5. Check free RAM, CPU and disk before a launch. One Chrome at a time per session.
+6. Close with `bidi.py close --port P` before the task ends, then check nothing is left.
 
 ## Procedure
 
-Five steps, in this order.
+Three steps, from launch to reading the result.
 
-1. Start Chrome. The port is picked between 9300 and 9899 when `--port` is missing; reuse a fixed
-   port only to get back a profile that is already signed in.
-
-   ```bash
-   S="<skill>/scripts"
-   python -I "$S/launch.py" --url "http://127.0.0.1:3000"
-   ```
-
-   It prints `chrome started, pid X, port P, driver P+1000, profile ..., downloads ...` and the
-   driver check. Other options: `--size 1280x720` (content area, the default), `--profile <dir>`,
-   `--prompt dismiss|accept|ignore` (what happens to an alert nobody answers, `dismiss` by
-   default), `--visible`, `--desktop`, `--login`.
-2. Act: `python -I "$S/bidi.py" <action> [value] --port P [--tab n] [--frame <url part>]`. Each call
-   reconnects to the same session, so the tab, its scroll and its forms stay as they were. Run one
-   call at a time on a port.
-3. Look with `shot` and read the image, rather than guessing from the DOM.
-4. Close: `python -I "$S/bidi.py" close --port P`.
-5. Check: no `chrome.exe` or `chromedriver.exe` whose command line holds your port.
+1. `python -I "$S/launch.py" --url "http://127.0.0.1:3000"` with `S=<skill dir>/scripts`. Port picked
+   in 9300-9899 when `--port` is missing; reuse a fixed port only to get back a signed-in profile.
+   Options: `--size 1280x720` (content area), `--profile <dir>`, `--prompt dismiss|accept|ignore`
+   (unanswered alert, `dismiss` default), `--visible`, `--desktop`, `--login`.
+2. `python -I "$S/bidi.py" <action> [value] --port P [--tab n] [--frame <url part>] [--timeout s]`.
+   Each call reconnects to the same session. One call at a time per port.
+3. Read the result of `shot` rather than guessing from the DOM.
+4. `python -I "$S/bidi.py" close --port P`.
+5. Check, replacing `P` and `P1000` (empty output is the only good one):
 
    ```bash
    powershell -NoProfile -Command "Get-CimInstance Win32_Process -Filter \"Name='chrome.exe' or Name='chromedriver.exe'\" | ? { \$_.CommandLine -match 'remote-debugging-port=P(?!\d)|--port=P1000(?!\d)' } | Select ProcessId,Name"
    ```
 
-   Replace `P` and `P1000` with your two ports. An empty answer is the only acceptable one.
-
 ### /test-visuel
 
-`/test-visuel <url or local folder> [widths]` checks a page at a phone and a desktop width.
+`/test-visuel <url or local folder> [widths]`.
 
-1. Run the resource check of rule 6.
-2. `python -I "$S/visual_test.py" "<target>" 390,1440`. Widths default to 390 and 1440, the
-   height to 720 (`--height`). Add `--visible` only when the user wrote it. A local folder or file
-   is served on 127.0.0.1 for the run, then the server stops.
-3. The run goes into `<project>/.ia/chrome-bidi/<date-time>/`, and `.ia/` is added to
-   `.git/info/exclude`. The project is the git root of the target folder, or of the current folder
-   for a url; with no project at all it goes to `<temp>/claude-skills/chrome-bidi/`. It holds
-   `shot-<width>.png` and `images.json`.
-4. Read each shot, then the image lines the script flagged: `blurry` (file narrower than box times
-   device pixel ratio), `heavy` (more than twice the needed width), `not loaded`.
-5. Answer in a few lines: what looks broken at which width, which images to resize, the folder.
-   Chrome is already closed by the script; run the check of step 5 above with the port it printed.
+1. `python -I "$S/visual_test.py" "<target>" 390,1440`. Widths default to 390,1440, height 720
+   (`--height`), `--visible` only if the user wrote it. A local folder or file is served on
+   127.0.0.1 during the run.
+2. Output goes to `<project>/.ia/chrome-bidi/<date-time>/` (`shot-<width>.png`, `images.json`),
+   `.ia/` added to `.git/info/exclude`. Project is the git root of the target, or of the current
+   folder for a url; with none, `<temp>/claude-skills/chrome-bidi/`.
+3. Read each shot and the flagged image lines: `blurry` (file narrower than box times dpr),
+   `heavy` (over twice the needed width), `not loaded`.
+4. Answer in a few lines: what breaks at which width, images to resize, the folder. The script
+   already closed Chrome; run step 5 with the port it printed.
 
 ### Image measures alone
 
@@ -107,79 +70,61 @@ Five steps, in this order.
 python -I "$S/measure_images.py" --url "<url or folder>" --widths 390,1440 --out "<file.json>"
 ```
 
-One record per image and width: `width`, `dpr`, `src`, `kind` (`img` or `background`), `box`
-(content box for an `<img>`, padding box for a background, CSS pixels), `natural` (file pixels),
-`fit` (`object-fit` or `background-size`) and `selector`. Elements with an empty box are skipped.
-Lazy images are switched to eager and awaited up to 5 s.
+Per image and width: `width`, `dpr`, `src`, `kind` (`img` or `background`), `box` (content box for
+`<img>`, padding box for a background, CSS px), `natural`, `fit`, `selector`. Empty boxes are
+skipped; lazy images are made eager and awaited up to 5 s.
 
 ### Sign-in a human has to type
 
-Google and Microsoft refuse a sign-in in a driven browser. The user asked for it, so a window is
-fine: `launch.py --port <p> --login --visible --url <sign-in page>`. No remote control in that
-mode. Once signed in, the user closes the window and you start again on the same port without
-`--login`: the profile keeps the session, so a port signed in once stays signed in.
+Google and Microsoft refuse a driven browser: `launch.py --port <p> --login --visible --url <page>`,
+no remote control. The user signs in and closes the window; start again on the same port without
+`--login`, the profile keeps the session.
 
-### Window mode, only with --visible
+### Window mode (--visible)
 
-Chrome opens maximized on the virtual desktop of the host window (terminal or editor), through
-the `VirtualDesktop` PowerShell module. Exit 2 with `VIRTUAL_DESKTOP_MODULE_MISSING` means the
-module is absent: ask the user to install it, or rerun with `--desktop current`. Exit 2 with
-`HOST_DESKTOP_UNKNOWN` lists the desktops: ask which one, rerun with `--desktop <n>`. Never guess.
-In this mode never call `viewport` or `mobile`: the user watches a window that would shrink to a
-small block in a corner.
+Chrome opens maximized on the virtual desktop of the host window when the `VirtualDesktop`
+PowerShell module is there and that desktop can be found, else on the desktop shown now. Nothing to
+ask. `--desktop <n>` forces one. Never call `viewport` or `mobile` in this mode.
 
 ## Actions
 
-A value with two parts takes `|` between them. A selector starting with `/` or `(` is xpath,
-anything else is CSS.
+Two-part values use `|`. A selector starting with `/` or `(` is xpath, else CSS.
 
-Tabs: `nav <url>` reuses the tab already on the same host, else a blank tab, else a new one, and
-prints its index for `--tab`. `newtab [url]`, `tabs`, `activate`, `closetab` (refuses the last
-tab), `url` (address and title), `back`, `forward`, `reload`, `close`.
+- Tabs: `nav <url>` (reuses the tab on the same host, else a blank one, else a new one; prints the
+  index for `--tab`), `newtab [url]`, `tabs`, `activate`, `closetab` (refuses the last), `url`,
+  `back`, `forward`, `reload`, `close`.
+- Reading: `wait <selector>` (polls up to `--timeout`, 10) or `wait <n>`, `find <css>`,
+  `xpath <query>`, `text [selector]`, `html [n chars]`, `eval <expression>` (read only),
+  `console [s]` (messages logged after the call), `network [s] [all]` (reloads, failures only
+  without `all`), `cookies`, `clearcookies`.
+- Input: `click <css>`, `clickxpath <xpath>`, `clickxy x,y`, `hover x,y`, `scroll [delta][@x,y]`,
+  `type [text]` (stdin when empty, for a password), `key <name>[ xN]` (`enter tab escape up down
+  left right backspace delete ctrl shift`, combos like `ctrl+a`), `upload <selector>|<path>`,
+  `prompt accept|dismiss[|text]`, `rejectcookies`, `fill <selector>|<text>` (stdin when no text),
+  `select <selector>|<option text>`. `fill` and `select` are WebDriver element calls, top page only.
+- Capture: `shot <png>`, `fullshot <png>`, `elementshot <selector>|<png>`, `pdf <file>`.
+- Emulation, then reload: `viewport WxH`, `mobile` (390x844, ratio 3, Android UA), `desktop`,
+  `geo lat,lon|off` (page origin only), `locale <fr-FR|off>`, `timezone <Europe/Paris|off>`.
 
-Reading: `wait <selector>` polls until found or `--timeout` seconds (10), `wait <n>` pauses.
-`find <css>`, `xpath <query>`, `text [selector]`, `html [n chars]`, `eval <expression>` (read
-only). `console [s]` listens for messages logged after the call. `network [s] [all]` reloads and
-lists the requests, failures only without `all`. `cookies`, `clearcookies`.
+## Traps
 
-Input: `click <css>`, `clickxpath <xpath>` (the element is scrolled into view with a wheel first),
-`clickxy x,y`, `hover x,y`, `scroll [delta][@x,y]`, `type [text]` (stdin when empty, for a
-password), `key <name>[ xN]` with `enter tab escape up down left right backspace delete ctrl shift`
-and combos like `ctrl+a`, `upload <selector>|<path>`, `prompt accept|dismiss[|text]`,
-`rejectcookies`.
+Each of these has cost a run before.
 
-WebDriver element calls, top page only: `fill <selector>|<text>` (stdin when no text) and
-`select <selector>|<option text>`, which clicks the `<option>` itself and fires `change`.
-
-Capture: `shot <png>`, `fullshot <png>`, `elementshot <selector>|<png>`, `pdf <file>`.
-
-Emulation: `viewport WxH`, `mobile` (390x844, ratio 3, Android user agent), `desktop`,
-`geo lat,lon|off` (granted to the page origin only), `locale <fr-FR|off>`,
-`timezone <Europe/Paris|off>`, then reload.
-
-## Known traps
-
-Each of these has broken a run before.
-
-- Git Bash rewrites an argument starting with `/`: `/html/body` arrives as a path under
-  `C:/Program Files/Git`. Prefix the call with `MSYS_NO_PATHCONV=1`, or write `(//button)[1]`.
-- `shot` keeps 720 px of height at most. A taller viewport is scaled down and the factor printed:
-  multiply coordinates read on the image by it before `clickxy` or `hover`.
-- With the default `--prompt dismiss` an alert is closed before `prompt` can answer it. Launch with
-  `--prompt ignore` when the task has to accept or type into one.
-- `click` and `fill` take the first match. A hidden duplicate (two email fields, one hidden)
-  gives "element not interactable": narrow the selector, or `clickxy` then `type`.
-- A native `<select>` menu and the Windows "Save as" dialog live outside the page: use `select`,
-  and look for downloads in `chrome-<port>-downloads`.
-- In a window covered by another, `document.visibilityState` is `hidden` and keys get lost.
-  `fill` still works there.
-- One `nav` per page. To see whether something changed, `wait <selector>` or `shot`; a `reload`
-  restarts loaders and can replay an expired sign-in.
-- The profile refuses by default: geolocation, notifications, camera, microphone, third-party
-  cookies. Lift one refusal for one origin when the task needs it, as `geo` does.
-- The WebDriver HTTP API of the same session stays open: the id is in `chrome-<port>.session`,
-  the endpoints under `http://127.0.0.1:<port+1000>/session/<id>/`. Use it only when an action is
-  missing, and never `DELETE` that session: `close` does it.
-
-Site notes: in a web chat app, an app warning may offer to open the app anyway; take that link, since the
-"open in the browser tab" one can loop. In a ticket app, a `scroll` placed on the conversation panel moves it.
+- Git Bash rewrites an argument starting with `/`: prefix with `MSYS_NO_PATHCONV=1` or write
+  `(//button)[1]`.
+- `shot` keeps 720 px of height at most; a taller viewport is scaled down and the factor printed.
+  Multiply coordinates read on the image by it before `clickxy` or `hover`.
+- `--prompt dismiss` closes an alert before `prompt` can answer: launch with `--prompt ignore`.
+- `click` and `fill` take the first match; a hidden duplicate gives "element not interactable".
+  Narrow the selector, or `clickxy` then `type`.
+- A native `<select>` menu and the Windows "Save as" dialog live outside the page: use `select`;
+  downloads land in `chrome-<port>-downloads`.
+- In a covered window `document.visibilityState` is `hidden` and keys get lost; `fill` still works.
+- One `nav` per page. `reload` restarts loaders and can replay an expired sign-in: use
+  `wait <selector>` or `shot` to see a change.
+- The profile refuses geolocation, notifications, camera, microphone and third-party cookies.
+- The WebDriver HTTP API of the session stays open (id in `chrome-<port>.session`, endpoints under
+  `http://127.0.0.1:<port+1000>/session/<id>/`). Use it only for a missing action, never `DELETE`
+  the session: `close` does it.
+- Web chat app: take the "open the app anyway" link, the "open in the browser tab" one can loop.
+  Ticket app: a `scroll` placed on the conversation panel moves it.

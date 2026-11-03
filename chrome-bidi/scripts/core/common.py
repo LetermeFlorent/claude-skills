@@ -1,37 +1,43 @@
+import json
 import random
 import socket
 import sys
 import tempfile
+import urllib.error
+import urllib.request
 from pathlib import Path
 
-TOOL = "chrome-bidi"
+
 LOCALHOST = "127.0.0.1"
-DRIVER_OFFSET = 1000
-ENCODING = "utf-8"
-EXIT_INTERRUPTED = 130
-POLL_STEP = 0.5
-PORT_RANGE = (9300, 9900)
-SCRIPTS_DIR = Path(__file__).resolve().parents[1]
-BIN_DIR = SCRIPTS_DIR.parent / "bin"
 WORK_DIR = Path(tempfile.gettempdir()) / "claude-skills"
+BIN_DIR = Path(__file__).resolve().parents[2] / "bin"
+COMMAND_TIMEOUT = 30
+NAV_TIMEOUT = 120
+BLANK = "about:blank"
+DEFAULT_SIZE = (1280, 720)
+DEFAULT_PROMPT = "dismiss"
+LOCAL = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+
+
+class BidiError(Exception):
+    pass
 
 
 def guard(main, hint):
     for stream in (sys.stdout, sys.stderr):
-        if hasattr(stream, "reconfigure"):
-            stream.reconfigure(encoding=ENCODING, errors="replace")
+        stream.reconfigure(encoding="utf-8", errors="replace")
     try:
         main()
     except KeyboardInterrupt:
-        sys.exit(EXIT_INTERRUPTED)
+        sys.exit(130)
     except Exception as error:
-        print(f"{TOOL}: {type(error).__name__}: {error}")
+        print(f"chrome-bidi: {type(error).__name__}: {error}")
         print(f"by hand: {hint}")
         sys.exit(1)
 
 
 def driver_port(port):
-    return port + DRIVER_OFFSET
+    return port + 1000
 
 
 def local_url(port, path=""):
@@ -44,6 +50,10 @@ def profile_dir(port):
 
 def downloads_dir(profile):
     return profile.with_name(profile.name + "-downloads")
+
+
+def state_file(port):
+    return WORK_DIR / f"chrome-{port}.session"
 
 
 def split_value(value, count):
@@ -61,11 +71,23 @@ def port_free(port):
 
 
 def free_port():
-    first, last = PORT_RANGE
-    span = last - first
-    start = random.randrange(span)
-    for offset in range(span):
-        port = first + (start + offset) % span
+    start = random.randrange(600)
+    for offset in range(600):
+        port = 9300 + (start + offset) % 600
         if not profile_dir(port).exists() and port_free(port) and port_free(driver_port(port)):
             return port
-    raise RuntimeError(f"no free port pair between {first} and {last}")
+    raise RuntimeError("no free port pair between 9300 and 9900")
+
+
+def http_json(method, url, body=None, timeout=COMMAND_TIMEOUT):
+    data = None if body is None else json.dumps(body).encode()
+    request = urllib.request.Request(url, data=data, method=method, headers={"Content-Type": "application/json"})
+    try:
+        with LOCAL.open(request, timeout=timeout) as response:
+            return json.loads(response.read() or b"{}")
+    except urllib.error.HTTPError as error:
+        try:
+            detail = json.loads(error.read() or b"{}").get("value") or {}
+        except ValueError:
+            detail = {}
+        raise BidiError(f"{detail.get('error', error.code)}: {detail.get('message', error.reason)}") from None

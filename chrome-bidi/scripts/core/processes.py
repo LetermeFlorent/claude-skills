@@ -2,19 +2,18 @@ import base64
 import json
 import re
 import subprocess
+import sys
 import time
 
-from core.common import POLL_STEP, driver_port
+sys.dont_write_bytecode = True
 
-POWERSHELL = ("powershell", "-NoProfile", "-NonInteractive", "-EncodedCommand")
-POWERSHELL_TIMEOUT = 60
-CHILD_FLAG = "--type="
+from core.common import driver_port
 
 
-def powershell(script, timeout=POWERSHELL_TIMEOUT):
+def powershell(script, timeout=60):
     encoded = base64.b64encode(script.encode("utf-16-le")).decode("ascii")
-    done = subprocess.run([*POWERSHELL, encoded], capture_output=True, text=True, encoding="utf-8",
-                          errors="replace", timeout=timeout)
+    done = subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-EncodedCommand", encoded],
+                          capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=timeout)
     if done.returncode != 0:
         raise RuntimeError(f"powershell failed: {done.stderr.strip()[:300]}")
     return done.stdout.strip()
@@ -25,17 +24,17 @@ def as_list(text):
     return found if isinstance(found, list) else [found]
 
 
-def table(name=None):
+def process_table(name=None):
     query = f" -Filter \"Name='{name}'\"" if name else ""
-    script = (f"[Console]::OutputEncoding = [Text.Encoding]::UTF8; Get-CimInstance Win32_Process{query} | "
-              "Select-Object ProcessId,ParentProcessId,Name,CommandLine | ConvertTo-Json -Compress")
-    return as_list(powershell(script))
+    return as_list(powershell("[Console]::OutputEncoding = [Text.Encoding]::UTF8; Get-CimInstance Win32_Process"
+                              f"{query} | Select-Object ProcessId,ParentProcessId,Name,CommandLine | "
+                              "ConvertTo-Json -Compress"))
 
 
 def matching(name, flag):
     pattern = re.compile(re.escape(flag) + r"(?![0-9])")
-    return [entry for entry in table(name)
-            if pattern.search(entry.get("CommandLine") or "") and CHILD_FLAG not in entry["CommandLine"]]
+    return [entry for entry in process_table(name)
+            if pattern.search(entry.get("CommandLine") or "") and "--type=" not in entry["CommandLine"]]
 
 
 def own_chrome(port):
@@ -55,5 +54,5 @@ def kill(entries):
 def wait_gone(port, seconds):
     deadline = time.monotonic() + seconds
     while (left := own_chrome(port)) and time.monotonic() < deadline:
-        time.sleep(POLL_STEP)
+        time.sleep(0.5)
     return left

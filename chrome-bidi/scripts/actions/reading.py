@@ -1,19 +1,14 @@
 import json
+import sys
 import time
 
-from actions.shared import shared_id_of, nodes, plain, url_of
-from actions.tabs import NAV_TIMEOUT
+sys.dont_write_bytecode = True
 
-WAIT_STEP = 0.25
-FOUND_LIMIT = 12
-DEFAULT_LISTEN = 3
-COOKIE_PREVIEW = 40
-ERROR_STATUS = 400
-LOG_ENTRY = "log.entryAdded"
-FETCH_ERROR = "network.fetchError"
-RESPONSE_COMPLETED = "network.responseCompleted"
-SHOW_ALL = "all"
-GET_COOKIES = "storage.getCookies"
+from core.common import NAV_TIMEOUT
+from actions.page import nodes, plain, shared_id_of, url_of
+
+
+LOG_ENTRY, FETCH_ERROR, RESPONSE_COMPLETED = "log.entryAdded", "network.fetchError", "network.responseCompleted"
 CONSOLE_EVENTS = (LOG_ENTRY,)
 NETWORK_EVENTS = (RESPONSE_COMPLETED, FETCH_ERROR)
 
@@ -27,13 +22,13 @@ def wait(page):
     while not nodes(page, page.value):
         if time.monotonic() - started >= page.options.timeout:
             raise TimeoutError(f"still missing after {page.options.timeout} s: {page.value}")
-        time.sleep(WAIT_STEP)
+        time.sleep(0.25)
     print(f"found after {time.monotonic() - started:.1f} s: {page.value}")
 
 
 def list_nodes(kind):
     def find(page):
-        found = nodes(page, page.value, kind, FOUND_LIMIT)
+        found = nodes(page, page.value, kind, 12)
         print(f"found: {len(found)}")
         for item in found:
             value = item.get("value") or {}
@@ -66,7 +61,7 @@ def describe(event, show_all):
     if method == FETCH_ERROR:
         return f"FAILED {params.get('errorText')} {params['request'].get('url')}"
     status = params["response"].get("status", 0)
-    if not show_all and status < ERROR_STATUS:
+    if not show_all and status < 400:
         return None
     return f"{status} {params['request'].get('method')} {params['request'].get('url')}"
 
@@ -77,10 +72,10 @@ def listener(events):
         if events is NETWORK_EVENTS:
             page.call("browsingContext.reload", {"context": page.context, "wait": "complete"}, NAV_TIMEOUT)
         words = page.value.split()
-        page.session.listen(int(words[0]) if words and words[0].isdigit() else DEFAULT_LISTEN)
+        page.session.pump(int(words[0]) if words and words[0].isdigit() else 3)
         subscription = subscribed.get("subscription")
-        unsubscribe = {"subscriptions": [subscription]} if subscription else {"events": list(events)}
-        page.call("session.unsubscribe", unsubscribe)
+        leave = {"subscriptions": [subscription]} if subscription else {"events": list(events)}
+        page.call("session.unsubscribe", leave)
         seen, count = set(), 0
         for event in page.session.events:
             params = event.get("params", {})
@@ -89,36 +84,31 @@ def listener(events):
                 continue
             seen.add(key)
             count += 1
-            line = describe(event, SHOW_ALL in words)
+            line = describe(event, "all" in words)
             if line:
                 print(line)
-        requests = "requests" if SHOW_ALL in words else "requests, errors only shown"
-        label = "messages" if events is CONSOLE_EVENTS else requests
+        label = "requests" if "all" in words else "requests, errors only shown"
+        label = "messages" if events is CONSOLE_EVENTS else label
         print(f"{count} {label}")
     return listen
 
 
-def context_partition(page):
-    return {"partition": {"type": "context", "context": page.context}}
-
-
 def cookies(page):
-    found = page.call(GET_COOKIES, context_partition(page)).get("cookies", [])
+    partition = {"partition": {"type": "context", "context": page.context}}
+    found = page.call("storage.getCookies", partition).get("cookies", [])
     for cookie in found:
         value = str((cookie.get("value") or {}).get("value", ""))
-        cut = "..." if len(value) > COOKIE_PREVIEW else ""
-        print(f"{cookie.get('domain')} {cookie.get('name')}={value[:COOKIE_PREVIEW]}{cut}")
+        print(f"{cookie.get('domain')} {cookie.get('name')}={value[:40]}{'...' if len(value) > 40 else ''}")
     print(f"{len(found)} cookies")
 
 
 def clearcookies(page):
-    partition = context_partition(page)
-    found = page.call(GET_COOKIES, partition).get("cookies", [])
+    partition = {"partition": {"type": "context", "context": page.context}}
+    found = page.call("storage.getCookies", partition).get("cookies", [])
     page.call("storage.deleteCookies", partition)
     print(f"{len(found)} cookies deleted")
 
 
 ACTIONS = {"wait": wait, "find": list_nodes("css"), "xpath": list_nodes("xpath"), "html": html, "text": text,
-           "eval": evaluate,
-           "console": listener(CONSOLE_EVENTS), "network": listener(NETWORK_EVENTS), "cookies": cookies,
-           "clearcookies": clearcookies}
+           "eval": evaluate, "console": listener(CONSOLE_EVENTS), "network": listener(NETWORK_EVENTS),
+           "cookies": cookies, "clearcookies": clearcookies}
