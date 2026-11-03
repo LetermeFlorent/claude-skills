@@ -3,7 +3,6 @@ import json
 from pathlib import Path
 
 ENCODING = "utf-8"
-HOUR = 3600
 
 
 def read_json(path):
@@ -25,14 +24,3 @@ def write_json(path, data):
 
 def file_hash(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
-
-
-def already_checked(state, session, now, hours):
-    if session:
-        return state.get("session") == session
-    last = state.get("time")
-    return isinstance(last, (int, float)) and 0 <= now - last < hours * HOUR
-
-
-def stamp(session, now, head):
-    return {"session": session, "time": now, "head": head}

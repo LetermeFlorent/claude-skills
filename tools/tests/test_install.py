@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 import unittest
@@ -75,6 +76,46 @@ class InstallTest(unittest.TestCase):
         self.assertTrue(is_link(link))
         self.assertTrue(same_path(link, own))
         self.assertTrue((own / "keep.txt").is_file())
+
+    def settings(self):
+        return json.loads((self.world.config / "settings.json").read_text(encoding=ENCODING))
+
+    def test_hooks_are_added_once_next_to_other_settings(self):
+        (self.world.config / "settings.json").parent.mkdir(parents=True, exist_ok=True)
+        (self.world.config / "settings.json").write_text('{"model": "opus"}', encoding=ENCODING)
+        self.world.run("install.py")
+        done = self.world.run("install.py")
+        self.assertIn("update hook: already there", done.stdout)
+        data = self.settings()
+        self.assertEqual(data["model"], "opus")
+        entries = data["hooks"]["SessionStart"]
+        self.assertEqual(len(entries), 1)
+        self.assertIn("claude-skills/tools/update.py", entries[0]["hooks"][0]["command"])
+        guard = data["hooks"]["PreToolUse"]
+        self.assertEqual(len(guard), 1)
+        self.assertEqual(guard[0]["matcher"], "Bash")
+        self.assertTrue(guard[0]["hooks"][0]["command"].endswith('resource-guard/scripts/guard.py" hook'))
+        self.assertIn("resource hook: already there", done.stdout)
+
+    def test_uninstall_removes_only_our_hooks(self):
+        self.world.run("install.py")
+        data = self.settings()
+        data["hooks"]["SessionStart"].append({"hooks": [{"type": "command", "command": "mine"}]})
+        (self.world.config / "settings.json").write_text(json.dumps(data), encoding=ENCODING)
+        done = self.world.run("install.py", "--uninstall")
+        self.assertIn("update hook: removed", done.stdout)
+        self.assertIn("resource hook: removed", done.stdout)
+        self.assertNotIn("PreToolUse", self.settings()["hooks"])
+        mine = [{"hooks": [{"type": "command", "command": "mine"}]}]
+        self.assertEqual(self.settings()["hooks"]["SessionStart"], mine)
+
+    def test_broken_settings_are_left_alone(self):
+        (self.world.config / "settings.json").parent.mkdir(parents=True, exist_ok=True)
+        (self.world.config / "settings.json").write_text("{broken", encoding=ENCODING)
+        done = self.world.run("install.py")
+        self.assertEqual(done.returncode, 1, done.stdout)
+        self.assertIn("update hook: not added", done.stdout)
+        self.assertEqual((self.world.config / "settings.json").read_text(encoding=ENCODING), "{broken")
 
     def test_repository_in_the_wrong_place_is_refused(self):
         done = self.world.run("install.py", tools=self.world.source / "tools")

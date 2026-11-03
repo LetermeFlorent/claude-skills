@@ -1,78 +1,66 @@
-import os
 import sys
-import time
 
 sys.dont_write_bytecode = True
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / "lib"))
 
-from gitcalls import (GitFailed, GitMissing, changed_paths, fast_forward, fetch, head, is_ancestor, is_dirty,
-                      remote_head, top_folders)
+from gitcalls import (GitFailed, GitMissing, changed_paths, current_release, fast_forward, fetch_tag, head,
+                      is_ancestor, is_dirty, latest_release)
 from guard import run_guarded
-from paths import INSTALLED_FILE, UPDATE_FILE, config_dir, repo_dir, skill_names, state_file
-from registry import already_checked, read_json, stamp, write_json
+from paths import INSTALLED_FILE, repo_dir, skill_names, state_file
+from registry import read_json, write_json
 from sync import UNCHANGED, sync
 
-BRANCH = "main"
-RECHECK_HOURS = 12
-SESSION_VAR = "CLAUDE_CODE_SESSION_ID"
-SHORT = 7
+PREFIX = "claude-skills"
 DONE = 0
-REREAD = "Re-read the SKILL.md of the skill in use before going on."
 HINT = 'by hand: git -C "<config>/claude-skills" pull --ff-only, then run tools/install.py, see INSTALL.md'
 
 
-def current_head(repo):
-    try:
-        return head(repo)
-    except (GitFailed, GitMissing):
-        return ""
-
-
-def resync(repo, config):
+def resync(repo):
     registry_path = state_file(repo, INSTALLED_FILE)
-    registry, lines = sync(repo, config, read_json(registry_path))
+    registry, lines = sync(repo, repo.parent, read_json(registry_path))
     write_json(registry_path, registry)
-    for _, text in lines:
-        if not text.endswith(UNCHANGED):
-            print(text)
+    return [text for _, text in lines if not text.endswith(UNCHANGED)]
 
 
-def check(repo, config):
+def changed_skills(repo, old, new, before):
+    known = set(before) | set(skill_names(repo))
+    return sorted({path.split("/", 1)[0] for path in changed_paths(repo, old, new)} & known)
+
+
+def check(repo):
     if is_dirty(repo):
-        return "local changes: not updated"
+        return ["local changes: not updated"]
+    try:
+        latest = latest_release(repo)
+    except GitFailed:
+        return ["could not reach GitHub: kept the installed version"]
+    if latest is None:
+        return ["no release published yet"]
+    tag, _ = latest
     old = head(repo)
     try:
-        new = remote_head(repo, BRANCH)
-        if new != old:
-            fetch(repo, BRANCH)
+        fetch_tag(repo, tag)
     except GitFailed:
-        return f"could not reach GitHub: kept {old[:SHORT]}"
-    if new == old:
-        return f"up to date ({old[:SHORT]})"
-    if not is_ancestor(repo, old):
-        return "local commits: not updated"
-    before = skill_names(repo)
-    fast_forward(repo)
-    resync(repo, config)
-    names = top_folders(changed_paths(repo, old, new), before + skill_names(repo))
-    return f"updated {old[:SHORT]}..{new[:SHORT]}: {', '.join(names) or 'tools only'}. {REREAD}"
+        return [f"could not fetch {tag}: kept the installed version"]
+    if is_ancestor(repo, tag, old):
+        return [f"up to date ({current_release(repo) or tag})"]
+    if not is_ancestor(repo, old, tag):
+        return [f"local commits: {tag} not installed"]
+    was, before = current_release(repo) or old[:7], skill_names(repo)
+    fast_forward(repo, f"{tag}^{{commit}}")
+    names = changed_skills(repo, old, head(repo), before)
+    return [f"updated {was} to {tag}: {', '.join(names) or 'tools only'}", *resync(repo)]
 
 
 def main():
-    repo, config = repo_dir(), config_dir()
-    session = os.environ.get(SESSION_VAR, "").strip()
-    state_path = state_file(repo, UPDATE_FILE)
-    if already_checked(read_json(state_path), session, time.time(), RECHECK_HOURS):
-        print("already checked this session")
-        return DONE
     try:
-        print(check(repo, config))
+        lines = check(repo_dir())
     except GitMissing:
-        print("git not found: update skipped")
-    finally:
-        write_json(state_path, stamp(session, time.time(), current_head(repo)))
+        lines = ["git not found: update skipped"]
+    for line in lines:
+        print(f"{PREFIX}: {line}")
     return DONE
 
 

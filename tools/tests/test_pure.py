@@ -8,11 +8,9 @@ sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
 
 from paths import command_files, config_dir, skill_names
-from registry import already_checked, read_json, stamp, write_json
+from registry import read_json, write_json
+from gitcalls import version
 
-NOW = 1_000_000.0
-HOURS = 12
-HOUR = 3600
 ENCODING = "utf-8"
 TREE = {"alpha": ["SKILL.md", "commands/a.md", "commands/notes.txt"], "beta": ["SKILL.md"],
         "notes": ["commands/x.md"], "tools": ["update.py"]}
@@ -29,25 +27,13 @@ class ConfigDirTest(unittest.TestCase):
         self.assertEqual(config_dir({}, "/home/a"), Path("/home/a/.claude"))
 
 
-class AlreadyCheckedTest(unittest.TestCase):
-    def test_same_session(self):
-        self.assertTrue(already_checked(stamp("s1", NOW, "abc"), "s1", NOW + 99 * HOUR, HOURS))
+class VersionTest(unittest.TestCase):
+    def test_numbers_compare_as_numbers(self):
+        self.assertGreater(version("v1.10.0"), version("v1.9.3"))
 
-    def test_new_session(self):
-        self.assertFalse(already_checked(stamp("s1", NOW, "abc"), "s2", NOW + 1, HOURS))
-
-    def test_no_session_recent(self):
-        self.assertTrue(already_checked(stamp("", NOW, "abc"), "", NOW + HOUR, HOURS))
-
-    def test_no_session_old(self):
-        self.assertFalse(already_checked(stamp("", NOW, "abc"), "", NOW + 13 * HOUR, HOURS))
-
-    def test_no_session_clock_set_back(self):
-        self.assertFalse(already_checked(stamp("", NOW, "abc"), "", NOW - 60, HOURS))
-
-    def test_empty_state(self):
-        self.assertFalse(already_checked({}, "", NOW, HOURS))
-        self.assertFalse(already_checked({}, "s1", NOW, HOURS))
+    def test_other_tags_are_not_releases(self):
+        for tag in ("1.0.0", "v1.0", "v1.0.0-beta", "latest"):
+            self.assertIsNone(version(tag))
 
 
 class JsonTest(unittest.TestCase):

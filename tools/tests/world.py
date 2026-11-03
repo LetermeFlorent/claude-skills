@@ -49,6 +49,7 @@ class World:
         git(self.source, "init", "-q")
         self.write_skill("alpha")
         self.commit("start", "tools", ".gitignore", "alpha")
+        git(self.source, "tag", "-a", "v1.0.0", "-m", "v1.0.0")
         git(self.root, "clone", "-q", "--bare", str(self.source), str(self.origin))
         git(self.source, "remote", "add", "origin", str(self.origin))
         git(self.root, "clone", "-q", str(self.origin), str(self.clone))
@@ -63,20 +64,27 @@ class World:
         git(self.source, "add", "--", *paths)
         git(self.source, "commit", "-q", "-m", message)
 
-    def publish(self, message, *paths):
+    def push(self, message, *paths):
         self.commit(message, *paths)
         git(self.source, "push", "-q", "origin", BRANCH)
 
-    def publish_removal(self, name):
+    def release(self, tag):
+        git(self.source, "tag", "-a", tag, "-m", tag)
+        git(self.source, "push", "-q", "origin", tag)
+
+    def publish(self, message, *paths, tag="v1.1.0"):
+        self.push(message, *paths)
+        self.release(tag)
+
+    def publish_removal(self, name, tag="v1.1.0"):
         git(self.source, "rm", "-r", "-q", name)
         git(self.source, "commit", "-q", "-m", f"remove {name}")
         git(self.source, "push", "-q", "origin", BRANCH)
+        self.release(tag)
 
-    def run(self, script, *args, session=None, path=None, tools=None):
+    def run(self, script, *args, path=None, tools=None):
         env = {key: value for key, value in os.environ.items() if key != SESSION_VAR}
         env[CONFIG_VAR] = str(self.config)
-        if session:
-            env[SESSION_VAR] = session
         if path is not None:
             env["PATH"] = str(path)
         folder = tools or self.clone / "tools"

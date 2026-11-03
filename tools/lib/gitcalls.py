@@ -1,10 +1,13 @@
 import os
+import re
 import shutil
 import subprocess
 
 TIMEOUT = 20
 REMOTE = "origin"
-FETCHED = "FETCH_HEAD"
+TAG_PREFIX = "v"
+PEELED = "^{}"
+VERSION = re.compile(r"v(\d+)\.(\d+)\.(\d+)")
 NO_PROMPT = ("-c", "credential.helper=")
 QUIET_ENV = {"GIT_TERMINAL_PROMPT": "0", "GCM_INTERACTIVE": "never"}
 
@@ -39,32 +42,49 @@ def is_dirty(repo):
     return bool(git(repo, "status", "--porcelain", "--untracked-files=no"))
 
 
-def remote_head(repo, branch):
-    found = git(repo, "ls-remote", REMOTE, f"refs/heads/{branch}").split()
+def latest_release(repo):
+    found = {}
+    for line in git(repo, "ls-remote", "--tags", REMOTE, f"{TAG_PREFIX}*").splitlines():
+        sha, _, ref = line.partition("	")
+        name = ref.removeprefix("refs/tags/")
+        peeled = name.endswith(PEELED)
+        name = name.removesuffix(PEELED)
+        number = version(name)
+        if number is not None and (peeled or name not in found):
+            found[name] = (number, sha)
     if not found:
-        raise GitFailed(f"no branch {branch} on {REMOTE}")
-    return found[0]
+        return None
+    name = max(found, key=lambda tag: found[tag][0])
+    return name, found[name][1]
 
 
-def fetch(repo, branch):
-    git(repo, "fetch", "--quiet", REMOTE, branch)
+def version(tag):
+    match = VERSION.fullmatch(tag)
+    return tuple(int(part) for part in match.groups()) if match else None
 
 
-def is_ancestor(repo, old):
+def fetch_tag(repo, tag):
+    git(repo, "fetch", "--quiet", "--no-tags", REMOTE, f"refs/tags/{tag}:refs/tags/{tag}")
+
+
+def is_ancestor(repo, older, newer):
     try:
-        git(repo, "merge-base", "--is-ancestor", old, FETCHED)
+        git(repo, "merge-base", "--is-ancestor", older, newer)
     except GitFailed:
         return False
     return True
 
 
-def fast_forward(repo):
-    git(repo, "merge", "--ff-only", "--quiet", FETCHED)
+def fast_forward(repo, commit):
+    git(repo, "merge", "--ff-only", "--quiet", commit)
+
+
+def current_release(repo):
+    try:
+        return git(repo, "describe", "--tags", "--abbrev=0", "--match", f"{TAG_PREFIX}*")
+    except GitFailed:
+        return ""
 
 
 def changed_paths(repo, old, new):
     return git(repo, "diff", "--name-only", old, new).splitlines()
-
-
-def top_folders(paths, known):
-    return sorted({path.split("/", 1)[0] for path in paths} & set(known))
