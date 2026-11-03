@@ -2,13 +2,12 @@ import re
 
 from common import CHECK, NOTE, REFUSE, read_text, relative
 from frontmatter import line_of, split
-from shape import (LIST, SECTION_LEVEL, TABLE_ROW, TITLE_LEVEL, classify, crowded_headings, french_share, headings,
-                   prose, section_rows)
+from shape import TITLE_LEVEL, classify, french_share, headings, prose
 
 FILE = "SKILL.md"
 NAME = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 NAME_LIMIT, DESCRIPTION_LIMIT, DESCRIPTION_AIM = 64, 1024, 500
-LINES_AIM, LINES_LIMIT = 250, 500
+LINES_AIM, LINES_LIMIT = 150, 500
 TRIGGER_START = "Use when"
 STEP_MARKERS = re.compile(r"(?<!-)\bthen\b(?!-)|->|\u2192|\bfollowed by\b"
                           r"|\bstep by step\b|\bafterwards?\b|(?:^|\s)\d[.)]\s",
@@ -17,8 +16,6 @@ FIRST_PERSON = re.compile(r"\b(I|I'm|I'll|my|we|our)\b")
 LINE_RULES = ((REFUSE, re.compile(r"\bsuperpowers:[\w-]"), "a superpowers: prefix: name the skill in plain words"),
               (REFUSE, re.compile(r"(?<![\w.])@[\w~./-]+\.md\b"), "an @ path loads the whole file at once"),
               (CHECK, re.compile(r"\bpython3?\s+(?!-I\b)\S*\.py\b"), "a script called without python -I"))
-REQUIRED, LAST, RULES, FLAGS = "overview", "files", "rules that never bend", "red flags"
-FLAGS_HEADER = "thought"
 FRENCH_LIMIT = 0.5
 MARKDOWN = "*.md"
 
@@ -54,28 +51,10 @@ def check_front(fields, text, folder_name, commands):
     return found + check_description(fields.get("description", ""), commands, line_of(text, "description"))
 
 
-def _red_flags(rows):
-    table = [line for _, line, kind in section_rows(rows, FLAGS) if TABLE_ROW.match(line)]
-    first = table[0].strip("| \t").split("|")[0].strip().lower() if table else ""
-    return [] if first == FLAGS_HEADER else [(NOTE, FILE, 0, "## Red flags is not a | Thought | Reality | table")]
-
-
 def check_body(rows, total):
     found, titles = [], headings(rows)
     if not titles or titles[0][1] != TITLE_LEVEL:
         found.append((REFUSE, FILE, titles[0][0] if titles else 1, "the body does not open on a # title"))
-    seconds = [(number, text.strip().lower()) for number, level, text in titles if level == SECTION_LEVEL]
-    names = [name for _, name in seconds]
-    if REQUIRED not in names:
-        found.append((REFUSE, FILE, 0, "no ## Overview section"))
-    if seconds and names[-1] != LAST:
-        found.append((NOTE, FILE, seconds[-1][0], "## Files is not the last section"))
-    if RULES in names and FLAGS not in names:
-        found.append((NOTE, FILE, 0, "hard rules but no ## Red flags table"))
-    elif FLAGS in names:
-        found += _red_flags(rows)
-    found += [(REFUSE if kind == LIST else NOTE, FILE, number, f"a {kind} right under a heading: a sentence first")
-              for number, kind in crowded_headings(rows)]
     if total > LINES_LIMIT:
         found.append((REFUSE, FILE, 0, f"{total} lines, {LINES_LIMIT} at most: move material to reference/"))
     elif total > LINES_AIM:

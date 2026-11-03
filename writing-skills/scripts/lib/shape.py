@@ -2,15 +2,12 @@ import re
 
 FENCE = re.compile(r"^\s*(`{3,}|~{3,})")
 HEADING = re.compile(r"^(?P<marks>#{1,6})\s+(?P<title>.+?)\s*#*\s*$")
-LIST_ITEM = re.compile(r"^\s*([-*+]|\d+[.)])\s+")
-TABLE_ROW = re.compile(r"^\s*\|")
 WORD = re.compile(r"[^\W\d_]+")
 FRENCH_WORDS = frozenset("le la les des une est et du dans pour que qui avec sur pas ce il elle au".split())
 ENGLISH_WORDS = frozenset("the and is are of to with for that this when not it an be".split())
 UNDECIDED = 0.5
 TEXT, CODE = "text", "code"
-LIST, TABLE = "list", "table"
-TITLE_LEVEL, SECTION_LEVEL = 1, 2
+TITLE_LEVEL = 1
 
 
 def _closes(line, fence):
@@ -42,31 +39,6 @@ def headings(rows):
         if match:
             found.append((number, len(match["marks"]), match["title"]))
     return found
-
-
-def crowded_headings(rows):
-    flagged = []
-    for index, (number, line, kind) in enumerate(rows):
-        if kind != TEXT or not HEADING.match(line):
-            continue
-        after = next((row for row in rows[index + 1:] if row[1].strip()), None)
-        if after and after[2] == TEXT and LIST_ITEM.match(after[1]):
-            flagged.append((number, LIST))
-        elif after and after[2] == TEXT and TABLE_ROW.match(after[1]):
-            flagged.append((number, TABLE))
-    return flagged
-
-
-def section_rows(rows, title):
-    inside, kept = False, []
-    for number, line, kind in rows:
-        match = HEADING.match(line) if kind == TEXT else None
-        if match and len(match["marks"]) <= SECTION_LEVEL:
-            inside = match["title"].strip().lower() == title
-            continue
-        if inside:
-            kept.append((number, line, kind))
-    return kept
 
 
 def french_share(text):

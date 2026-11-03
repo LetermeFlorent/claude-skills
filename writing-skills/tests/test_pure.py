@@ -9,7 +9,7 @@ sys.path.insert(0, str(SCRIPTS / "lib"))
 from common import CHECK, NOTE, REFUSE
 from companions import check_command_text, check_readme_text
 from frontmatter import split
-from shape import classify, crowded_headings, french_share
+from shape import classify, french_share
 from skillmd import check_body, check_description
 
 GOOD = "Use when a CSV must open in Excel, or when the user types /csv."
@@ -20,7 +20,7 @@ description: Ouvre la skill csv.
 argument-hint: "[fichier]"
 allowed-tools: Read,Skill
 ---
-Charge la skill avec Skill, sinon $CLAUDE_CONFIG_DIR/skills/csv/SKILL.md puis ~/.claude/skills/csv/SKILL.md.
+Charge la skill avec Skill.
 $ARGUMENTS donne le fichier.
 """
 
@@ -65,13 +65,9 @@ class Description(unittest.TestCase):
 
 
 class Shape(unittest.TestCase):
-    def test_list_right_under_heading(self):
-        rows = classify(["## Rules", "- one", "", "## Files", "Two files.", "- a", "## Flags", "| a |"])
-        self.assertEqual(crowded_headings(rows), [(1, "list"), (7, "table")])
-
     def test_heading_inside_fence_is_code(self):
-        rows = classify(["````markdown", "## Rules", "- one", "````"])
-        self.assertEqual(crowded_headings(rows), [])
+        rows = classify(["````markdown", "# Rules", "````", "## Real"])
+        self.assertEqual([item[2] for item in rows], ["code", "code", "code", "text"])
 
     def test_language_share(self):
         self.assertGreater(french_share(FRENCH), 0.5)
@@ -79,46 +75,40 @@ class Shape(unittest.TestCase):
 
 
 class Body(unittest.TestCase):
-    def test_complete_body_passes(self):
-        text = "# Csv\n\n## Overview\n\nWhat.\n\n## Red flags\n\nTable.\n\n| Thought | Reality |\n\n## Files\n\nOne.\n"
-        self.assertEqual(check_body(body(text), 15), [])
+    def test_title_first_passes(self):
+        self.assertEqual(check_body(body("# Csv\n\nWhat.\n"), 3), [])
 
-    def test_missing_overview_and_files_last(self):
-        found = check_body(body("# Csv\n\n## Files\n\nOne.\n\n## Notes\n\nMore.\n"), 9)
-        self.assertEqual(levels(found), [NOTE, REFUSE])
+    def test_missing_title(self):
+        self.assertEqual(levels(check_body(body("## Csv\n\nWhat.\n"), 3)), [REFUSE])
 
     def test_length(self):
-        self.assertEqual(levels(check_body(body("# Csv\n\n## Overview\n\nWhat.\n\n## Files\n\nOne.\n"), 600)), [REFUSE])
+        self.assertEqual(levels(check_body(body("# Csv\n\nWhat.\n"), 600)), [REFUSE])
+        self.assertEqual(levels(check_body(body("# Csv\n\nWhat.\n"), 200)), [NOTE])
 
 
 class Readme(unittest.TestCase):
-    def test_draft_refuses_tested_section(self):
-        text = f"# Csv\n\n{FRENCH}\n\n## Ce qui a été testé\n\nRien.\n"
-        self.assertEqual(levels(check_readme_text(text, True)), [REFUSE])
-
-    def test_final_needs_tested_section(self):
-        self.assertEqual(levels(check_readme_text(f"# Csv\n\n{FRENCH} Testé.\n", False)), [REFUSE])
-
-    def test_final_untested_is_a_note(self):
-        text = f"# Csv\n\n{FRENCH} Été.\n\n## Pas encore testé\n\nMarie a choisi.\n"
-        self.assertEqual(levels(check_readme_text(text, False)), [NOTE])
+    def test_french_with_accents_passes(self):
+        self.assertEqual(check_readme_text(f"# Csv\n\n{FRENCH} Été.\n"), [])
 
     def test_english_and_missing(self):
-        self.assertIn(CHECK, levels(check_readme_text(f"# Csv\n\n{ENGLISH} été\n", True)))
-        self.assertEqual(levels(check_readme_text(None, True)), [REFUSE])
+        self.assertIn(CHECK, levels(check_readme_text(f"# Csv\n\n{ENGLISH} été\n")))
+        self.assertEqual(levels(check_readme_text(None)), [REFUSE])
+
+    def test_no_accent_is_a_note(self):
+        self.assertEqual(levels(check_readme_text(f"# Csv\n\n{FRENCH}\n")), [NOTE])
 
 
 class Command(unittest.TestCase):
     def test_good_command(self):
-        self.assertEqual(check_command_text("csv.md", COMMAND, "csv"), [])
+        self.assertEqual(check_command_text("csv.md", COMMAND), [])
 
     def test_accent_and_name(self):
-        found = check_command_text("Créer.md", COMMAND.replace("Ouvre", "Crée"), "csv")
+        found = check_command_text("Créer.md", COMMAND.replace("Ouvre", "Crée"))
         self.assertEqual(levels(found), [REFUSE, REFUSE])
 
-    def test_missing_fallback_skill_and_arguments(self):
-        text = COMMAND.replace("Read,Skill", "Read").replace("~/.claude/", "").replace("$ARGUMENTS", "x")
-        self.assertEqual(len(check_command_text("csv.md", text, "csv")), 3)
+    def test_missing_skill_tool_and_arguments(self):
+        text = COMMAND.replace("Read,Skill", "Read").replace("$ARGUMENTS", "x")
+        self.assertEqual(len(check_command_text("csv.md", text)), 2)
 
 
 if __name__ == "__main__":
