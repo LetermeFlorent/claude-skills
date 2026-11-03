@@ -10,6 +10,7 @@ SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPTS / "lib"))
 sys.path.insert(0, str(SCRIPTS))
 
+from common import QUIET_ENV
 from push import ACCOUNTS_VAR, _command
 from repo import GIT, GITHUB_KIND
 
@@ -19,6 +20,10 @@ MISSING = Path(tempfile.gettempdir()) / "claude-skills-no-such-tool"
 
 
 class PushCommandTest(unittest.TestCase):
+    def test_git_never_opens_a_credential_window(self):
+        self.assertEqual(QUIET_ENV["GIT_TERMINAL_PROMPT"], "0")
+        self.assertEqual(QUIET_ENV["GCM_INTERACTIVE"], "never")
+
     def test_plain_push_without_the_account_tool(self):
         self.assertEqual(_command(ROOT, TARGET, ["push"], MISSING), [GIT, "push"])
 

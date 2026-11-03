@@ -1,51 +1,25 @@
 # clean-commits
 
-Une skill et une commande pour Claude Code, qui font des commits propres dans n'importe quel dépôt.
-Pour l'installer, voir `INSTALL.md` à la racine du dépôt.
+Une skill et une commande pour Claude Code qui font des commits propres dans n'importe quel dépôt. Installation : voir `INSTALL.md` à la racine du dépôt.
 
 ## /commit
 
-Tape `/commit` quand le travail de la session est prêt. Claude regarde l'état du dépôt, puis ne
-prend que les fichiers qu'il a lui-même créés, modifiés ou supprimés pendant la session. Si
-d'autres fichiers ont bougé, il pose une seule question : les laisser à l'autre session, les
-inclure, ou choisir un par un. Il range ensuite les changements par intention, un commit pour
-chacune, et pousse la branche.
+Tape `/commit` quand le travail est prêt. Claude ne prend que les fichiers qu'il a lui-même créés, modifiés ou supprimés pendant la session. Si d'autres fichiers ont bougé, il pose une seule question : les laisser, les inclure, ou choisir un par un. Il range ensuite les changements par intention, un commit chacune, puis pousse la branche. `/commit le panier` restreint à ce qui touche au panier.
 
-On peut préciser : `/commit le panier` ne prend que ce qui touche au panier.
+Le message suit l'historique : langue du dépôt, et forme `feat(scope): ...` seulement si le dépôt l'utilise. Sans historique, Claude demande la langue. Avant chaque commit, le linter et la vérification de types du projet tournent sur les fichiers du commit : une erreur dans ces fichiers bloque, une erreur ailleurs est seulement signalée.
 
-Le message suit l'historique du dépôt. Un dépôt écrit en français reçoit des messages en français,
-un dépôt en `feat(scope): ...` garde cette forme, avec ses propres types et ses propres scopes.
-S'il n'y a encore aucun commit, Claude demande la langue.
+## Le push
 
-Avant chaque commit, il lance le linter et la vérification de types du projet sur les fichiers du
-commit, s'ils existent. Une erreur dans ces fichiers bloque le commit. Une erreur ailleurs ne
-bloque rien, elle est signalée. La suite de tests complète reste au travail d'avant.
+Si la variable `CLAUDE_SKILLS_ACCOUNTS` désigne un outil de comptes, le push GitHub passe par lui. Sinon c'est un `git push` simple avec tes identifiants, sans jamais ouvrir de fenêtre de connexion. Un push refusé n'est jamais forcé.
 
-Le push passe par l'outil de comptes que désigne la variable `CLAUDE_SKILLS_ACCOUNTS` quand elle est
-définie (par exemple l'outil de la skill account-keys), sinon par un `git push` simple avec tes propres
-identifiants. Un push refusé n'est jamais forcé.
+## Appel par une autre skill
 
-## Quand une autre skill l'appelle
-
-clean-code appelle clean-commits à la fin de chaque étape de son plan, avec la liste exacte des
-fichiers de l'étape. Dans ce cas il n'y a ni question sur les autres fichiers, ni push : les
-commits restent en local.
+clean-code appelle clean-commits à la fin de chaque étape avec la liste exacte des fichiers : pas de question, pas de push.
 
 ## Ce qui ne passe jamais
 
-Aucune signature d'outil d'IA dans un message, qu'il s'agisse de Claude, Codex, Copilot, Cursor,
-Gemini, Jules, Devin ou Aider : un trailer `Co-Authored-By` vers l'un d'eux, une ligne
-`Made-with: Cursor` ou un lien de session sont refusés, et s'il en traîne un dans un commit pas
-encore poussé, il est retiré. Un co-auteur qui est une personne reste, même s'il s'appelle Claude.
-La liste complète vient de la skill `anti-empreinte`. Dans un commit déjà poussé,
-Claude le signale et ne réécrit rien. Les fichiers de secrets, les sorties de build, les dossiers
-`.ia/` et `.claude/` ne partent jamais. Aucun `git add .`, aucun `--no-verify`, aucun push forcé,
-aucun stash du travail d'une autre session.
+Aucune signature d'outil d'IA dans un message (Claude, Codex, Copilot, Cursor, Gemini, Jules, Devin, Aider) : elle est refusée, et retirée si elle traîne dans un commit pas encore poussé. Dans un commit déjà poussé, Claude le signale sans rien réécrire. Les fichiers de secrets, les sorties de build et les dossiers `.ia/` et `.claude/` ne partent jamais. Aucun `git add .`, `--no-verify`, push forcé ni stash du travail d'une autre session.
 
-## Le contenu du dossier
+## Le dossier
 
-`SKILL.md` porte la procédure, en anglais. Le dossier `scripts` contient cinq outils :
-`state.py` lit l'état du dépôt, `scrub.py` retire l'attribution des commits pas encore poussés,
-`checks.py` lance les vérifications rapides, `commit.py` vérifie le message et les fichiers puis
-commite, `push.py` pousse. `scripts/lib` contient ce qu'ils partagent. `commands` contient la
-commande `/commit`.
+`SKILL.md` porte la procédure. `scripts` : `state.py` lit l'état, `scrub.py` retire l'attribution des commits non poussés, `checks.py` lance les vérifications rapides, `commit.py` vérifie puis commite, `push.py` pousse. `commands` contient `/commit`.
