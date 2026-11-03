@@ -5,7 +5,7 @@ output, and tell the user what happened.
 
 ## What gets installed
 
-The repository holds 7 skills, one folder each with a `SKILL.md`, and the slash commands that start
+The repository holds 9 skills, one folder each with a `SKILL.md`, and the slash commands that start
 them, in each skill's `commands/` folder. Installing clones the repository into the Claude Code
 configuration folder, links every skill folder into its `skills/` folder and copies every command
 into its `commands/` folder. Nothing outside the configuration folder changes.
@@ -20,11 +20,10 @@ Check both before cloning.
 - git: `git --version`.
 - Python 3.10 or later: `python --version`. Where `python` is missing or older, try `python3`, and
   use the one that works in every command below.
-  The same substitution applies to the update line that every `SKILL.md` opens with.
 
 Skills are linked through directory junctions on Windows, which need no administrator rights, and
-through symbolic links on macOS and Linux. `chrome-bidi` drives Chrome on Windows only; the other 17
-skills run on any of the three.
+through symbolic links on macOS and Linux. `chrome-bidi` drives Chrome on Windows only; the other eight
+run on any of the three.
 
 ## Install
 
@@ -45,8 +44,9 @@ Five steps, in this order.
    ```
 
    It prints one line per skill and per command: `linked`, `copied`, `already there`, `removed`, or
-   `skipped` with the reason. Exit code 0 means everything is in place, 1 that at least one line was
-   skipped or failed, 2 that the clone is not in `<config>/claude-skills`.
+   `skipped` with the reason, then one line for each hook it adds to `<config>/settings.json` (update and resource).
+   Exit code 0 means everything is in place, 1 that at least one line was skipped or failed, 2 that
+   the clone is not in `<config>/claude-skills`.
 3. A `skipped` line means the user already has a skill or a command with that name. Never move or
    delete it yourself: show the line to the user and ask. If they want the version from this
    repository, they move theirs away and you run step 2 again.
@@ -56,7 +56,7 @@ Five steps, in this order.
 
 ## Check
 
-`ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills"` lists the 7 skill folders and
+`ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills"` lists the 9 skill folders and
 `ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/commands"` the 8 command files, next to whatever the user
 had before. Then run the update check once:
 
@@ -64,8 +64,7 @@ had before. Then run the update check once:
 python -I "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/claude-skills/tools/update.py"
 ```
 
-It prints `up to date (<sha>)`. That run counts as the check of the current session: when a skill asks
-for it again in the same session, the script prints `already checked this session` and stops at once.
+It prints `claude-skills: up to date (<version>)`.
 
 ## Commands
 
@@ -83,20 +82,30 @@ Each command starts one skill.
 
 ## Updates
 
-Every `SKILL.md` opens its overview with a line asking the agent to run `tools/update.py` once per
-session, before following the skill. The script works in this order:
+The installer adds a `SessionStart` hook (matcher `startup`) to `<config>/settings.json` that runs
+`tools/update.py` each time Claude Code opens. The script:
 
-- it stops at once when it already ran in this Claude Code session (`CLAUDE_CODE_SESSION_ID`), or in
-  the last 12 hours when that variable is missing;
-- it asks GitHub for the latest commit of `main` and, when that commit is newer, fast-forwards the
-  clone, links new skills, copies changed commands and removes what left the repository;
-- it leaves a clone with local edits or local commits untouched, and says so;
-- it keeps the current version when GitHub gives no answer within 20 seconds.
+- asks GitHub for the highest release tag `vX.Y.Z`; commits pushed to `main` without a release are
+  ignored;
+- when that release is newer than the clone, fetches it, fast-forwards, links new skills, copies
+  changed commands and removes what left the repository, then prints
+  `claude-skills: updated <old> to <new>: <skills>`;
+- leaves a clone with local edits or local commits untouched, and says so;
+- keeps the installed version when GitHub gives no answer within 20 seconds;
+- never opens a login window: the credential helper is switched off for these calls.
 
-After a line that starts with `updated`, re-read the `SKILL.md` of the skill in use, since it may
-have changed. Every planned outcome exits 0, so the skill goes on in every case. Running the line
-again for a second skill in the same session costs nothing, since only the first run asks GitHub. To
-update by hand, run the same command.
+Every planned outcome exits 0. To update by hand, run the same command.
+
+To publish a version, create a release on GitHub (or push an annotated tag) with a higher
+`vX.Y.Z` number.
+
+## Resource hook
+
+The installer also adds a `PreToolUse` hook (matcher `Bash`) that runs
+`resource-guard/scripts/guard.py hook` before every shell command. Light commands pass at once.
+Heavy ones (builds, tests, docker, node, python...) wait until free RAM, CPU load and disk activity
+are back under the thresholds, five minutes at most, then the call is blocked with the reason.
+`resource-guard/SKILL.md` lists the thresholds and the variables that change them.
 
 ## Uninstall
 
@@ -104,7 +113,8 @@ update by hand, run the same command.
 python -I "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/claude-skills/tools/install.py" --uninstall
 ```
 
-It removes the links and the commands it installed, and leaves alone any command the user edited.
+It removes the links, the commands it installed and its two hooks, and leaves alone any command the
+user edited.
 Once it has printed its lines, the folder `<config>/claude-skills` can be deleted.
 
 ## When something fails
