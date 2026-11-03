@@ -24,12 +24,12 @@ def guard(tool, main, hint):
         sys.exit(FAILED)
 
 
-def run(command, cwd, timeout, env=None):
+def run(command, cwd, timeout):
     program = shutil.which(command[0]) or command[0]
     try:
         done = subprocess.run([program, *command[1:]], cwd=str(cwd), capture_output=True, text=True,
                               timeout=timeout, encoding=ENCODING, errors=DECODE_ERRORS,
-                              env={**os.environ, **QUIET_ENV, **(env or {})}, creationflags=LOW_PRIORITY)
+                              env={**os.environ, **QUIET_ENV}, creationflags=LOW_PRIORITY)
     except FileNotFoundError:
         return None, "", f"{command[0]} is not installed"
     except subprocess.TimeoutExpired:

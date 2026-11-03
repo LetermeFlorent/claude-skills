@@ -18,8 +18,7 @@ from common import FAILED, LOW_PRIORITY, guard, refuse
 
 TOOL = "using-git-worktrees"
 LOG_FOLDER = ("claude-skills", "worktree-baseline")
-DEFAULT_TIMEOUT = 540
-INSTALL_TIMEOUT = 540
+TIMEOUT = 540
 TAIL_LINES = 15
 Place = namedtuple("Place", "cwd log env")
 
@@ -61,7 +60,6 @@ def finish(code, log):
 def main():
     parser = argparse.ArgumentParser(prog="baseline.py")
     parser.add_argument("worktree")
-    parser.add_argument("--timeout", type=int, default=DEFAULT_TIMEOUT)
     args = parser.parse_args()
     worktree = Path(args.worktree).resolve()
     main_root = gitinfo.git_dirs(worktree)[1].parent
@@ -78,13 +76,13 @@ def main():
     env = commands.extra_env(main_root, resources.heap_mb(seen["free_mb"] if seen else resources.MIN_FREE_MB))
     place = Place(worktree, log, env)
     install = commands.install_command(worktree)
-    if install and run_logged(install, place, INSTALL_TIMEOUT) != 0:
+    if install and run_logged(install, place, TIMEOUT) != 0:
         finish(None, log)
     test = commands.test_command(worktree, workers)
     if test is None:
         print("BASELINE SKIPPED no test command found")
         return
-    finish(run_logged(test, place, args.timeout), log)
+    finish(run_logged(test, place, TIMEOUT), log)
 
 
 if __name__ == "__main__":
