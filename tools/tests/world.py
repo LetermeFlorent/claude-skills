@@ -22,6 +22,12 @@ SKILL_TEXT = "---\nname: {0}\ndescription: Use when testing {0}.\n---\n\n# {0}\n
 COMMAND_TEXT = "Read the {0} skill.\n"
 IGNORED = ".ia/\n__pycache__/\n"
 BRANCH = "main"
+PONYTAIL_FILES = {"skills/ponytail/SKILL.md": SKILL_TEXT.format("ponytail"),
+                  "skills/ponytail-review/SKILL.md": SKILL_TEXT.format("ponytail-review"),
+                  "hooks/ponytail-activate.js": "", "hooks/ponytail-subagent.js": "",
+                  "hooks/ponytail-mode-tracker.js": "",
+                  "hooks/ponytail-instructions.js": "exports.getPonytailInstructions = m => 'RULES ' + m;\n",
+                  ".opencode/command/ponytail-review.md": "Review.\n"}
 
 
 def git(folder, *args):
@@ -54,6 +60,19 @@ class World:
         git(self.root, "clone", "-q", "--bare", str(self.source), str(self.origin))
         git(self.source, "remote", "add", "origin", str(self.origin))
         git(self.root, "clone", "-q", str(self.origin), str(self.clone))
+        self.ponytail = self.root / "ponytail-source"
+        self.xdg = self.root / "xdg"
+        self.ponytail_release("v5.0.0", PONYTAIL_FILES)
+
+    def ponytail_release(self, tag, files):
+        for name, text in files.items():
+            (self.ponytail / name).parent.mkdir(parents=True, exist_ok=True)
+            (self.ponytail / name).write_text(text, encoding=ENCODING)
+        if not (self.ponytail / ".git").is_dir():
+            git(self.ponytail, "init", "-q")
+        git(self.ponytail, "add", "-A")
+        git(self.ponytail, "commit", "-q", "-m", tag)
+        git(self.ponytail, "tag", "-a", tag, "-m", tag)
 
     def write_skill(self, name, command=None):
         folder = self.source / name / "commands"
@@ -87,6 +106,9 @@ class World:
         env = {key: value for key, value in os.environ.items() if key != SESSION_VAR}
         env[CONFIG_VAR] = str(self.config)
         env["CLAUDE_SKILLS_OPENCODE_DIR"] = str(self.opencode)
+        env["CLAUDE_SKILLS_PONYTAIL_URL"] = self.ponytail.as_uri()
+        env["XDG_CONFIG_HOME"] = str(self.xdg)
+        env["CLAUDE_SKILLS_GRAPHIFY_INDEX"] = (self.root / "no-index.json").as_uri()
         if path is not None:
             env["PATH"] = str(path)
         folder = tools or self.clone / "tools"

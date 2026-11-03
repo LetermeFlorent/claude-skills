@@ -7,8 +7,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent / "lib"))
 
 from gitcalls import (GitFailed, GitMissing, changed_paths, current_release, fast_forward, fetch_tag, head,
                       is_ancestor, is_dirty, latest_release)
+from graphify import start_background
 from guard import run_guarded
-from paths import INSTALLED_FILE, repo_dir, skill_names, state_file
+from hook import add_hooks
+from paths import GRAPHIFY_FILE, INSTALLED_FILE, PONYTAIL_FILE, config_dir, repo_dir, skill_names, state_file
+from ponytail import sync_ponytail
 from registry import read_json, write_json
 from sync import UNCHANGED, sync
 
@@ -54,11 +57,19 @@ def check(repo):
     return [f"updated {was} to {tag}: {', '.join(names) or 'tools only'}", *resync(repo)]
 
 
+def extras(repo):
+    found = sync_ponytail(repo.parent, state_file(repo, PONYTAIL_FILE)) + add_hooks(config_dir(), repo)
+    lines = [text for _, text in found if not text.endswith(UNCHANGED)]
+    return lines + [start_background(repo, state_file(repo, GRAPHIFY_FILE))]
+
+
 def main():
+    repo = repo_dir()
     try:
-        lines = check(repo_dir())
+        lines = check(repo)
     except GitMissing:
         lines = ["git not found: update skipped"]
+    lines += extras(repo)
     for line in lines:
         print(f"{PREFIX}: {line}")
     return DONE

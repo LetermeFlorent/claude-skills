@@ -1,24 +1,35 @@
 import json
+import shutil
 import sys
 from collections import namedtuple
 from pathlib import Path
 
 SETTINGS = "settings.json"
 ENCODING = "utf-8"
+NODE = "node"
 Hook = namedtuple("Hook", "label event matcher script argument timeout")
-HOOKS = (Hook("update hook", "SessionStart", "startup", "tools/update.py", "", 30),
-         Hook("resource hook", "PreToolUse", "Bash", "resource-guard/scripts/guard.py", " hook", 330))
+PONYTAIL_START = "startup|resume|clear|compact"
+HOOKS = (Hook("update hook", "SessionStart", "startup", "claude-skills/tools/update.py", "", 30),
+         Hook("resource hook", "PreToolUse", "Bash", "claude-skills/resource-guard/scripts/guard.py", " hook", 330),
+         Hook("ponytail start hook", "SessionStart", PONYTAIL_START, "ponytail/hooks/ponytail-activate.js", "", 15),
+         Hook("ponytail subagent hook", "SubagentStart", "", "ponytail/hooks/ponytail-subagent.js", "", 15),
+         Hook("ponytail mode hook", "UserPromptSubmit", "", "ponytail/hooks/ponytail-mode-tracker.js", "", 15))
 
 
 def hook_command(repo, hook):
-    python = Path(sys.executable).as_posix()
-    script = (Path(repo) / hook.script).as_posix()
-    return f'"{python}" -I "{script}"{hook.argument}'
+    script = (Path(repo).parent / hook.script).as_posix()
+    if script.endswith(".js"):
+        node = Path(shutil.which(NODE) or NODE).as_posix()
+        return f'"{node}" "{script}"{hook.argument}'
+    return f'"{Path(sys.executable).as_posix()}" -I "{script}"{hook.argument}'
 
 
 def is_ours(entry, hook):
-    mark = f"claude-skills/{hook.script}"
-    return any(mark in str(item.get("command", "")) for item in entry.get("hooks", []) if isinstance(item, dict))
+    return any(hook.script in str(item.get("command", "")) for item in entry.get("hooks", []) if isinstance(item, dict))
+
+
+def ready(repo, hook):
+    return not hook.script.endswith(".js") or (Path(repo).parent / hook.script).is_file()
 
 
 def read_settings(path):
@@ -42,9 +53,9 @@ def _others(entries, hook):
 def _add(data, repo, hook):
     entries = data.setdefault("hooks", {}).setdefault(hook.event, [])
     command = {"type": "command", "command": hook_command(repo, hook), "timeout": hook.timeout}
-    wanted = {"matcher": hook.matcher, "hooks": [command]}
+    wanted = {"matcher": hook.matcher, "hooks": [command]} if hook.matcher else {"hooks": [command]}
     kept = _others(entries, hook)
-    if kept + [wanted] == entries:
+    if len(entries) == len(kept) + 1 and wanted in entries:
         return False, f"{hook.label}: already there"
     data["hooks"][hook.event] = kept + [wanted]
     return True, f"{hook.label}: added"
@@ -65,13 +76,13 @@ def _remove(data, hook):
     return True, f"{hook.label}: removed"
 
 
-def _apply(config, change, failure):
+def _apply(config, change, failure, hooks=HOOKS):
     path = Path(config) / SETTINGS
     try:
         data = read_settings(path)
     except (ValueError, OSError) as error:
-        return [(False, failure(hook, error)) for hook in HOOKS]
-    results = [change(data, hook) for hook in HOOKS]
+        return [(False, failure(hook, error)) for hook in hooks]
+    results = [change(data, hook) for hook in hooks]
     if any(changed for changed, _ in results):
         write_settings(path, data)
     return [(True, text) for _, text in results]
@@ -80,7 +91,8 @@ def _apply(config, change, failure):
 def add_hooks(config, repo):
     def failure(hook, error):
         return f"{hook.label}: not added, {error}; add a {hook.event} hook running {hook_command(repo, hook)}"
-    return _apply(config, lambda data, hook: _add(data, repo, hook), failure)
+    hooks = [hook for hook in HOOKS if ready(repo, hook)]
+    return _apply(config, lambda data, hook: _add(data, repo, hook), failure, hooks)
 
 
 def remove_hooks(config):

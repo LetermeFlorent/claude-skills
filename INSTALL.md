@@ -9,18 +9,26 @@ The repository holds 10 skills, one folder each with a `SKILL.md`, and the slash
 them, in each skill's `commands/` folder. Installing clones the repository into the Claude Code
 configuration folder, links every skill folder into its `skills/` folder and copies every command
 into its `commands/` folder. When OpenCode is installed (`~/.config/opencode` exists), the commands are
-also copied into `~/.config/opencode/commands/`. Nothing else outside the configuration folder changes.
+also copied into `~/.config/opencode/commands/`.
+
+Two outside tools come with it, each kept at its latest version (see "Ponytail" and "Graphify"):
+[Ponytail](https://github.com/DietrichGebert/ponytail), always on at its highest level, and
+[graphify](https://github.com/Graphify-Labs/graphify), used on large projects only. Neither goes through a
+plugin, an MCP server or a connector.
 
 Below, `<config>` is that folder: the value of `CLAUDE_CONFIG_DIR` when the variable is set, else
 `~/.claude`. In a shell it reads `"${CLAUDE_CONFIG_DIR:-$HOME/.claude}"`.
 
 ## Requirements
 
-Check both before cloning.
+Check git and Python before cloning; the other two are needed by one tool each.
 
 - git: `git --version`.
 - Python 3.10 or later: `python --version`. Where `python` is missing or older, try `python3`, and
   use the one that works in every command below.
+- Node.js, for the Ponytail hooks: `node --version`. Without it the Ponytail skills still install.
+- pip (shipped with Python) or uv, for graphify, which is installed with `uv tool install` when uv is
+  found, else with `pip install --user`.
 
 Skills are linked through directory junctions on Windows, which need no administrator rights, and
 through symbolic links on macOS and Linux. `chrome-bidi` drives Chrome on Windows only; the other nine
@@ -45,7 +53,8 @@ Five steps, in this order.
    ```
 
    It prints one line per skill and per command: `linked`, `copied`, `already there`, `removed`, or
-   `skipped` with the reason, then one line for each hook it adds to `<config>/settings.json` (update and resource).
+   `skipped` with the reason, then the Ponytail and graphify lines, then one line for each hook it adds
+   to `<config>/settings.json` (update, resource and the three Ponytail hooks).
    Exit code 0 means everything is in place, 1 that at least one line was skipped or failed, 2 that
    the clone is not in `<config>/claude-skills`.
 3. A `skipped` line means the user already has a skill or a command with that name. Never move or
@@ -57,7 +66,7 @@ Five steps, in this order.
 
 ## Check
 
-`ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills"` lists the 10 skill folders and
+`ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills"` lists the 10 skill folders, the six Ponytail ones and graphify, and
 `ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/commands"` the 11 command files, next to whatever the user
 had before. Then run the update check once:
 
@@ -65,7 +74,8 @@ had before. Then run the update check once:
 python -I "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/claude-skills/tools/update.py"
 ```
 
-It prints `claude-skills: up to date (<version>)`.
+It prints `claude-skills: up to date (<version>)`, then `ponytail: up to date (<version>)` and
+`graphify: up to date (<version>)`.
 
 ## Commands
 
@@ -103,6 +113,43 @@ Every planned outcome exits 0. To update by hand, run the same command.
 To publish a version, create a release on GitHub (or push an annotated tag) with a higher
 `vX.Y.Z` number.
 
+## Ponytail
+
+[Ponytail](https://github.com/DietrichGebert/ponytail) makes the agent write the smallest change that
+fully solves the task. Its own install is a Claude Code plugin; this repository does it without one, so
+that every account and OpenCode share the same copy:
+
+- `install.py` and `update.py` ask GitHub for Ponytail's highest release tag and check it out into
+  `<config>/ponytail`, a shallow clone, fetching again only when a newer release appears;
+- its six skills (`ponytail`, `ponytail-review`, `ponytail-audit`, `ponytail-debt`, `ponytail-gain`,
+  `ponytail-help`) are linked into `<config>/skills`, and they are also its slash commands;
+- three hooks run its own scripts with Node.js: `SessionStart` loads the rules at the active level,
+  `SubagentStart` passes them to subagents, `UserPromptSubmit` follows `/ponytail <level>`;
+- the default level is set to `ultra`, the highest, in Ponytail's `config.json` (`%APPDATA%/ponytail` on
+  Windows, `~/.config/ponytail` elsewhere) and put back on every session start, so it is always on and
+  at its maximum;
+- for OpenCode, its commands go to `~/.config/opencode/commands/`, and its rules at the `ultra` level are
+  written to `~/.config/opencode/ponytail-ultra.md` and listed under `instructions` in the OpenCode
+  config file.
+
+The variable `CLAUDE_SKILLS_PONYTAIL_URL` points the checkout at another copy of the repository.
+
+## Graphify
+
+[graphify](https://github.com/Graphify-Labs/graphify) turns a codebase into a knowledge graph the agent
+queries instead of reading files one by one. It only pays off on a large project, so this repository
+installs it that way:
+
+- the `graphifyy` package from PyPI is installed with uv or pip, then graphify's own installer writes
+  its skill into a throwaway folder, and the skill is copied to `<config>/skills/graphify`;
+- the skill description is narrowed to large codebases (about 300 tracked source files, 50,000 lines,
+  a monorepo), a folder that already holds `graphify-out/`, or `/graphify`. The agent sees it in every
+  session and leaves it aside on small projects;
+- graphify's own installer is never run on the real configuration folder: it would add a section to
+  `CLAUDE.md` and, for OpenCode, a plugin, which would turn it on everywhere;
+- on every session start `update.py` compares the PyPI version with the installed one and, when it is
+  newer, upgrades in the background at low priority, writing to `claude-skills/.ia/graphify.log`.
+
 ## Resource hook
 
 The installer also adds a `PreToolUse` hook (matcher `Bash`) that runs
@@ -126,8 +173,9 @@ it to run `resource-guard/scripts/guard.py wait` before heavy commands.
 python -I "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/claude-skills/tools/install.py" --uninstall
 ```
 
-It removes the links, the commands it installed and its two hooks, and leaves alone any command the
-user edited.
+It removes the links, the commands it installed, its hooks, the Ponytail checkout and the graphify
+skill, and leaves alone any command the user edited. The `graphifyy` package stays installed:
+`pip uninstall graphifyy` (or `uv tool uninstall graphifyy`) removes it.
 Once it has printed its lines, the folder `<config>/claude-skills` can be deleted.
 
 ## When something fails

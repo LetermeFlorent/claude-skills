@@ -98,8 +98,9 @@ class InstallTest(unittest.TestCase):
         data = self.settings()
         self.assertEqual(data["theme"], "dark")
         entries = data["hooks"]["SessionStart"]
-        self.assertEqual(len(entries), 1)
+        self.assertEqual(len(entries), 2)
         self.assertIn("claude-skills/tools/update.py", entries[0]["hooks"][0]["command"])
+        self.assertIn("ponytail start hook: already there", done.stdout)
         guard = data["hooks"]["PreToolUse"]
         self.assertEqual(len(guard), 1)
         self.assertEqual(guard[0]["matcher"], "Bash")

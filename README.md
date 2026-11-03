@@ -6,9 +6,9 @@ Ten skills for Claude Code and OpenCode, and the commands that start them. Each 
 
 Ask your AI to follow `INSTALL.md`. It copies the repository into the Claude Code configuration folder, links the skills and copies the commands, without overwriting anything that already has the same name on your machine.
 
-The installation also adds a small check when Claude Code starts. Each time it opens, it looks at the latest version published on GitHub and, if it is newer, installs it: new skills linked, commands updated, removed skills taken out. A copy you have modified and a command you have edited by hand are never overwritten.
+The installation also adds a small check when Claude Code starts. Each time it opens, it looks at the latest version published on GitHub, and those of Ponytail and graphify, and installs whatever is newer: new skills linked, commands updated, removed skills taken out. A copy you have modified and a command you have edited by hand are never overwritten.
 
-Finally it adds a guard before each heavy command (build, tests, docker, node, python...): if memory is too low or the processor or the disk is saturated, the command waits until room frees up, five minutes at most.
+It also adds a guard before each heavy command (build, tests, docker, node, python...): if memory is too low or the processor or the disk is saturated, the command waits until room frees up, five minutes at most.
 
 ## The skills
 
@@ -26,6 +26,15 @@ Each line gives the command that starts the skill and what it does.
 | stop-resume-agents | `/stop-all`, `/resume-all` | stops everything, subagents included, and resumes later where each one was |
 | using-git-worktrees | `/isolate` | isolates a piece of work in a separate working copy |
 | writing-skills | `/write-skill` | writes or fixes a skill, and tests it on subagents |
+
+## Tools that come with it
+
+Two outside tools are installed and kept at their latest release with the skills, without any plugin.
+
+| Tool | Command | Role |
+|---|---|---|
+| [Ponytail](https://github.com/DietrichGebert/ponytail) | `/ponytail`, `/ponytail-review`, `/ponytail-audit` | makes the agent write the smallest change that fully works, always on at its highest level (ultra) |
+| [graphify](https://github.com/Graphify-Labs/graphify) | `/graphify` | turns a large codebase into a knowledge graph to query, used on large projects only |
 
 ## License
 
