@@ -20,12 +20,6 @@ Elle ajoute enfin un garde-fou avant chaque commande lourde (build, tests, docke
 s'il reste trop peu de mémoire ou si le processeur ou le disque sont saturés, la commande attend que
 la place se libère, cinq minutes au plus.
 
-## Publier une version
-
-Seule une version publiée déclenche la mise à jour, un simple push ne suffit pas. Pour en sortir
-une, crée une release sur GitHub avec un numéro plus haut que la précédente, au format `vX.Y.Z`
-(`v1.0.0`, puis `v1.1.0`...).
-
 ## Les skills
 
 Chaque ligne donne la commande qui lance la skill et ce qu'elle fait.
