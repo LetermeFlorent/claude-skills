@@ -46,7 +46,7 @@ FINAL ANSWER: what you did, files changed with absolute paths, how you verified 
 Send it to the old agent id; it keeps its memory, so the text only lifts the stop and says what
 changed. If no notification or new activity shows within two rounds of `sleep 30` (check with
 `agent_digest.py --agent <id> --out "<scratch>/digest-<id>.md"`: its last activity must move), launch
-a new agent with the text above and note it in the Reprise section.
+a new agent with the text above and note it in the Resumed section.
 
 ````text
 RESUME-ALL: the STOP-ALL you received earlier is cancelled. Go back to your task and finish it.

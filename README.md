@@ -1,41 +1,31 @@
 # claude-skills
 
-Neuf skills pour Claude Code et les commandes qui les lancent. Chaque dossier contient le
-`SKILL.md` que lit l'IA, un `LISEZMOI.md` en français pour toi, et ses scripts et ses tests quand
-elle en a. Les scripts sont en Python sans dépendance, donc une autre IA (Codex, Gemini, Qwen) peut
-s'en servir aussi : il suffit de lui indiquer le `SKILL.md` dans son fichier d'instructions.
+Nine skills for Claude Code and OpenCode, and the commands that start them. Each folder holds the `SKILL.md` the AI reads, a `README.md` for you, and its scripts and tests when it has any. The scripts are plain Python with no dependency, so another AI (Codex, Gemini, Qwen) can use them too: just point it to the `SKILL.md` in its instructions file.
 
-## Installer
+## Install
 
-Demande à ton IA de suivre `INSTALL.md`. Elle copie le dépôt dans le dossier de configuration de
-Claude Code, relie les skills et copie les commandes, sans rien écraser de ce qui porte déjà le même
-nom chez toi.
+Ask your AI to follow `INSTALL.md`. It copies the repository into the Claude Code configuration folder, links the skills and copies the commands, without overwriting anything that already has the same name on your machine.
 
-L'installation ajoute aussi un petit contrôle au démarrage de Claude Code. À chaque ouverture, il
-regarde la dernière version publiée sur GitHub et, si elle est plus récente, l'installe : nouvelles
-skills reliées, commandes mises à jour, skills retirées enlevées. Une copie que tu as modifiée et une
-commande retouchée à la main ne sont jamais écrasées.
+The installation also adds a small check when Claude Code starts. Each time it opens, it looks at the latest version published on GitHub and, if it is newer, installs it: new skills linked, commands updated, removed skills taken out. A copy you have modified and a command you have edited by hand are never overwritten.
 
-Elle ajoute enfin un garde-fou avant chaque commande lourde (build, tests, docker, node, python...) :
-s'il reste trop peu de mémoire ou si le processeur ou le disque sont saturés, la commande attend que
-la place se libère, cinq minutes au plus.
+Finally it adds a guard before each heavy command (build, tests, docker, node, python...): if memory is too low or the processor or the disk is saturated, the command waits until room frees up, five minutes at most.
 
-## Les skills
+## The skills
 
-Chaque ligne donne la commande qui lance la skill et ce qu'elle fait.
+Each line gives the command that starts the skill and what it does.
 
-| Skill | Commande | Rôle |
+| Skill | Command | Role |
 |---|---|---|
-| anti-empreinte | `/anti-empreinte` | écrit et corrige textes et code sans les marques d'un texte d'IA |
-| chrome-bidi | `/test-visuel` | pilote Chrome pour ouvrir, lire, cliquer et capturer une page, sous Windows seulement |
-| clean-code | `/clean-code` | audite et range le code : fichiers courts, une logique par fichier, code mort |
-| clean-commits | `/commit` | découpe les changements en commits propres, un par intention |
-| limited-run | aucune | lance chaque tâche avec une limite de mémoire et la ferme dès qu'elle ne sert plus |
-| resource-guard | aucune | vérifie mémoire, processeur et disque avant une commande lourde, et attend s'il en manque |
-| stop-resume-agents | `/stop-all`, `/resume-all` | arrête tout, sous-agents compris, et reprend plus tard là où chacun en était |
-| using-git-worktrees | `/isoler` | isole un travail dans une copie de travail à part |
-| writing-skills | `/creer-skill` | écrit ou corrige une skill, et la teste sur des sous-agents |
+| strip-ai-traces | `/strip-ai-traces` | writes and fixes text and code without the marks of AI-written text |
+| chrome-bidi | `/chrome-bidi` | drives Chrome to open, read, click and capture a page, Windows only |
+| clean-code | `/clean-code` | audits and tidies code: short files, one logic per file, dead code |
+| clean-commits | `/commit` | splits changes into clean commits, one per intention |
+| limited-run | `/limited-run` | starts each task with a memory limit and closes it as soon as it is no longer needed |
+| resource-guard | `/resource-guard` | checks memory, processor and disk before a heavy command, and waits if there is too little |
+| stop-resume-agents | `/stop-all`, `/resume-all` | stops everything, subagents included, and resumes later where each one was |
+| using-git-worktrees | `/isolate` | isolates a piece of work in a separate working copy |
+| writing-skills | `/write-skill` | writes or fixes a skill, and tests it on subagents |
 
-## Licence
+## License
 
-MIT, voir `LICENSE`. Copyright (c) 2026 Florent Leterme.
+MIT, see `LICENSE`. Copyright (c) 2026 Florent Leterme.

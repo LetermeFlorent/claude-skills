@@ -1,6 +1,6 @@
 ---
 name: chrome-bidi
-description: Use when a page must be opened, read, clicked, filled, screenshotted, printed or measured, checked at phone and desktop widths (/test-visuel), compared with its image files, or when a leftover Chrome or chromedriver must be closed.
+description: Use when a page must be opened, read, clicked, filled, screenshotted, printed or measured, checked at phone and desktop widths (/chrome-bidi), compared with its image files, or when a leftover Chrome or chromedriver must be closed.
 ---
 
 # Chrome over WebDriver BiDi
@@ -12,7 +12,7 @@ and talk BiDi over a websocket. Call every script as
 `chrome-bidi: <Type>: <message>` and a `by hand:` line, exit 1.
 
 Scripts: `launch.py` (start, prints the port), `bidi.py` (one action on a running Chrome),
-`measure_images.py` (box of every displayed image per width, JSON), `visual_test.py` (the /test-visuel run).
+`measure_images.py` (box of every displayed image per width, JSON), `visual_test.py` (the /chrome-bidi run).
 
 ## Rules
 
@@ -20,7 +20,7 @@ These hold for every task, whatever the page.
 
 1. Pick the mode yourself and never ask about it. `--visible` when a person has to see or act in the
    window: a sign-in, a code or phone check, the user saying they want to watch. Headless for
-   everything else (reading, checks, screenshots, /test-visuel).
+   everything else (reading, checks, screenshots, /chrome-bidi).
 2. One port per task, never shared. Profile `<temp>/claude-skills/chrome-<port>`, downloads in
    `chrome-<port>-downloads`, session in `chrome-<port>.session`. Never the user's profile.
 3. Never stop a `chrome.exe` or `chromedriver.exe` whose command line lacks
@@ -49,9 +49,9 @@ Three steps, from launch to reading the result.
    powershell -NoProfile -Command "Get-CimInstance Win32_Process -Filter \"Name='chrome.exe' or Name='chromedriver.exe'\" | ? { \$_.CommandLine -match 'remote-debugging-port=P(?!\d)|--port=P1000(?!\d)' } | Select ProcessId,Name"
    ```
 
-### /test-visuel
+### /chrome-bidi
 
-`/test-visuel <url or local folder> [widths]`.
+`/chrome-bidi <url or local folder> [widths]`.
 
 1. `python -I "$S/visual_test.py" "<target>" 390,1440`. Widths default to 390,1440, height 720
    (`--height`), `--visible` only if the user wrote it. A local folder or file is served on

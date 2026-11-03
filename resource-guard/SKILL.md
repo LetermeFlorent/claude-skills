@@ -1,6 +1,6 @@
 ---
 name: resource-guard
-description: Use when a heavy command (build, tests, docker, dev server, package install) is about to run on a PC shared by several agent sessions, when the machine is slow, short of RAM or its disk is saturated, when a resource-guard hook blocked a shell call, or when a pre-tool resource check must be wired into Claude Code, Codex CLI, Gemini CLI or Qwen Code.
+description: Use when the user types /resource-guard, when a heavy command (build, tests, docker, dev server, package install) is about to run on a PC shared by several agent sessions, when the machine is slow, short of RAM or its disk is saturated, when a resource-guard hook blocked a shell call, or when a pre-tool resource check must be wired into Claude Code, Codex CLI, Gemini CLI or Qwen Code.
 ---
 
 # Resource guard

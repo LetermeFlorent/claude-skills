@@ -1,6 +1,6 @@
 ---
 name: limited-run
-description: Use when about to start a dev server, watcher, build, test run, docker container or any long command on a machine shared with other agent sessions, when RAM runs low or the PC slows down, when an earlier turn left node, vite, vitest, jest, java, gradle or python processes running, or before ending a turn or a session that started processes.
+description: Use when the user types /limited-run, when about to start a dev server, watcher, build, test run, docker container or any long command on a machine shared with other agent sessions, when RAM runs low or the PC slows down, when an earlier turn left node, vite, vitest, jest, java, gradle or python processes running, or before ending a turn or a session that started processes.
 ---
 
 # Running task processes with a cap, then closing them

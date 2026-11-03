@@ -133,10 +133,10 @@ In this order, each step ending before the next.
    the proof it missed.
 7. Score: `python -I "<skill>/scripts/score.py"`. It refuses while a candidate has no verdict or a
    reading rule is uncovered. At 20, stop: no plan, no question.
-8. Plan: write `<run>/plan.md` from `plan-template.md`, in French, then run
+8. Plan: write `<run>/plan.md` from `plan-template.md`, in English, then run
    `python -I "<skill>/scripts/plan_check.py"` until it prints `plan ok`.
-9. Ask with `AskUserQuestion`, plan path in the question: "Tout le plan", "Les etapes sures
-   seulement", "Rien, garder la note et le plan".
+9. Ask with `AskUserQuestion`, plan path in the question: "The whole plan", "Safe steps
+   only", "Nothing, keep the score and the plan".
 
 ## Apply
 
@@ -157,7 +157,7 @@ For each step of the chosen dose:
    to another session: skip it and say so.
 2. Change the listed files only, then run the step's check, the typecheck without cache and the
    full suite.
-3. Green: commit through the `clean-commits` skill as a caller, with the step's `Fichiers :` paths
+3. Green: commit through the `clean-commits` skill as a caller, with the step's `Files:` paths
    only (deleted ones included), no push. Without that skill, stop and say so.
 4. Red: restore the step's own files, report the output, continue only with steps that do not
    depend on it.
@@ -170,7 +170,7 @@ After the last step, measure, verify and score again on the same scope.
 
 ## Report
 
-In French: the note before and after, each step with its commit hash, the raw suite output, and what
+In the user's language: the note before and after, each step with its commit hash, the raw suite output, and what
 is left with its reason.
 
 ## Files

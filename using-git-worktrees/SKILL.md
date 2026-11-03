@@ -1,11 +1,11 @@
 ---
 name: using-git-worktrees
-description: Use when work must start isolated from the current checkout (/isoler, "in a worktree", two sessions or agents on one repository, a plan about to run while the main checkout holds other changes), or when a worktree exists and must be located or removed.
+description: Use when work must start isolated from the current checkout (/isolate, "in a worktree", two sessions or agents on one repository, a plan about to run while the main checkout holds other changes), or when a worktree exists and must be located or removed.
 ---
 
 # Isolating work in a git worktree
 
-Typing `/isoler` is the request: do not ask whether to create a worktree. A caller skill already decided too.
+Typing `/isolate` is the request: do not ask whether to create a worktree. A caller skill already decided too.
 
 Three scripts do the mechanical part. Call them with `python -I "<skill>/scripts/<name>.py"` (forward
 slashes, double quotes, `<skill>` is this folder). They never crash: a failure prints the error and the
@@ -49,7 +49,7 @@ In order; the script named in a step does its work.
    RAM, CPU and disk (under 1500 MB free: refusal, wait, never stack), installs dependencies and runs the
    project's tests at low priority with 2 workers at most. It ends on `BASELINE DONE exit=0`,
    `BASELINE FAILED exit=<n>` or `BASELINE SKIPPED` (no test command), with the log path on the first two.
-   Skip it only on its own refusal and say so. Red tests: AskUserQuestion (continue, Recommande when the
+   Skip it only on its own refusal and say so. Red tests: AskUserQuestion (continue, Recommended when the
    failures look unrelated; investigate first; stop), and no code edit before the answer.
 7. Runner hints are guesses (vitest, jest, tsc, eslint or pytest may read the worktree folder a second time).
    Run the main checkout's own test command once at BelowNormal from the main checkout and look for a path under

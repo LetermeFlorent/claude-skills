@@ -87,6 +87,6 @@ def command_names(folder):
 
 def owned_paths(folder):
     patterns = (f"reference/{MARKDOWN}", MARKDOWN, "scripts/*.py")
-    skipped = {FILE, "LISEZMOI.md"}
+    skipped = {FILE, "README.md"}
     return [relative(path, folder) for pattern in patterns for path in sorted(folder.glob(pattern))
             if path.name not in skipped]

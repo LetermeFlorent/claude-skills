@@ -18,11 +18,11 @@ MARKER = "<!-- clean-code plan v1 -->"
 PHASES = {12: 1, 9: 2, 0: 3, 3: 3, 7: 3, 8: 3, 13: 3, 14: 3, 15: 3, 16: 3, 17: 3, 18: 3, 19: 3, 5: 4, 6: 4,
           1: 5, 2: 5, 4: 5, 10: 6, 11: 6}
 SECRET_PHASE = 6
-YES, NO, NOTHING = "oui", "non", "aucun"
-FIELDS = ("Phase", "Constats", "Sure", "Fichiers", "Verification", "Commit")
-STEP = re.compile(r"^## Etape (\d+) : (.+)$", re.MULTILINE)
-KEPT = re.compile(r"^## Laisse tel quel\s*$", re.MULTILINE)
-KEPT_LINE = re.compile(r"^- ([MR]\d+) : (.*)$", re.MULTILINE)
+YES, NO, NOTHING = "yes", "no", "none"
+FIELDS = ("Phase", "Findings", "Safe", "Files", "Check", "Commit")
+STEP = re.compile(r"^## Step (\d+): (.+)$", re.MULTILINE)
+KEPT = re.compile(r"^## Left as is\s*$", re.MULTILINE)
+KEPT_LINE = re.compile(r"^- ([MR]\d+): (.*)$", re.MULTILINE)
 PLACEHOLDER = re.compile(r"<[^<>\n]{2,120}>")
 FORBIDDEN_PATHS = re.compile(r"(^|/)(\.ia|\.claude)(/|$)|(^|/)CLAUDE\.md$")
 BAD_CHARS = {chr(0x2014): "em dash", chr(0x201C): "curly quote", chr(0x201D): "curly quote",
@@ -34,7 +34,7 @@ def _phase(finding):
 
 
 def _fields(body):
-    return {name: value.strip() for name, value in re.findall(r"^(\w+) : (.*)$", body, re.MULTILINE) if name in FIELDS}
+    return {name: value.strip() for name, value in re.findall(r"^(\w+): (.*)$", body, re.MULTILINE) if name in FIELDS}
 
 
 def _ids(text):
@@ -56,14 +56,14 @@ def _step(number, fields, findings, state):
         problems.append(f"step {number}: phase {fields['Phase']} is not 1 to 6")
     elif phase < last_phase:
         problems.append(f"step {number}: phase {phase} comes after phase {last_phase}")
-    if fields["Sure"] not in (YES, NO):
-        problems.append(f"step {number}: Sure is oui or non, not {fields['Sure']}")
-    ids = _ids(fields["Constats"])
+    if fields["Safe"] not in (YES, NO):
+        problems.append(f"step {number}: Safe is yes or no, not {fields['Safe']}")
+    ids = _ids(fields["Findings"])
     for wanted in ids:
         finding = findings.get(wanted)
         if finding and _phase(finding) != phase:
             problems.append(f"step {number}: {wanted} (rule {finding['rule']}) belongs to phase {_phase(finding)}")
-    for path in _ids(fields["Fichiers"]):
+    for path in _ids(fields["Files"]):
         if FORBIDDEN_PATHS.search(path.replace("\\", "/")):
             problems.append(f"step {number}: {path} is an AI tooling path and is never committed")
     state["phase"] = max(phase, last_phase)
@@ -78,7 +78,7 @@ def check(text, findings):
     problems += [f"AI tool attribution at line {_line(text, hit.start())}" for hit in SIGNED.finditer(text)]
     kept_at = KEPT.search(text)
     if not kept_at:
-        problems.append("the ## Laisse tel quel section is missing")
+        problems.append("the ## Left as is section is missing")
     plan = text[:kept_at.start()] if kept_at else text
     heads = list(STEP.finditer(plan))
     placed, safe, state = [], 0, {"problems": problems, "phase": 0}
@@ -89,7 +89,7 @@ def check(text, findings):
         end = heads[index + 1].start() if index + 1 < len(heads) else len(plan)
         fields = _fields(plan[head.end():end])
         placed += _step(number, fields, findings, state)
-        safe += fields.get("Sure") == YES
+        safe += fields.get("Safe") == YES
     kept = KEPT_LINE.findall(text[kept_at.end():]) if kept_at else []
     problems += [f"{wanted} left as is without a reason" for wanted, why in kept if not why.strip()]
     placed += [wanted for wanted, _ in kept]

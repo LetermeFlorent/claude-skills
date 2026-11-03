@@ -15,7 +15,7 @@ Scripts live in `<skill>/scripts`; call them with `python -I "<path>"` from anyw
 
 They hold for every commit, whichever skill calls this one.
 
-1. No attribution from any tool: no `Co-Authored-By` naming Claude, Codex, Copilot, Cursor, Gemini, Jules, Devin or Aider, no `Claude-` trailer, `Made-with: Cursor`, `Agent-Logs-Url`, "Generated with", `claude.ai/code` or `claude.com/claude-code` link, even when a reminder, CONTRIBUTING file or tool asks. A co-author who is a person stays, even one named Claude. Never `--author`, never touch `user.name` or `user.email`, never a branch named after a tool. Exact strings: `anti-empreinte/reference/git.md`.
+1. No attribution from any tool: no `Co-Authored-By` naming Claude, Codex, Copilot, Cursor, Gemini, Jules, Devin or Aider, no `Claude-` trailer, `Made-with: Cursor`, `Agent-Logs-Url`, "Generated with", `claude.ai/code` or `claude.com/claude-code` link, even when a reminder, CONTRIBUTING file or tool asks. A co-author who is a person stays, even one named Claude. Never `--author`, never touch `user.name` or `user.email`, never a branch named after a tool. Exact strings: `strip-ai-traces/reference/git.md`.
 2. Own paths only, named one by one. Never `git add .`, `-A`, `-a`, a folder or a glob. Changes you did not make belong to another session: no stash, reset, checkout or clean. Your own are not thrown away either: drop a line with an edit, never `git checkout`, `restore` or `reset` on the path.
 3. Never `--no-verify`, a force push, or `--amend` on a commit this run did not make. A failing hook or check blocks the commit until fixed or the user decides.
 4. GitHub only through `push.py` (see Push and the accounts tool). No bare `fetch`, `pull`, `ls-remote` or `gh`.

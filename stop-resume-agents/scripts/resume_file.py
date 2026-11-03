@@ -63,8 +63,8 @@ def candidate_dirs(start):
 
 
 def describe(text):
-    state = next((l for l in text.splitlines() if l.startswith("Etat :")), "Etat : inconnu")
-    origin = next(iter(re.findall(r"session d'origine (\S+?)\.?$", text, re.M)), "inconnue")
+    state = next((l for l in text.splitlines() if l.startswith("State:")), "State: unknown")
+    origin = next(iter(re.findall(r"origin session (\S+?)\.?$", text, re.M)), "unknown")
     return state, origin
 
 

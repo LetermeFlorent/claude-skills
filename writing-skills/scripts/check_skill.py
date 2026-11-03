@@ -12,7 +12,7 @@ from pyrules import check_python
 from skillmd import FILE, check_skill_md, command_names, owned_paths
 
 HINT = 'python -I "<skill>/scripts/check_skill.py" "<skill folder>"'
-SCAN = 'next: python -I "<anti-empreinte>/scripts/scan.py" "{}" --no-git'
+SCAN = 'next: python -I "<strip-ai-traces>/scripts/scan.py" "{}" --no-git'
 
 
 def arguments():

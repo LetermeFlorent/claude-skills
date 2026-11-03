@@ -87,15 +87,12 @@ class Body(unittest.TestCase):
 
 
 class Readme(unittest.TestCase):
-    def test_french_with_accents_passes(self):
-        self.assertEqual(check_readme_text(f"# Csv\n\n{FRENCH} Été.\n"), [])
+    def test_english_passes(self):
+        self.assertEqual(check_readme_text(f"# Csv\n\n{ENGLISH}\n"), [])
 
-    def test_english_and_missing(self):
-        self.assertIn(CHECK, levels(check_readme_text(f"# Csv\n\n{ENGLISH} été\n")))
+    def test_french_and_missing(self):
+        self.assertIn(CHECK, levels(check_readme_text(f"# Csv\n\n{FRENCH}\n")))
         self.assertEqual(levels(check_readme_text(None)), [REFUSE])
-
-    def test_no_accent_is_a_note(self):
-        self.assertEqual(levels(check_readme_text(f"# Csv\n\n{FRENCH}\n")), [NOTE])
 
 
 class Command(unittest.TestCase):

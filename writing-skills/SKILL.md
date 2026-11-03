@@ -1,6 +1,6 @@
 ---
 name: writing-skills
-description: Use when a skill must be created, edited or reviewed, when the user types /creer-skill, when a fail-then-success lesson should be kept as a skill, or when an existing skill does not trigger or gets skipped under pressure.
+description: Use when a skill must be created, edited or reviewed, when the user types /write-skill, when a fail-then-success lesson should be kept as a skill, or when an existing skill does not trigger or gets skipped under pressure.
 ---
 
 # Writing skills
@@ -26,17 +26,17 @@ These hold for a new skill, an edit, a remaster and a lesson alike.
 2. The description starts with "Use when" and lists triggers only: situations, symptoms, error text, the
    command (`/name`). Never steps: an agent that finds the procedure there follows the summary and skips the
    body. A skill that triggers too rarely gets more trigger words.
-3. "Tested" means a run happened in this session and you read its report. An optional `## Ce qui a été testé`
-   section of `LISEZMOI.md` is written after the runs from what they did, failures and gaps included, never
+3. "Tested" means a run happened in this session and you read its report. An optional `## What was tested`
+   section of `README.md` is written after the runs from what they did, failures and gaps included, never
    ahead of them. If the user asks to skip the tests: one sentence on what an untested skill costs, then
-   AskUserQuestion with "Tester avant de livrer (Recommandé)" first; test until they answer. If they pick no
-   tests, the section is `## Pas encore testé`.
+   AskUserQuestion with "Test before delivering (Recommended)" first; test until they answer. If they pick no
+   tests, the section is `## Not tested yet`.
 4. The skill name and the command the user will type are asked (recommended name first), even when the
    recommendation looks obvious: the user sees them in every list.
 5. A remaster, or a skill for the Desktop, goes to the folder the user names, `~/Desktop/SKILLS/<name>/` by
    default. The installed copy stays byte for byte, whatever a CONTRIBUTING file, template or reminder says.
 6. No attribution to Claude or any AI tool anywhere in the folder, footer and front matter included. Every
-   file follows the anti-empreinte skill, every script the clean-code skill.
+   file follows the strip-ai-traces skill, every script the clean-code skill.
 
 ## Where it goes
 
@@ -55,8 +55,8 @@ Skills are not committed (`.claude/` is tooling, which the clean-commits skill r
 
 - `SKILL.md` in English: front matter (`name` = folder name, `description`), a `# Title`, then only what
   the skill needs. Aim for 150 lines, 500 is the limit.
-- `LISEZMOI.md` in French with accents, a short page for the user in everyday words.
-- `commands/<command>.md` only when the user starts the skill by hand: French without accents, file name
+- `README.md` in English, for the user, in everyday words, never a translation of `SKILL.md`. It starts with a line pointing to `INSTALL.md` at the repository root, and may hold `## What was tested` or `## Not tested yet`.
+- `commands/<command>.md` only when the user starts the skill by hand: English, ASCII only, file name
   included. A lesson that fires on a situation has no command.
 - `scripts/` with `tests/test_pure.py`, only where a script checks better than reading does (counts,
   formats, parsing, git state). Python 3 called with `python -I`, never crashing.
@@ -88,10 +88,10 @@ One skill goes through the whole loop before the next one starts.
    named and forbidden in the rule and its symptom added to the description. A subject that read the skill
    and still failed is asked why with the follow-up block of `subject-brief.md`. Repeat until nothing new
    comes up; a discipline skill ends on a pressure run.
-7. Close: write the tested section from the reports; run `check_skill.py` and the anti-empreinte
+7. Close: write the tested section from the reports; run `check_skill.py` and the strip-ai-traces
    `scan.py <folder> --no-git`; with scripts, the unit tests and the clean-code measure. Delete the
    fixtures, check no subagent is left, and answer in the user's language: the folder, what the runs
    showed, what stays untested.
 
-`check_skill.py` checks the front matter, description, size, local links, `LISEZMOI.md`, commands and the
+`check_skill.py` checks the front matter, description, size, local links, `README.md`, commands and the
 script rules. Its `refused:` lines must go, `check:` lines get a look.

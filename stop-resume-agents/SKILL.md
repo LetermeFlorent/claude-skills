@@ -21,8 +21,8 @@ These hold for both commands, whatever the hurry.
 1. Load the deferred tools first, in one call: `ToolSearch` with `select:SendMessage,TaskStop,CronList,CronDelete`,
    plus ListAgents, Agent or AskUserQuestion when missing. If one cannot load: without ListAgents the
    list is the digest plus your context; without SendMessage every agent counts as silent; without
-   TaskStop write the running ones under `## Questions sans reponse` and tell the user; without
-   CronList write the crons you remember as `a verifier`; without AskUserQuestion ask in plain text.
+   TaskStop write the running ones under `## Open questions` and tell the user; without
+   CronList write the crons you remember as `to check`; without AskUserQuestion ask in plain text.
 2. Write resume.md before waiting and update it after every answer: a session that dies mid-stop must
    still leave a usable file.
 3. Every agent section holds its original prompt word for word in a fenced block.
@@ -34,7 +34,7 @@ These hold for both commands, whatever the hurry.
 6. Never open a raw transcript with cat, tail or Read (it can overflow the context). Use
    `agent_digest.py --out "<scratch>/<name>.md"`, `--agent <id>` included, and read that file.
 7. Edit resume.md with Edit on a unique string, never by splitting on `## ` (quoted prompts hold
-   headings). Pending fields read `en attente <agent id>`.
+   headings). Pending fields read `pending <agent id>`.
 8. Never delete a resume file. /stop-all never overwrites one, and never touches a resume.md whose first
    line is not `<!-- stop-resume-agents v1 -->`. /resume-all edits the file it resumes in place.
 
@@ -50,7 +50,7 @@ In this order, none skipped.
    session id makes the digest refuse: rerun with `--latest` and check the ids match your agents.
    `NO_AGENT` is not an id. The agent list is ListAgents plus the digest (ListAgents forgets finished
    agents within minutes).
-3. Earlier stop of this same session (newest `find` result with your session id, `Etat : ARRETE`): if
+3. Earlier stop of this same session (newest `find` result with your session id, `State: STOPPED`): if
    nothing runs in ListAgents and no work happened since, answer "deja arrete" with its path and end.
    Otherwise carry on; agents with no activity since keep their old section (copy it in step 5, do not
    message them in step 6).
@@ -65,9 +65,9 @@ In this order, none skipped.
 
    An older stop's file at the project root stays there; /resume-all still finds it. A `resume.md`
    without the marker: write `resume-stop-all.md` instead. A marked file already there: rename it
-   `resume-<mtime AAAA-MM-JJ-HHMM>.md`; same session: set its state to `Etat : REMPLACE par <new path>`;
-   other session not resumed: keep its state and list it in the new file's `## Questions sans reponse`.
-   Write the new file from `resume-template.md` with `Etat : ARRET EN COURS`, your own section, the repos,
+   `resume-<mtime YYYY-MM-DD-HHMM>.md`; same session: set its state to `State: REPLACED by <new path>`;
+   other session not resumed: keep its state and list it in the new file's `## Open questions`.
+   Write the new file from `resume-template.md` with `State: STOP IN PROGRESS`, your own section, the repos,
    one section per depth 1 agent of the digest (depth 2 reports sit inside their parent's section). Then
    `resume_file.py log "<path>" stop`.
 6. Send `report-request.md` unchanged, one SendMessage per agent, all in one turn, to every depth 1 agent,
@@ -87,16 +87,16 @@ In this order, none skipped.
     CronDelete, servers by PID after reading their command line, Chrome ports with the chrome-bidi
     skill's close action (`bidi.ps1 -Action close`), step 9 processes with `taskkill /PID <pid> /T /F`
     through PowerShell.
-11. Complete each `Constat` by comparing report, digest and git; never trust a report alone. The digest
+11. Complete each main session findings entry by comparing report, digest and git; never trust a report alone. The digest
     sees Write and Edit only: shell-made changes show in `git status` and mtimes after the agent's first
     activity. State gaps plainly and flag untrustworthy results (tests run while another agent edited).
-    Fill `A relancer`, `Ordre de relance`, owned files with `resume_file.py hash <files>`, questions, plan.
-    Report Status maps to `Statut :` as done to termine, partial to partiel, not started to pas commence,
-    else inconnu. Set `Etat : ARRETE`.
+    Fill `To relaunch`, `Relaunch order`, owned files with `resume_file.py hash <files>`, questions, plan.
+    Report Status maps to `Status:` as done, partial, not started,
+    else unknown. Set `State: STOPPED`.
 12. `resume_check.py "<path>" --agent <id>` for every depth 1 id until it prints OK, and ListAgents must
-    show no running subagent. After three failed attempts write what is wrong under `## Questions sans
-    reponse` and tell the user. Delete the scratch folder.
-13. Answer in three or four French lines: what was stopped, the path, who did not answer. Then wait:
+    show no running subagent. After three failed attempts write what is wrong under `## Open questions`
+    and tell the user. Delete the scratch folder.
+13. Answer in three or four lines in the user's language: what was stopped, the path, who did not answer. Then wait:
     nothing restarts before the user speaks.
 
 ## /resume-all
@@ -105,11 +105,11 @@ In order, from the file back to working agents.
 
 1. Load the deferred tools as in rule 1. A path in the arguments wins. Otherwise `resume_file.py find`
    (looks in `.ia/` and at the root of the repo and of the current folder, then in the journals of
-   every account; `REMPLACE` files are skipped). Several files not resumed: AskUserQuestion, newest
+   every account; `REPLACED` files are skipped). Several files not resumed: AskUserQuestion, newest
    first. Only resumed ones: ask whether to resume the newest again. None: AskUserQuestion for the path.
    Never guess a file.
-2. Read the whole file and run `resume_check.py` on it. `Etat : ARRET EN COURS` means the stop was cut:
-   run the digest with `--session <id from the file>` and `--config <Compte Claude from the file>` and
+2. Read the whole file and run `resume_check.py` on it. `State: STOP IN PROGRESS` means the stop was cut:
+   run the digest with `--session <id from the file>` and `--config <Claude account from the file>` and
    fill the gaps.
 3. Reality check, one round: branch, HEAD, status and diff stat of each repo against the file;
    `resume_file.py hash` on every owned file against the recorded prints; ListAgents; free RAM, CPU, disk.
@@ -117,22 +117,22 @@ In order, from the file back to working agents.
    agent's own recorded work). On drift, AskUserQuestion before relaunching the agents it touches; the
    others start meanwhile. An accepted drift goes into the brief as a known difference.
 5. Depth 1 agents only, one by one (a parent's brief lists its children and their reports).
-   `Statut : termine` or `A relancer : non`: skip, write why. File written by this same session
-   (session d'origine equals `$CLAUDE_CODE_SESSION_ID`): SendMessage the RESUME-ALL text of
+   `Status: done` or `To relaunch: no`: skip, write why. File written by this same session
+   (origin session equals `$CLAUDE_CODE_SESSION_ID`): SendMessage the RESUME-ALL text of
    `relaunch-brief.md` to the old id and check as that file says. Otherwise, or if that fails: Agent in
-   the background with the same subagent_type, model and effort, description `<old description> (reprise)`,
-   prompt filled from `relaunch-brief.md`. Unknown model or effort (digest `default`, file `inconnu`):
+   the background with the same subagent_type, model and effort, description `<old description> (resumed)`,
+   prompt filled from `relaunch-brief.md`. Unknown model or effort (digest `default`, file `unknown`):
    leave the parameter out, never swap in another model. A type that no longer exists: general-purpose,
    same model.
-6. Independent agents start together, four at most at once, the next when a slot frees. `apres l'agent
+6. Independent agents start together, four at most at once, the next when a slot frees. `after agent
    <id>` means after that agent finished and its result was checked. Two agents owning the same file
    never run together.
 7. Relaunch the marked processes only when an agent or your own part needs them; close them at the end.
-8. Right after the launches, edit resume.md: a `## Reprise du <date>` section above `## Journal` (new
+8. Right after the launches, edit resume.md: a `## Resumed on <date>` section above `## Log` (new
    session id, old id to new id or `SendMessage`, skipped agents and why, waiting agents, drift found),
-   `Etat : REPRIS le <date>, session <id>`, a Journal line, then `resume_file.py log "<path>" resume`.
-   The file stays, marked REPRIS.
+   `State: RESUMED on <date>, session <id>`, a Log line, then `resume_file.py log "<path>" resume`.
+   The file stays, marked RESUMED.
 9. ListAgents must show every agent started now. Retry a failed launch once, then write it in resume.md
    and tell the user.
-10. Delete the scratch folder, take back your own part from `## Session principale`, answer in three or
-    four French lines.
+10. Delete the scratch folder, take back your own part from `## Main session`, answer in three or
+    four lines in the user's language.

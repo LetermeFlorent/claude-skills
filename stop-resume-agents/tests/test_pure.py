@@ -15,20 +15,20 @@ from common import MARKER
 
 AGENT = """## Agent a1 : fix the build
 
-Type : general-purpose. Modele : sonnet. Effort : medium. Profondeur : 1.
-Reponse a l'arret : oui, a 10:00
-Statut : termine
-A relancer : non, parce que fini
-Ordre de relance : aucun
-Fichiers qu'il possede : aucun
+Type: general-purpose. Model: sonnet. Effort: medium. Depth: 1.
+Answer at stop: yes, at 10:00
+Status: done
+To relaunch: no, because finished
+Relaunch order: none
+Files it owns: none
 
-### Consigne de depart
+### Starting brief
 
 ````text
 Fix the build.
 ````
 
-### Son compte rendu
+### Its report
 
 ````text
 AGENT REPORT
@@ -37,9 +37,9 @@ END REPORT
 """
 
 
-def resume_text(state="ARRETE", agent=AGENT):
-    return (f"{MARKER}\n# Reprise stop-all\n\nEtat : {state}\n"
-            "Arret demande le 2026-01-01 10:00, session d'origine sess1.\n\n" + agent)
+def resume_text(state="STOPPED", agent=AGENT):
+    return (f"{MARKER}\n# Stop-all resume\n\nState: {state}\n"
+            "Stop requested on 2026-01-01 10:00, origin session sess1.\n\n" + agent)
 
 
 class ResumeCheck(unittest.TestCase):
@@ -47,24 +47,24 @@ class ResumeCheck(unittest.TestCase):
         self.assertEqual(resume_check.check(resume_text(), ["a1"]), [])
 
     def test_missing_marker_state_and_agent(self):
-        problems = resume_check.check("# Reprise\n", ["a1"])
+        problems = resume_check.check("# Resume\n", ["a1"])
         self.assertEqual(len(problems), 3)
 
     def test_missing_field_and_empty_prompt(self):
-        broken = AGENT.replace("Statut : termine\n", "").replace("Fix the build.\n", "")
+        broken = AGENT.replace("Status: done\n", "").replace("Fix the build.\n", "")
         problems = resume_check.check(resume_text(agent=broken), ["a1"])
-        self.assertIn("agent a1: missing 'Statut :'", problems)
+        self.assertIn("agent a1: missing 'Status:'", problems)
         self.assertIn("agent a1: original prompt block is empty", problems)
 
     def test_pending_only_blocks_a_finished_stop(self):
-        pending = AGENT.replace("Statut : termine", "Statut : en attente a1")
-        self.assertEqual(resume_check.check(resume_text("ARRET EN COURS", pending), ["a1"]), [])
+        pending = AGENT.replace("Status: done", "Status: pending a1")
+        self.assertEqual(resume_check.check(resume_text("STOP IN PROGRESS", pending), ["a1"]), [])
         self.assertTrue(any("still pending" in p for p in resume_check.check(resume_text(agent=pending), [])))
 
     def test_lost_prompt_needs_a_note(self):
         lost = AGENT.replace("Fix the build.", "PROMPT NOT FOUND")
         self.assertTrue(any("not found" in p for p in resume_check.check(resume_text(agent=lost), [])))
-        noted = lost + "\nConsigne perdue : transcript deleted\n"
+        noted = lost + "\nBrief lost: transcript deleted\n"
         self.assertEqual(resume_check.check(resume_text(agent=noted), []), [])
 
     def test_headings_inside_code_blocks_are_ignored(self):
@@ -77,15 +77,15 @@ class ResumeCheck(unittest.TestCase):
         self.assertTrue(any("never closed" in p for p in resume_check.check(resume_text() + "````text\nx\n", [])))
 
     def test_template_placeholder_left(self):
-        problems = resume_check.check(resume_text() + "Dossier : <chemin absolu>\n", [])
-        self.assertIn("template placeholder left: <chemin absolu>", problems)
+        problems = resume_check.check(resume_text() + "Folder: <absolute path>\n", [])
+        self.assertIn("template placeholder left: <absolute path>", problems)
 
 
 class ResumeFile(unittest.TestCase):
     def test_describe(self):
         state, origin = resume_file.describe(resume_text())
-        self.assertEqual((state, origin), ("Etat : ARRETE", "sess1"))
-        self.assertEqual(resume_file.describe("nothing"), ("Etat : inconnu", "inconnue"))
+        self.assertEqual((state, origin), ("State: STOPPED", "sess1"))
+        self.assertEqual(resume_file.describe("nothing"), ("State: unknown", "unknown"))
 
     def test_scan_separates_ours_from_foreign(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -94,7 +94,7 @@ class ResumeFile(unittest.TestCase):
             ours, foreign = resume_file.scan(folder)
         self.assertEqual([os.path.basename(item[1]) for item in ours], ["resume-2026-01-01-1000.md"])
         self.assertEqual([os.path.basename(path) for path in foreign], ["resume.md"])
-        self.assertEqual(ours[0][2:], ("Etat : ARRETE", "sess1"))
+        self.assertEqual(ours[0][2:], ("State: STOPPED", "sess1"))
 
     def test_scan_of_an_empty_folder(self):
         with tempfile.TemporaryDirectory() as folder:

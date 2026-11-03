@@ -9,11 +9,11 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "lib
 from common import MARKER, guard
 from transcript import NO_PROMPT
 
-FIELDS = ("Type :", "Statut :", "A relancer :", "Reponse a l'arret :", "Ordre de relance :",
-          "Fichiers qu'il possede :", "### Consigne de depart")
-STATES = r"^Etat : (ARRET EN COURS|ARRETE|REPRIS|REMPLACE)"
-PENDING = re.compile(r"(^|: |, )(en attente|a decider|a remplir)(\s+\S+)?\s*$")
-NO_PROMPT_MARKS = (NO_PROMPT, "PROMPT INTROUVABLE")
+FIELDS = ("Type:", "Status:", "To relaunch:", "Answer at stop:", "Relaunch order:",
+          "Files it owns:", "### Starting brief")
+STATES = r"^State: (STOP IN PROGRESS|STOPPED|RESUMED|REPLACED)"
+PENDING = re.compile(r"(^|: |, )(pending|to decide|to fill)(\s+\S+)?\s*$")
+NO_PROMPT_MARKS = (NO_PROMPT,)
 BAD_CHARS = {chr(0x2014): "em dash", chr(0x201C): "curly quote", chr(0x201D): "curly quote",
              chr(0x2019): "curly apostrophe", chr(0xA0): "no-break space", chr(0x202F): "narrow no-break space"}
 HINT = "Check the file by hand against resume-template.md."
@@ -25,7 +25,7 @@ def template_placeholders():
         with open(path, encoding="utf-8") as handle:
             text = handle.read()
     except OSError:
-        return {"<id>", "<date>", "<chemin absolu>", "<description>"}
+        return {"<id>", "<date>", "<absolute path>", "<description>"}
     return {p for p in re.findall(r"<[^<>\n]{2,120}>", text) if not p.startswith("<!--")}
 
 
@@ -51,11 +51,11 @@ def mask_fences(text):
 
 def check_agent(agent, body, raw):
     problems = [f"agent {agent}: missing '{f}'" for f in FIELDS if f not in body]
-    if re.search(r"### Consigne de depart\s*\n+`{3,}text\s*\n`{3,}", body):
+    if re.search(r"### Starting brief\s*\n+`{3,}text\s*\n`{3,}", body):
         problems.append(f"agent {agent}: original prompt block is empty")
-    if any(mark in raw for mark in NO_PROMPT_MARKS) and "Consigne perdue :" not in body:
+    if any(mark in raw for mark in NO_PROMPT_MARKS) and "Brief lost:" not in body:
         problems.append(f"agent {agent}: original prompt not found. Recover it from your context or the "
-                        "parent's transcript, else write 'Consigne perdue : <why>' under the block")
+                        "parent's transcript, else write 'Brief lost: <why>' under the block")
     return problems
 
 
@@ -81,15 +81,15 @@ def check(text, agents):
         problems.append("a code block is never closed")
     state = re.search(STATES, masked, re.M)
     if not state:
-        problems.append("no valid 'Etat :' line")
+        problems.append("no valid 'State:' line")
     found = agent_sections(text)
     problems += [f"agent {a} has no '## Agent {a}' section" for a in agents if a not in found]
     for agent, (body, raw) in found.items():
         problems += check_agent(agent, body, raw)
-    if state and state.group(1) != "ARRET EN COURS":
+    if state and state.group(1) != "STOP IN PROGRESS":
         problems += [f"still pending: {l.strip()}" for l in masked.split("\n") if PENDING.search(l)]
-        if any(re.match(r"(en attente|a remplir)\b", block) for block in blocks):
-            problems.append("a code block still says 'en attente'")
+        if any(re.match(r"(pending|to fill)\b", block) for block in blocks):
+            problems.append("a code block still says 'pending'")
     left = sorted(p for p in template_placeholders() if p in masked or p in blocks)
     problems += [f"template placeholder left: {p}" for p in left]
     problems += [f"forbidden character outside code blocks: {n}" for c, n in BAD_CHARS.items() if c in masked]

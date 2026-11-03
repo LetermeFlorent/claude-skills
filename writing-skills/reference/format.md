@@ -23,15 +23,16 @@ in the system prompt), under 500 characters if possible, 1024 at most. Another s
 words ("the clean-commits skill"), never through an `@` path (it loads the whole file) or a
 `superpowers:` prefix. A decision is a table keyed on something observable, not a graph.
 
-## LISEZMOI.md
+## README.md
 
-French with accents, for the user, in everyday words and never a translation of `SKILL.md`: what happens
-when they use it, what the files are, and optionally `## Ce qui a été testé` (or `## Pas encore testé`).
+In English, for the user, in everyday words and never a translation of `SKILL.md`: what happens when
+they use it, what the files are, and optionally `## What was tested` (or `## Not tested yet`).
 It starts with a line pointing to `INSTALL.md` at the repository root.
 
 ## The command
 
-`commands/<command>.md`, French without accents, the file name in lowercase ASCII. Add `Agent` and
+`commands/<command>.md` in English, ASCII only, the file name in lowercase ASCII words joined by hyphens.
+The command asks for the final answer in the user's language. Add `Agent` and
 `SendMessage` to `allowed-tools` when the skill sends subagents.
 
 ````markdown
@@ -41,11 +42,11 @@ argument-hint: "[<what the argument can be>]"
 allowed-tools: Read,Write,Bash,Grep,Glob,Skill,AskUserQuestion
 ---
 
-Precision : $ARGUMENTS. <What it changes, and what happens when empty.>
+Details: $ARGUMENTS. <What it changes, and what happens when empty.>
 
-Charger la skill `<name>` avec le tool `Skill` et suivre sa procedure.
+Load the `<name>` skill with the `Skill` tool and follow its procedure.
 
-Reponse finale en francais, courte : <what it contains>.
+Short final answer in the user's language: <what it contains>.
 ````
 
 ## A subagent brief

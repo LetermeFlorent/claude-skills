@@ -3,7 +3,7 @@ import shutil
 import subprocess
 import sys
 
-TOOL = "anti-empreinte"
+TOOL = "strip-ai-traces"
 ENCODING = "utf-8"
 DECODE_ERRORS = "replace"
 INTERRUPTED = 130

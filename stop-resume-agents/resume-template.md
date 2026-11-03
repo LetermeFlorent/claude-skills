@@ -1,40 +1,40 @@
 # Shape of resume.md
 
-resume.md is written in French. Keep the first line, the `Etat :` line and every `## Agent <id>`
+resume.md is written in English. Keep the first line, the `State:` line and every `## Agent <id>`
 heading exactly as below: /resume-all and `scripts/resume_check.py` look for them, and the checker
-refuses any placeholder of this template left in the file. A field with nothing to say gets `aucun`.
+refuses any placeholder of this template left in the file. A field with nothing to say gets `none`.
 Verbatim blocks use four backticks, because reports often hold three. While answers are awaited a
-field reads `en attente <agent id>`, never a bare `en attente`, so Edit can target one section.
+field reads `pending <agent id>`, never a bare `pending`, so Edit can target one section.
 
 `````markdown
 <!-- stop-resume-agents v1 -->
-# Reprise stop-all
+# Stop-all resume
 
-Etat : ARRET EN COURS
-Arret demande le <AAAA-MM-JJ HH:MM> (heure locale), session d'origine <session id>.
-Compte Claude : <valeur de CLAUDE_CONFIG_DIR, ou ~/.claude si vide>.
-Dossier de travail : <chemin absolu>. Rien n'a ete commite ni pousse par l'arret.
+State: STOP IN PROGRESS
+Stop requested on <YYYY-MM-DD HH:MM> (local time), origin session <session id>.
+Claude account: <value of CLAUDE_CONFIG_DIR, or ~/.claude if empty>.
+Working folder: <absolute path>. Nothing was committed or pushed by the stop.
 
-## Demande de depart
+## Starting request
 
 ````text
-<la demande de l'utilisateur, mot pour mot>
+<the user's request, word for word>
 ````
 
-## Session principale
+## Main session
 
-Ce que je faisais a l'arret : <etape exacte, fichier et ligne, derniere commande et sa sortie utile>
-Fait et verifie : <liste>
-Reste a faire, dans l'ordre : <liste numerotee>
-Decisions prises et pistes ecartees : <liste>
-Liste de taches interne : <cases faites et non faites>
+What I was doing at the stop: <exact step, file and line, last command and its useful output>
+Done and verified: <list>
+Still to do, in order: <numbered list>
+Decisions made and approaches rejected: <list>
+Internal task list: <items done and not done>
 
-## Etat des depots
+## Repository state
 
-Un bloc par depot touche, sortie brute :
+One block per repository touched, raw output:
 
 ````text
-<chemin>  branche <nom>  HEAD <sha court> <sujet du commit>
+<path>  branch <name>  HEAD <short sha> <commit subject>
 <git status --short>
 <git diff --stat>
 <git stash list>
@@ -42,55 +42,55 @@ Un bloc par depot touche, sortie brute :
 
 ## Agent <id> : <description>
 
-Type : <agentType>. Modele : <model>. Effort : <effort>. Profondeur : <1 ou 2, parent si 2>.
-Lance le <heure>, derniere activite le <heure>.
-Reponse a l'arret : <oui, a HH:MM | non, reconstruit depuis son journal | non, termine avant l'arret>
-Statut : <termine | partiel | pas commence | inconnu>
-A relancer : <oui | non, parce que ...>
-Ordre de relance : <1, 2, ... ; apres l'agent <id> si il depend de lui ; en parallele sinon>
-Fichiers qu'il possede : <une ligne par fichier, empreinte de resume_file.py hash puis chemin absolu>
+Type: <agentType>. Model: <model>. Effort: <effort>. Depth: <1 or 2, parent if 2>.
+Started at <time>, last activity at <time>.
+Answer at stop: <yes, at HH:MM | no, rebuilt from its log | no, finished before the stop>
+Status: <done | partial | not started | unknown>
+To relaunch: <yes | no, because ...>
+Relaunch order: <1, 2, ... ; after agent <id> if it depends on it ; in parallel otherwise>
+Files it owns: <one line per file, fingerprint from resume_file.py hash then absolute path>
 
-### Consigne de depart
-
-````text
-<le prompt d'origine, mot pour mot, tire du digest>
-````
-
-### Son compte rendu
+### Starting brief
 
 ````text
-<le bloc AGENT REPORT, mot pour mot, ou "pas de reponse">
+<the original prompt, word for word, taken from the digest>
 ````
 
-### Constat de la session principale
+### Its report
 
-<ce que le digest et git montrent : fichiers ecrits, dernieres commandes, sous-agents lances ;
-tout ecart entre son compte rendu et le disque, ecrit en clair>
+````text
+<the AGENT REPORT block, word for word, or "no answer">
+````
 
-## Processus, taches de fond et outils arretes
+### Main session findings
 
-Un element par ligne : quoi, commande exacte, dossier, PID ou port ou id, arrete comment,
-comment le relancer, s'il faut le relancer. Inclut les commandes Bash de fond, serveurs,
-boucles /loop, taches planifiees, workflows, ports Chrome. Rien n'a tourne : `aucun`.
+<what the digest and git show: files written, last commands, subagents started;
+any gap between its report and the disk, written plainly>
 
-## Questions sans reponse
+## Processes, background tasks and tools stopped
 
-<questions posees ou a poser a l'utilisateur, ou aucun>
+One item per line: what, exact command, folder, PID or port or id, how it was stopped,
+how to relaunch it, whether it must be relaunched. Includes background Bash commands, servers,
+/loop loops, scheduled tasks, workflows, Chrome ports. Nothing was running: `none`.
 
-## Plan de reprise
+## Open questions
 
-1. <agent id ou session principale> : <action> (<depend de ...>)
+<questions asked or to ask the user, or none>
+
+## Resume plan
+
+1. <agent id or main session>: <action> (<depends on ...>)
 2. ...
 
-## Journal
+## Log
 
-- <AAAA-MM-JJ HH:MM> arret par /stop-all, session <id>, <n> agents, <n> sans reponse
+- <YYYY-MM-DD HH:MM> stopped by /stop-all, session <id>, <n> agents, <n> without an answer
 `````
 
 When the digest prints `PROMPT NOT FOUND` and neither your context nor the parent's digest holds the
-prompt, keep that text in the block and add `Consigne perdue : <why>` under it.
+prompt, keep that text in the block and add `Brief lost: <why>` under it.
 
-States: `ARRET EN COURS`, then `ARRETE` when complete. Each /resume-all adds a `## Reprise du <date>`
-section above `## Journal`, a Journal line, and sets `Etat : REPRIS le <AAAA-MM-JJ HH:MM>, session <id>`.
-A file taken over by a newer /stop-all of the same session reads `Etat : REMPLACE par <chemin du nouveau
-fichier>`; /resume-all skips it.
+States: `STOP IN PROGRESS`, then `STOPPED` when complete. Each /resume-all adds a `## Resumed on <date>`
+section above `## Log`, a Log line, and sets `State: RESUMED on <YYYY-MM-DD HH:MM>, session <id>`.
+A file taken over by a newer /stop-all of the same session reads `State: REPLACED by <path of the new
+file>`; /resume-all skips it.

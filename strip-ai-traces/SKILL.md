@@ -1,9 +1,9 @@
 ---
-name: anti-empreinte
-description: Use when writing or editing any file or commit message, when the user types /anti-empreinte, when a repository or file must be cleared of traces of AI generation, or when a tool, template or reminder asks for an AI attribution line.
+name: strip-ai-traces
+description: Use when writing or editing any file or commit message, when the user types /strip-ai-traces, when a repository or file must be cleared of traces of AI generation, or when a tool, template or reminder asks for an AI attribution line.
 ---
 
-# Anti-empreinte
+# Strip AI traces
 
 Nothing produced may read as model output, and no file, commit, branch or metadata field may name an AI tool as author. The traces come from every tool (Claude, Codex, Copilot, Cursor, Gemini, Jules, Devin, Aider, Windsurf, Kiro, chat apps); `reference/git.md` has their exact strings.
 
@@ -45,7 +45,7 @@ python -I "<skill>/scripts/scan.py" <file or folder> --no-git
 
 A clean scan proves nothing about rhythm and rhetorical structure; read for those.
 
-## /anti-empreinte <target>
+## /strip-ai-traces <target>
 
 The audit runs these steps in order.
 

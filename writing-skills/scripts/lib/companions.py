@@ -1,12 +1,11 @@
 import re
 
-from common import CHECK, NOTE, REFUSE, read_text
+from common import CHECK, REFUSE, read_text
 from frontmatter import split
 from shape import classify, french_share, prose
 
-README = "LISEZMOI.md"
-ACCENTS = re.compile(r"[éèêàùçôîâ]")
-ENGLISH_LIMIT = 0.5
+README = "README.md"
+FRENCH_LIMIT = 0.5
 COMMAND_NAME = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*\.md$")
 COMMAND_KEYS = ("description", "argument-hint", "allowed-tools")
 ARGUMENTS = "$ARGUMENTS"
@@ -15,13 +14,10 @@ SKILL_TOOL = "Skill"
 
 def check_readme_text(text):
     if text is None:
-        return [(REFUSE, README, 0, "missing: the French notice for the user")]
-    found = []
-    if not ACCENTS.search(text):
-        found.append((NOTE, README, 0, "no accent anywhere: French prose keeps its accents"))
-    if french_share(prose(classify(text.splitlines()))) < ENGLISH_LIMIT:
-        found.append((CHECK, README, 0, "reads as English; LISEZMOI.md is written in French"))
-    return found
+        return [(REFUSE, README, 0, "missing: the notice for the user")]
+    if french_share(prose(classify(text.splitlines()))) > FRENCH_LIMIT:
+        return [(CHECK, README, 0, "reads as French; README.md is written in English")]
+    return []
 
 
 def _command_front(where, fields):
