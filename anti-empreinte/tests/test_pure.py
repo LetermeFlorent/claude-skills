@@ -87,6 +87,17 @@ class TextTest(unittest.TestCase):
     def test_chatbot_residue(self):
         self.assertTrue(line_markers("see turn0search3 and [cite: 2]", True)[0].startswith("residue"))
 
+    def test_model_leaks(self):
+        for line in ("<think>\n\n</think> Here it is", "<|im_end|>", "Answer below /no_think", "<thinking>x"):
+            self.assertTrue(any(m.startswith("residue") for m in line_markers(line, True)), line)
+
+    def test_wide_punctuation_next_to_latin_letters(self):
+        self.assertTrue(any(m.startswith("wide punctuation") for m in line_markers("Done，next step", True)))
+        self.assertFalse(any(m.startswith("wide punctuation") for m in line_markers("你好，世界", True)))
+
+    def test_model_stock_phrases(self):
+        self.assertTrue(any(m.startswith("phrase") for m in line_markers("The honest answer is no.", True)))
+
     def test_safe_markers(self):
         self.assertEqual(safe_markers(f"Pourquoi{NARROW_NO_BREAK}?"), ["space"])
 

@@ -105,8 +105,12 @@ def scan_file(path, report, fix):
     text = read_text(path)
     if text is None:
         return
-    handlers = {"prose": lambda: _prose(path, text, report, fix), "value": lambda: _value(path, text, report)}
-    handlers.get(kind, lambda: _code(path, text, report))()
+    if kind == "prose":
+        _prose(path, text, report, fix)
+    elif kind == "value":
+        _value(path, text, report)
+    else:
+        _code(path, text, report)
 
 
 def scan_git(root, report):

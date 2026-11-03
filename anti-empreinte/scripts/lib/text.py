@@ -1,12 +1,12 @@
 import re
 
 from patterns import (CURLY, EMOJI, FRENCH_QUOTES, HAND_TYPOGRAPHY, INVISIBLE, PHRASES, PLACEHOLDER, RESIDUE,
-                      SIGNATURE, SPACES, STRAIGHT, VOCABULARY)
+                      SIGNATURE, SPACES, STRAIGHT, VOCABULARY, WIDE_PUNCTUATION)
 
 INLINE_CODE = re.compile(r"(`+).+?\1")
 SAFE = (("quotes", CURLY), ("invisible", INVISIBLE), ("space", SPACES))
 LINE = (("signature", SIGNATURE), ("residue", RESIDUE), ("placeholder", PLACEHOLDER), ("emoji", EMOJI),
-        ("em dash", HAND_TYPOGRAPHY))
+        ("em dash", HAND_TYPOGRAPHY), ("wide punctuation", WIDE_PUNCTUATION))
 PROSE = (("vocabulary", VOCABULARY), ("phrase", PHRASES))
 DETAILED = ("vocabulary", "phrase", "residue", "signature", "placeholder")
 

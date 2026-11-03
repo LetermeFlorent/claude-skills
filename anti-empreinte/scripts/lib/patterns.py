@@ -53,7 +53,9 @@ PHRASES = re.compile(
     r"|here'?s the thing|the (real|truth) \w+ is|let me be clear|in today'?s|in a world where|it turns out"
     r"|without further ado|full stop|let that sink in|make no mistake|this matters because"
     r"|at the end of the day|i hope this helps|let me know if you need|you'?re absolutely right"
-    r"|that'?s a great question|\bnot (just|only|merely) [^.]{1,60}\b(but|it'?s|it is)\b"
+    r"|that'?s a great question|the honest answer|worth flagging|good catch|great catch"
+    r"|you'?re right to push back|feel free to (ask|reach out)|let me double-check"
+    r"|^\s*(okay, so|alright,|in summary,)|\bnot (just|only|merely) [^.]{1,60}\b(but|it'?s|it is)\b"
     r"|\bce n'est pas [^.]{1,60}, c'est\b|\bnon seulement\b|\bpas seulement [^.]{1,60}\bmais\b",
     re.IGNORECASE)
 PLACEHOLDER = re.compile(r"\.\.\.\s*(existing|rest of( the)?) code\s*\.\.\.|TODO:?\s*implement|Example usage|"
@@ -62,9 +64,12 @@ RESIDUE = re.compile(r"</?think>|^\s*(Thought|Step \d+):|let'?s think step by st
                      r"|as of my (last )?(knowledge|training) (cutoff|update)|oaicite|contentReference\["
                      r"|\bturn\d+(search|view|news|image|fetch)\d+|utm_source=(chatgpt\.com|openai)|\bciteturn"
                      r"|\[cite:\s*\d+|\[span_\d+\]\(start_span\)|grok_card|【\d+†|\[web:\d+\]"
-                     r"|:::writing\{", re.IGNORECASE)
+                     r"|:::writing\{|</?thinking>|<\|im_(start|end)\|>|<\|endoftext\|>|(^|\s)/no_think\b",
+                     re.IGNORECASE)
 SIGNATURE = re.compile(TRAILER.pattern + r"|made with cursor|pr created automatically by jules"
                        r"|link to devin session", re.IGNORECASE | re.MULTILINE)
+WIDE_POINTS = "\uff0c\u3002\uff1a\uff1b\uff01\uff1f\uff08\uff09"
+WIDE_PUNCTUATION = re.compile(f"[A-Za-z][{WIDE_POINTS}]|[{WIDE_POINTS}][A-Za-z]")
 UI_DEFAULT = re.compile(r"font-family:[^;]*\b(Inter|Space Grotesk|Geist|Instrument Serif)\b|['\"](Inter|Geist)['\"]"
                         r"|\bindigo-\d{3}\b|#6366f1|#8b5cf6|#a855f7|#4f46e5|backdrop-filter|from-indigo"
                         r"|to-purple-|to-violet-|bg-clip-text", re.IGNORECASE)
