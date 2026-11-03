@@ -1,9 +1,8 @@
 # Prompts for resumed subagents
 
-Two texts live here. The first is the Agent `prompt` of a new agent that takes over. The second
-is the SendMessage that wakes the old agent itself, when resume.md was written by this same
-session. Fill every `<...>` from the agent's section of resume.md and from the reality check.
-Never leave a placeholder in the sent text.
+The first text is the Agent `prompt` of a new agent that takes over. The second is the SendMessage
+that wakes the old agent itself, when resume.md was written by this same session. Fill every `<...>`
+from the agent's section of resume.md and the reality check; none may stay in the sent text.
 
 ## New agent
 
@@ -44,10 +43,10 @@ FINAL ANSWER: what you did, files changed with absolute paths, how you verified 
 
 ## Old agent woken by SendMessage
 
-Send it to the old agent id. It keeps its whole memory, so the text only lifts the stop and says
-what changed. If no notification or new activity shows within two rounds of `sleep 30` (check
-with `agent_digest.py --agent <id> --out "<scratch>/digest-<id>.md"`: its last activity must move), launch a new agent with the
-text above instead, and write it in the Reprise section.
+Send it to the old agent id; it keeps its memory, so the text only lifts the stop and says what
+changed. If no notification or new activity shows within two rounds of `sleep 30` (check with
+`agent_digest.py --agent <id> --out "<scratch>/digest-<id>.md"`: its last activity must move), launch
+a new agent with the text above and note it in the Reprise section.
 
 ````text
 RESUME-ALL: the STOP-ALL you received earlier is cancelled. Go back to your task and finish it.

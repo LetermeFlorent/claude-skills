@@ -33,15 +33,18 @@ def text_of(content):
     if isinstance(content, str):
         return content
     if isinstance(content, list):
-        parts = [p.get("text", "") for p in content if isinstance(p, dict) and p.get("type") == "text"]
-        return "\n".join(parts)
+        return "\n".join(p.get("text", "") for p in content if isinstance(p, dict) and p.get("type") == "text")
     return ""
+
+
+def bash_text(args):
+    flag = "[background] " if args.get("run_in_background") else ""
+    return flag + args.get("command", "")
 
 
 def describe(name, args):
     if name == "Bash":
-        flag = "[background] " if args.get("run_in_background") else ""
-        return f"Bash {flag}{args.get('command', '')}"
+        return f"Bash {bash_text(args)}"
     target = args.get("file_path") or args.get("description") or args.get("pattern") or ""
     return f"{name} {target}".strip()
 
@@ -60,7 +63,7 @@ def add_tool_use(data, part, stamp):
     if name in FILE_TOOLS and args.get("file_path"):
         data["files"].setdefault(args["file_path"], set()).add(FILE_TOOLS[name])
     elif name == "Bash":
-        data["commands"].append(f"{stamp} {describe(name, args)[5:]}")
+        data["commands"].append(f"{stamp} {bash_text(args)}")
     elif name in ("Agent", "Task"):
         data["spawned"].append(f"{stamp} {args.get('description', '')} ({args.get('model', 'default')})")
 

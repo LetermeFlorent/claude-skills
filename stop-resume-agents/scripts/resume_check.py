@@ -3,14 +3,20 @@ import os
 import re
 import sys
 
-MARKER = "<!-- stop-resume-agents v1 -->"
+sys.dont_write_bytecode = True
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "lib"))
+
+from common import MARKER, guard
+from transcript import NO_PROMPT
+
 FIELDS = ("Type :", "Statut :", "A relancer :", "Reponse a l'arret :", "Ordre de relance :",
           "Fichiers qu'il possede :", "### Consigne de depart")
 STATES = r"^Etat : (ARRET EN COURS|ARRETE|REPRIS|REMPLACE)"
 PENDING = re.compile(r"(^|: |, )(en attente|a decider|a remplir)(\s+\S+)?\s*$")
-NO_PROMPT = ("PROMPT NOT FOUND", "PROMPT INTROUVABLE")
+NO_PROMPT_MARKS = (NO_PROMPT, "PROMPT INTROUVABLE")
 BAD_CHARS = {chr(0x2014): "em dash", chr(0x201C): "curly quote", chr(0x201D): "curly quote",
              chr(0x2019): "curly apostrophe", chr(0xA0): "no-break space", chr(0x202F): "narrow no-break space"}
+HINT = "Check the file by hand against resume-template.md."
 
 
 def template_placeholders():
@@ -47,7 +53,7 @@ def check_agent(agent, body, raw):
     problems = [f"agent {agent}: missing '{f}'" for f in FIELDS if f not in body]
     if re.search(r"### Consigne de depart\s*\n+`{3,}text\s*\n`{3,}", body):
         problems.append(f"agent {agent}: original prompt block is empty")
-    if any(token in raw for token in NO_PROMPT) and "Consigne perdue :" not in body:
+    if any(mark in raw for mark in NO_PROMPT_MARKS) and "Consigne perdue :" not in body:
         problems.append(f"agent {agent}: original prompt not found. Recover it from your context or the "
                         "parent's transcript, else write 'Consigne perdue : <why>' under the block")
     return problems
@@ -55,13 +61,14 @@ def check_agent(agent, body, raw):
 
 def agent_sections(text):
     masked, _ = mask_fences(text)
-    raw_parts = re.split(r"^## (?=Agent \S)", text, flags=re.M)
+    raw = {}
+    for part in re.split(r"^## (?=Agent \S)", text, flags=re.M)[1:]:
+        raw[re.match(r"Agent (\S+)", part).group(1)] = part
     found = {}
     for part in re.split(r"^## ", masked, flags=re.M):
         match = re.match(r"Agent (\S+)", part)
         if match:
-            raw = next((r for r in raw_parts if r.startswith(f"Agent {match.group(1)}")), part)
-            found[match.group(1)] = (part, raw)
+            found[match.group(1)] = (part, raw.get(match.group(1), part))
     return found
 
 
@@ -94,8 +101,6 @@ def main():
     parser.add_argument("path")
     parser.add_argument("--agent", action="append", default=[], help="agent id expected, repeatable")
     args = parser.parse_args()
-    if hasattr(sys.stdout, "reconfigure"):
-        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     try:
         with open(args.path, encoding="utf-8", errors="replace") as handle:
             text = handle.read()
@@ -108,10 +113,4 @@ def main():
 
 
 if __name__ == "__main__":
-    try:
-        main()
-    except SystemExit:
-        raise
-    except Exception as error:
-        print(f"resume_check failed: {error!r}. Check the file by hand against resume-template.md.", file=sys.stderr)
-        sys.exit(2)
+    guard(main, HINT)

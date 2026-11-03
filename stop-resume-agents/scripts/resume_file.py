@@ -7,12 +7,13 @@ import re
 import subprocess
 import sys
 
-MARKER = "<!-- stop-resume-agents v1 -->"
+sys.dont_write_bytecode = True
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "lib"))
+
+from common import MARKER, config_dir, guard
+
 NAMES = ("resume.md", "resume-stop-all.md")
-
-
-def config_dir():
-    return os.environ.get("CLAUDE_CONFIG_DIR") or os.path.join(os.path.expanduser("~"), ".claude")
+HINT = "Do the same step by hand."
 
 
 def journal_path():
@@ -54,8 +55,8 @@ def candidate_dirs(start):
     dirs += [os.path.join(home, sub) for sub in ("Desktop", "OneDrive/Desktop", "OneDrive/Bureau")]
     seen, result = set(), []
     for folder in dirs:
-        key = os.path.normcase(os.path.abspath(folder)) if folder else ""
-        if key and key not in seen and os.path.isdir(folder):
+        key = os.path.normcase(os.path.abspath(folder))
+        if key not in seen and os.path.isdir(folder):
             seen.add(key)
             result.append(folder)
     return result
@@ -67,19 +68,27 @@ def describe(text):
     return state, origin
 
 
+def scan(folder):
+    ours, foreign = [], []
+    paths = {os.path.join(folder, n) for n in NAMES} | set(glob.glob(os.path.join(folder, "resume-*.md")))
+    for path in sorted(p for p in paths if os.path.isfile(p)):
+        text = read_text(path)
+        if text.startswith(MARKER):
+            ours.append((os.path.getmtime(path), path) + describe(text))
+        else:
+            foreign.append(path)
+    return ours, foreign
+
+
 def find(start):
     ours, foreign = [], []
     for folder in candidate_dirs(start):
-        paths = {os.path.join(folder, n) for n in NAMES} | set(glob.glob(os.path.join(folder, "resume-*.md")))
-        for path in sorted(p for p in paths if os.path.isfile(p)):
-            text = read_text(path)
-            if not text.startswith(MARKER):
-                foreign.append(path)
-                continue
-            ours.append((os.path.getmtime(path), path) + describe(text))
+        found, other = scan(folder)
+        ours += found
+        foreign += other
     for mtime, path, state, origin in sorted(ours, reverse=True):
         stamp = datetime.datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M")
-        print(f"{stamp}	{state}	session {origin}	{os.path.normpath(path)}")
+        print(f"{stamp}\t{state}\tsession {origin}\t{os.path.normpath(path)}")
     if not ours:
         print("no resume file written by /stop-all was found: ask the user for its path")
     for path in foreign:
@@ -107,16 +116,14 @@ def log(path, event):
 def main():
     parser = argparse.ArgumentParser(description="Find and log the resume files written by /stop-all.")
     sub = parser.add_subparsers(dest="command", required=True)
-    sub.add_parser("find").add_argument("--from", dest="start", default=os.getcwd())
+    sub.add_parser("find")
     logger = sub.add_parser("log")
     logger.add_argument("path")
     logger.add_argument("event", choices=["stop", "resume"])
     sub.add_parser("hash").add_argument("paths", nargs="+")
     args = parser.parse_args()
-    if hasattr(sys.stdout, "reconfigure"):
-        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     if args.command == "find":
-        find(args.start)
+        find(os.getcwd())
     elif args.command == "hash":
         digest(args.paths)
     else:
@@ -124,10 +131,4 @@ def main():
 
 
 if __name__ == "__main__":
-    try:
-        main()
-    except SystemExit:
-        raise
-    except Exception as error:
-        print(f"resume_file failed: {error!r}. Do the same step by hand.", file=sys.stderr)
-        sys.exit(2)
+    guard(main, HINT)

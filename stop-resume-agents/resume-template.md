@@ -1,13 +1,10 @@
 # Shape of resume.md
 
-resume.md is written in French, for the user to read and for /resume-all to parse. Keep the
-first line, the `Etat :` line and every `## Agent <id>` heading exactly as below: /resume-all and
-`scripts/resume_check.py` look for them, and the checker refuses any `<...>` of this template left
-in the file. A field with nothing to say gets `aucun`, never an empty line. Verbatim blocks use four
-backticks, because reports often hold three.
-
-While answers are awaited, a field reads `en attente <agent id>`, never a bare `en attente`: the id
-makes the string unique, so Edit can replace it in one section without touching the others.
+resume.md is written in French. Keep the first line, the `Etat :` line and every `## Agent <id>`
+heading exactly as below: /resume-all and `scripts/resume_check.py` look for them, and the checker
+refuses any placeholder of this template left in the file. A field with nothing to say gets `aucun`.
+Verbatim blocks use four backticks, because reports often hold three. While answers are awaited a
+field reads `en attente <agent id>`, never a bare `en attente`, so Edit can target one section.
 
 `````markdown
 <!-- stop-resume-agents v1 -->
@@ -74,8 +71,7 @@ tout ecart entre son compte rendu et le disque, ecrit en clair>
 
 Un element par ligne : quoi, commande exacte, dossier, PID ou port ou id, arrete comment,
 comment le relancer, s'il faut le relancer. Inclut les commandes Bash de fond, serveurs,
-boucles /loop, taches planifiees, workflows, instances MCP (editeur de jeu, outil 3D, editeur de son), ports
-Chrome. Rien n'a tourne : `aucun`.
+boucles /loop, taches planifiees, workflows, ports Chrome. Rien n'a tourne : `aucun`.
 
 ## Questions sans reponse
 
@@ -91,10 +87,10 @@ Chrome. Rien n'a tourne : `aucun`.
 - <AAAA-MM-JJ HH:MM> arret par /stop-all, session <id>, <n> agents, <n> sans reponse
 `````
 
-When the digest prints `PROMPT NOT FOUND` and neither your context nor the parent agent's digest
-holds the prompt, keep that text in the block and add a line `Consigne perdue : <why>` under it.
+When the digest prints `PROMPT NOT FOUND` and neither your context nor the parent's digest holds the
+prompt, keep that text in the block and add `Consigne perdue : <why>` under it.
 
-When the stop is complete, the `Etat :` line becomes `Etat : ARRETE`. Each /resume-all appends a
-`## Reprise du <date>` section above `## Journal`, a line in `## Journal`, and sets
-`Etat : REPRIS le <AAAA-MM-JJ HH:MM>, session <id>`. A file taken over by a newer /stop-all of the
-same session reads `Etat : REMPLACE par <chemin du nouveau fichier>`: /resume-all skips it.
+States: `ARRET EN COURS`, then `ARRETE` when complete. Each /resume-all adds a `## Reprise du <date>`
+section above `## Journal`, a Journal line, and sets `Etat : REPRIS le <AAAA-MM-JJ HH:MM>, session <id>`.
+A file taken over by a newer /stop-all of the same session reads `Etat : REMPLACE par <chemin du nouveau
+fichier>`; /resume-all skips it.
