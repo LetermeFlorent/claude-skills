@@ -19,7 +19,7 @@ Each line gives the command that starts the skill and what it does.
 | strip-ai-traces | `/strip-ai-traces` | writes and fixes text and code without the marks of AI-written text |
 | chrome-bidi | `/chrome-bidi` | drives Chrome to open, read, click and capture a page, Windows only |
 | clean-code | `/clean-code` | audits and tidies code: short files, one logic per file, dead code |
-| drive-project | `/drive` | takes a goal to pushed commits: every question first, then a silent run that shows only a percentage |
+| drive-project | `/drive` | takes a goal to pushed commits: every question first, then a silent run that shows only a percentage, every task handed to helper agents |
 | clean-commits | `/commit` | splits changes into clean commits, one per intention |
 | limited-run | `/limited-run` | starts each task with a memory limit and closes it as soon as it is no longer needed |
 | claude-model-effort | `/claude-model-effort` | picks the Claude model and effort level for each agent, never the max effort |

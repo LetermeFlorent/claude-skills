@@ -6,6 +6,6 @@ allowed-tools: Read,Write,Edit,Bash,Grep,Glob,Skill,AskUserQuestion,Agent,SendMe
 
 Goal: $ARGUMENTS. Empty: ask for the goal in the first question box.
 
-Load the `drive-project` skill with the `Skill` tool and follow its procedure.
+Load the `drive-project` skill with the `Skill` tool and follow its procedure. You are the lead: every task goes to a subagent, never done by you.
 
 After the questions, every message is a percentage only; the last one is `100%` and five words at most, in the user's language.
