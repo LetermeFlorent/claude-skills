@@ -5,15 +5,16 @@ output, and tell the user what happened.
 
 ## What gets installed
 
-The repository holds 11 skills, one folder each with a `SKILL.md`, and the slash commands that start
+The repository holds 12 skills, one folder each with a `SKILL.md`, and the slash commands that start
 them, in each skill's `commands/` folder. Installing clones the repository into the Claude Code
 configuration folder, links every skill folder into its `skills/` folder and copies every command
 into its `commands/` folder. When OpenCode is installed (`~/.config/opencode` exists), the commands are
 also copied into `~/.config/opencode/commands/`.
 
-Two outside tools come with it, each kept at its latest version (see "Ponytail" and "Graphify"):
-[Ponytail](https://github.com/DietrichGebert/ponytail), always on at its highest level, and
-[graphify](https://github.com/Graphify-Labs/graphify), used on large projects only. Neither goes through a
+Three outside tools come with it, each kept at its latest version (see "Ponytail", "Graphify" and
+"Caveman"): [Ponytail](https://github.com/DietrichGebert/ponytail), always on at its highest level,
+[graphify](https://github.com/Graphify-Labs/graphify), used on large projects only, and the code search
+agents of [caveman](https://github.com/JuliusBrussee/caveman), used on small projects. None goes through a
 plugin, an MCP server or a connector.
 
 Below, `<config>` is that folder: the value of `CLAUDE_CONFIG_DIR` when the variable is set, else
@@ -31,7 +32,7 @@ Check git and Python before cloning; the other two are needed by one tool each.
   found, else with `pip install --user`.
 
 Skills are linked through directory junctions on Windows, which need no administrator rights, and
-through symbolic links on macOS and Linux. `chrome-bidi` drives Chrome on Windows only; the other ten
+through symbolic links on macOS and Linux. `chrome-bidi` drives Chrome on Windows only; the other eleven
 run on any of the three.
 
 ## Install
@@ -53,7 +54,7 @@ Five steps, in this order.
    ```
 
    It prints one line per skill and per command: `linked`, `copied`, `already there`, `removed`, or
-   `skipped` with the reason, then the Ponytail and graphify lines, then one line for each hook it adds
+   `skipped` with the reason, then the Ponytail, caveman and graphify lines, then one line for each hook it adds
    to `<config>/settings.json` (update, resource and the three Ponytail hooks).
    Exit code 0 means everything is in place, 1 that at least one line was skipped or failed, 2 that
    the clone is not in `<config>/claude-skills`.
@@ -66,16 +67,17 @@ Five steps, in this order.
 
 ## Check
 
-`ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills"` lists the 11 skill folders, the six Ponytail ones and graphify, and
-`ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/commands"` the 12 command files, next to whatever the user
+`ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills"` lists the 12 skill folders, the six Ponytail ones, the two caveman ones and graphify,
+`ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/agents"` the three `cavecrew-*.md` agents, and
+`ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/commands"` the 13 command files, next to whatever the user
 had before. Then run the update check once:
 
 ```bash
 python -I "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/claude-skills/tools/update.py"
 ```
 
-It prints `claude-skills: up to date (<version>)`, then `ponytail: up to date (<version>)` and
-`graphify: up to date (<version>)`.
+It prints `claude-skills: up to date (<version>)`, then `ponytail: up to date (<version>)`,
+`caveman: up to date (<version>)` and `graphify: up to date (<version>)`.
 
 ## Commands
 
@@ -87,6 +89,7 @@ Each command starts one skill.
 | `/chrome-bidi` | chrome-bidi |
 | `/clean-code` | clean-code |
 | `/commit` | clean-commits |
+| `/drive` | drive-project |
 | `/stop-all`, `/resume-all` | stop-resume-agents |
 | `/isolate` | using-git-worktrees |
 | `/limited-run` | limited-run |
@@ -139,6 +142,27 @@ Ponytail's own FAQ suggests: "Never write `shortcut:` comments; name each shortc
 
 The variable `CLAUDE_SKILLS_PONYTAIL_URL` points the checkout at another copy of the repository.
 
+## Caveman
+
+[caveman](https://github.com/JuliusBrussee/caveman) ships subagents that find, edit and review code and
+send back very short reports, so the main session keeps its context. Its own install for Claude Code is a
+plugin; this repository takes only the search part, without one:
+
+- `install.py` and `update.py` ask GitHub for caveman's highest release tag and check it out into
+  `<config>/caveman`, a shallow clone, fetching again only when a newer release appears;
+- two of its skills are linked into `<config>/skills`: `cavecrew`, which says when to hand a search, a
+  one or two file edit or a diff review to its agents, and `caveman-explore`, a read-only explorer;
+- its three agents (`cavecrew-investigator`, `cavecrew-builder`, `cavecrew-reviewer`) are copied into
+  `<config>/agents` and kept in step on every update; an agent you edited by hand is left alone;
+- its caveman voice, hooks, status line and MCP server are left out: the voice would fight the
+  language rules of your `CLAUDE.md`.
+
+Use it on small projects, where graphify costs more than it saves: the AI hands "where is X, what calls
+Y" to `cavecrew-investigator` and a review of its diff to `cavecrew-reviewer`, and gets a `path:line`
+list back instead of pages of prose. The drive-project skill does this on its own.
+
+The variable `CLAUDE_SKILLS_CAVEMAN_URL` points the checkout at another copy of the repository.
+
 ## Graphify
 
 [graphify](https://github.com/Graphify-Labs/graphify) turns a codebase into a knowledge graph the agent
@@ -178,8 +202,8 @@ it to run `resource-guard/scripts/guard.py wait` before heavy commands.
 python -I "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/claude-skills/tools/install.py" --uninstall
 ```
 
-It removes the links, the commands it installed, its hooks, the Ponytail checkout and the graphify
-skill, and leaves alone any command the user edited. The `graphifyy` package stays installed:
+It removes the links, the commands it installed, its hooks, the Ponytail and caveman checkouts, the
+caveman agents and the graphify skill, and leaves alone any command the user edited. The `graphifyy` package stays installed:
 `pip uninstall graphifyy` (or `uv tool uninstall graphifyy`) removes it.
 Once it has printed its lines, the folder `<config>/claude-skills` can be deleted.
 

@@ -1,6 +1,6 @@
 # claude-skills
 
-Eleven skills for Claude Code and OpenCode, and the commands that start them. Each folder holds the `SKILL.md` the AI reads, a `README.md` for you, and its scripts and tests when it has any. The scripts are plain Python with no dependency, so another AI (Codex, Gemini, Qwen) can use them too: just point it to the `SKILL.md` in its instructions file.
+Twelve skills for Claude Code and OpenCode, and the commands that start them. Each folder holds the `SKILL.md` the AI reads, a `README.md` for you, and its scripts and tests when it has any. The scripts are plain Python with no dependency, so another AI (Codex, Gemini, Qwen) can use them too: just point it to the `SKILL.md` in its instructions file.
 
 ## Install
 
@@ -19,6 +19,7 @@ Each line gives the command that starts the skill and what it does.
 | strip-ai-traces | `/strip-ai-traces` | writes and fixes text and code without the marks of AI-written text |
 | chrome-bidi | `/chrome-bidi` | drives Chrome to open, read, click and capture a page, Windows only |
 | clean-code | `/clean-code` | audits and tidies code: short files, one logic per file, dead code |
+| drive-project | `/drive` | takes a goal to pushed commits: every question first, then a silent run that shows only a percentage |
 | clean-commits | `/commit` | splits changes into clean commits, one per intention |
 | limited-run | `/limited-run` | starts each task with a memory limit and closes it as soon as it is no longer needed |
 | claude-model-effort | `/claude-model-effort` | picks the Claude model and effort level for each agent, never the max effort |
@@ -30,12 +31,13 @@ Each line gives the command that starts the skill and what it does.
 
 ## Tools that come with it
 
-Two outside tools are installed and kept at their latest release with the skills, without any plugin.
+Three outside tools are installed and kept at their latest release with the skills, without any plugin.
 
 | Tool | Command | Role |
 |---|---|---|
 | [Ponytail](https://github.com/DietrichGebert/ponytail) | `/ponytail`, `/ponytail-review`, `/ponytail-audit` | makes the agent write the smallest change that fully works, always on at its highest level (ultra) |
 | [graphify](https://github.com/Graphify-Labs/graphify) | `/graphify` | turns a large codebase into a knowledge graph to query, used on large projects only |
+| [caveman](https://github.com/JuliusBrussee/caveman) | none, the agents are picked by the AI | its cavecrew agents and caveman-explore find, edit and review code and answer in very short reports, used on small projects |
 
 ## License
 
