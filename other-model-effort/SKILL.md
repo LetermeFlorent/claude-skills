@@ -1,6 +1,6 @@
 ---
 name: other-model-effort
-description: Use when the user types /other-model-effort, when about to start an agent, a subagent or a run on a model that is not Claude, in any tool, and its model or reasoning effort must be picked, when such a run seems to need a stronger or a cheaper model, or when a task with several agents is about to go to a model that is not Claude.
+description: Use when the running model can start and follow subagents (any other model skips this skill) and the user types /other-model-effort, or it is about to start an agent, a subagent or a run on a model that is not Claude, in any tool, and its model or reasoning effort must be picked, when such a run seems to need a stronger or a cheaper model, or when a task with several agents is about to go to a model that is not Claude.
 ---
 
 # Picking a model and an effort level outside Claude
