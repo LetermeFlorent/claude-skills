@@ -2,11 +2,11 @@
 
 To install it, see `INSTALL.md` at the root of the repository.
 
-The same choice as claude-model-effort, for every model that is not Claude: GPT in Codex CLI, Gemini, Qwen, Mistral, DeepSeek, a local model, anything. It keeps no table of its own. It reads the task in the claude-model-effort tables and turns Haiku, Sonnet and Opus into light, all-round and top, which any provider has.
+The same choice as claude-model-effort, for every model that is not Claude, in any tool, a local one included. It keeps no table of its own. It reads the task in the claude-model-effort tables and turns Haiku, Sonnet and Opus into light, all-round and top, which any provider has.
 
 ## /other-model-effort
 
-Type `/other-model-effort` followed by a task in a few words (`/other-model-effort database migration`). The AI answers with the minimum and the ceiling as a tier and an effort level, and why. Name the tool too (`/other-model-effort commit message in Codex`) and it also gives the model names that fit.
+Type `/other-model-effort` followed by a task in a few words (`/other-model-effort database migration`). The AI answers with the minimum and the ceiling as a tier and an effort level, and why. It never names a model: the tier is the answer.
 
 ## What the AI does
 
@@ -20,9 +20,10 @@ Change a task's minimum or ceiling in claude-model-effort: both skills follow.
 
 ## What was tested
 
-Two runs on Sonnet, same kind of request: model and effort for a commit message, a Prisma column rename and a third task.
+Three runs on Sonnet, in tools that are not Claude.
 
-- Without this skill, in Codex: the agent loaded the Claude skill and translated the names itself, with the right answers. The need here is a clear home for that translation, not a fix for a wrong choice.
-- With this skill, in Gemini CLI: it read both skills and gave light low to light medium for the commit, all-round medium to top high for the migration, top medium to top xhigh for a performance regression, never max. It found two vague lines (all-round as "the tool's default", medium as "the tool's default"); both now point to the middle of the list instead.
+- Without this skill: the agent loaded the Claude skill and translated the names itself, with the right answers. The need here is a clear home for that translation, not a fix for a wrong choice.
+- With the first version: right tiers and efforts for a commit message, a column rename and a performance regression. It found two vague lines on the tool's default; both now point to the middle of the list.
+- With max allowed and the subagent rule: it started a regression hunt at top medium and allowed effort up to max, refused to hand a five-agent job to a model with no subagent feature, and said such a model ignores the skill. It found one line still capping effort at the ceiling, now removed.
 
-Not tested: the later change that allows max and the rule on models that cannot run several agents, a real run inside Codex CLI or Gemini CLI, and current model names, which the runs could not check offline.
+Not tested: a real run inside another tool than Claude Code, and the version without any model name.

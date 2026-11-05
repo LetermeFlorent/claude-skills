@@ -1,6 +1,6 @@
 ---
 description: Tell which model tier and effort level to use for a task on a model that is not Claude.
-argument-hint: "<task in a few words> [tool or provider]"
+argument-hint: "<task in a few words>"
 allowed-tools: Read,Skill
 ---
 
