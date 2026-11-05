@@ -5,7 +5,7 @@ output, and tell the user what happened.
 
 ## What gets installed
 
-The repository holds 10 skills, one folder each with a `SKILL.md`, and the slash commands that start
+The repository holds 11 skills, one folder each with a `SKILL.md`, and the slash commands that start
 them, in each skill's `commands/` folder. Installing clones the repository into the Claude Code
 configuration folder, links every skill folder into its `skills/` folder and copies every command
 into its `commands/` folder. When OpenCode is installed (`~/.config/opencode` exists), the commands are
@@ -31,7 +31,7 @@ Check git and Python before cloning; the other two are needed by one tool each.
   found, else with `pip install --user`.
 
 Skills are linked through directory junctions on Windows, which need no administrator rights, and
-through symbolic links on macOS and Linux. `chrome-bidi` drives Chrome on Windows only; the other nine
+through symbolic links on macOS and Linux. `chrome-bidi` drives Chrome on Windows only; the other ten
 run on any of the three.
 
 ## Install
@@ -66,8 +66,8 @@ Five steps, in this order.
 
 ## Check
 
-`ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills"` lists the 10 skill folders, the six Ponytail ones and graphify, and
-`ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/commands"` the 11 command files, next to whatever the user
+`ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills"` lists the 11 skill folders, the six Ponytail ones and graphify, and
+`ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/commands"` the 12 command files, next to whatever the user
 had before. Then run the update check once:
 
 ```bash
@@ -90,7 +90,8 @@ Each command starts one skill.
 | `/stop-all`, `/resume-all` | stop-resume-agents |
 | `/isolate` | using-git-worktrees |
 | `/limited-run` | limited-run |
-| `/model-effort` | model-effort |
+| `/claude-model-effort` | claude-model-effort |
+| `/other-model-effort` | other-model-effort |
 | `/resource-guard` | resource-guard |
 | `/write-skill` | writing-skills |
 

@@ -1,12 +1,13 @@
 ---
-name: model-effort
-description: Use when the user types /model-effort, when about to start a subagent or a workflow agent and its model or effort level must be picked, when a task seems to need a stronger or a cheaper model, or when a run is about to use the max effort level.
+name: claude-model-effort
+description: Use when the user types /claude-model-effort, when about to start a subagent or a workflow agent on a Claude model (Claude Code, OpenCode with Claude) and its model or effort level must be picked, when a task seems to need a stronger or a cheaper model, or when a run is about to use the max effort level.
 ---
 
-# Picking a model and an effort level
+# Picking a Claude model and an effort level
 
-This is the only skill in the repository that names models and effort levels. Every other skill leaves
-them out, so the choice is made here, once, for each agent you start.
+This skill and the other-model-effort skill are the only ones in the repository that name models and effort
+levels. Every other skill leaves them out, so the choice is made here, once, for each agent you start. The
+tables below also serve other-model-effort, which maps them onto models that are not Claude.
 
 Each task type has a minimum (the cheapest setting that does the job) and a ceiling. Anything between the
 two is a valid choice; start at the minimum and climb only when a run comes back wrong or stops short.
@@ -110,7 +111,7 @@ Volume makes every token count.
 | Translation and i18n: language files, consistent tone | Haiku medium | Sonnet medium | Sonnet keeps the terminology of a whole file. |
 | Excel and PDF generation: tables, formulas, layout | Sonnet medium | Opus medium | Real-world data is dirty and the layout is checked by eye. |
 
-## /model-effort <task>
+## /claude-model-effort <task>
 
 Find the row that matches the task (several rows: rule 5), then answer in the user's language with the
 minimum, the ceiling and the reason, in two or three lines. No row matches: take the closest one and say
