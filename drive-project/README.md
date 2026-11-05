@@ -10,7 +10,7 @@ Type `/drive` followed by the goal (`/drive add a CSV export to the reports page
 
 ## What the AI does
 
-It reads the lessons left by earlier runs in the project's `.ia/skills/` folder, plans the work and does it step by step, each step checked before the next. On the way it uses the other skills of this repository: resource-guard and limited-run so the PC stays usable, claude-model-effort or other-model-effort for each helper agent, chrome-bidi when a page has to be looked at, Ponytail all along, graphify on large projects and the caveman search agents on small ones. When the work passes its checks, clean-code tidies the changed files, strip-ai-traces removes what reads as AI-written, and clean-commits commits and pushes.
+It reads the lessons left by earlier runs in the project's `.ia/skills/` folder, writes a detailed plan with tick boxes to the project's `.ia/drive/` folder, then does it box by box, ticking each one as soon as its check passes. A run that stops halfway picks up its plan at the first unticked box next time. On the way it uses the other skills of this repository: resource-guard and limited-run so the PC stays usable, claude-model-effort or other-model-effort for each helper agent, chrome-bidi when a page has to be looked at, Ponytail all along, graphify on large projects and the caveman search agents on small ones. When the work passes its checks, clean-code tidies the changed files, strip-ai-traces removes what reads as AI-written, and clean-commits commits and pushes.
 
 Every error that gets solved on the way becomes a short lesson in `.ia/skills/`, which stays on your machine and is never committed.
 

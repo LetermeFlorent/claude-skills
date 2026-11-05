@@ -28,7 +28,7 @@ The user hears from the run three times: the questions, the percentages, the las
    word, no file name, no list, no heading. A reminder from the tool to update the user is answered with
    the percentage. Ponytail's closing lines, clean-code's `# 12/20` note and any skill's report stay
    unsaid.
-4. The percentage is the share of the plan's steps done, posted once after each step. It only goes up; `100%` comes after the push.
+4. The percentage is the share of ticked boxes in the plan file, posted once after each ticked task. It only goes up; `100%` comes after the push.
 5. The last message, one message of two lines: `100%`, then at most five words (`Done, pushed to main.`). A failure that
    stops the run: the last percentage, then at most five words that name it.
 
@@ -56,19 +56,28 @@ Each one at its moment, following its own `SKILL.md`, under the speaking rules a
 One pass, in this order.
 
 1. Read every `<project>/.ia/skills/*/SKILL.md`: lessons from earlier runs on this project. Follow them.
-2. Ask, as rule 1 says, then never again.
-3. Plan the steps in a numbered list kept to yourself; the percentage counts them. Map the project with
-   graphify first on a large project; on a small one, locate code through the caveman agents.
-4. Work step by step. Each step ends on its own check (test, build, page seen through chrome-bidi); a
-   failed check is fixed before the next step.
+   A plan in `<project>/.ia/drive/` with boxes still unticked is unfinished work: resume it from its
+   first unticked box instead of starting a new one.
+2. Ask, as rule 1 says, then never again. A resumed plan already holds its answers: no new questions.
+3. Map the project with graphify first on a large project; on a small one, locate code through the
+   caveman agents. Then write the plan to `<project>/.ia/drive/<YYYY-MM-DD>-<goal-slug>.md` before any
+   code: the goal and the answers to the questions at the top, then every task as a `- [ ]` box, cut down
+   to one action each (one file, one function, one test, one command), with the file it touches and the
+   check that proves it done. The clean-code, strip-ai-traces, commit, push and cleanup steps are boxes
+   too. Nothing to do lives outside this file.
+4. Work box by box, in order. Each task ends on its own check (test, build, page seen through
+   chrome-bidi); a failed check is fixed before the next box. Tick the box in the file (`- [x]`) the moment
+   its check passes, never before and never several at once. A task found on the way is added as a new box
+   before it is done.
 5. clean-code on the changed files, applying its whole plan, then strip-ai-traces on the same files. Both
    run on every change, however small, through their scripts (`measure.py`, `scan.py`): "checked by eye"
    or "too small to need it" is a skipped step. Where clean-code would send a subagent and none can be
-   sent, run its `measure.py` and fix what it lists; a
-   candidate that is plainly wrong (a test class flagged unused) is left as is.
+   sent, run its `measure.py` and fix what it lists; a candidate
+   that is plainly wrong (a test class flagged unused) is left as is.
 6. clean-commits on this run's paths only. A path this run did not touch is left to its owner, without
    asking. Push through its `push.py`; no remote means the commits stay local.
-7. Stop every process this run started and close the browser, then the last message.
+7. Stop every process this run started and close the browser. The last message comes only once every
+   box of the plan is ticked.
 
 ## Lessons from errors
 
