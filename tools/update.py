@@ -7,10 +7,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent / "lib"))
 
 from gitcalls import (GitFailed, GitMissing, changed_paths, current_release, fast_forward, fetch_tag, head,
                       is_ancestor, is_dirty, latest_release)
+from caveman import sync_caveman
 from graphify import start_background
 from guard import run_guarded
 from hook import add_hooks
-from paths import GRAPHIFY_FILE, INSTALLED_FILE, PONYTAIL_FILE, config_dir, repo_dir, skill_names, state_file
+from paths import CAVEMAN_FILE, GRAPHIFY_FILE, INSTALLED_FILE, PONYTAIL_FILE, config_dir, repo_dir, skill_names, state_file
 from ponytail import sync_ponytail
 from registry import read_json, write_json
 from sync import UNCHANGED, sync
@@ -59,6 +60,7 @@ def check(repo):
 
 def extras(repo):
     found = sync_ponytail(repo.parent, state_file(repo, PONYTAIL_FILE)) + add_hooks(config_dir(), repo)
+    found += sync_caveman(repo.parent, state_file(repo, CAVEMAN_FILE))
     lines = [text for _, text in found if not text.endswith(UNCHANGED)]
     return lines + [start_background(repo, state_file(repo, GRAPHIFY_FILE))]
 

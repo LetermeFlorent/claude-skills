@@ -28,6 +28,10 @@ PONYTAIL_FILES = {"skills/ponytail/SKILL.md": SKILL_TEXT.format("ponytail"),
                   "hooks/ponytail-mode-tracker.js": "",
                   "hooks/ponytail-instructions.js": "exports.getPonytailInstructions = m => 'RULES ' + m;\n",
                   ".opencode/command/ponytail-review.md": "Review.\n"}
+CAVEMAN_FILES = {"skills/cavecrew/SKILL.md": SKILL_TEXT.format("cavecrew"),
+                 "skills/caveman-explore/SKILL.md": SKILL_TEXT.format("caveman-explore"),
+                 "skills/caveman/SKILL.md": SKILL_TEXT.format("caveman"),
+                 "agents/cavecrew-investigator.md": "Investigate.\n", "agents/agents.json": "{}\n"}
 
 
 def git(folder, *args):
@@ -36,6 +40,17 @@ def git(folder, *args):
     if done.returncode != 0:
         raise AssertionError(f"git {args[0]}: {done.stderr}")
     return done.stdout.strip()
+
+
+def tagged_release(folder, tag, files):
+    for name, text in files.items():
+        (folder / name).parent.mkdir(parents=True, exist_ok=True)
+        (folder / name).write_text(text, encoding=ENCODING)
+    if not (folder / ".git").is_dir():
+        git(folder, "init", "-q")
+    git(folder, "add", "-A")
+    git(folder, "commit", "-q", "-m", tag)
+    git(folder, "tag", "-a", tag, "-m", tag)
 
 
 def _force(function, path, _):
@@ -62,17 +77,15 @@ class World:
         git(self.root, "clone", "-q", str(self.origin), str(self.clone))
         self.ponytail = self.root / "ponytail-source"
         self.xdg = self.root / "xdg"
+        self.caveman = self.root / "caveman-source"
         self.ponytail_release("v5.0.0", PONYTAIL_FILES)
+        self.caveman_release("v4.0.0", CAVEMAN_FILES)
 
     def ponytail_release(self, tag, files):
-        for name, text in files.items():
-            (self.ponytail / name).parent.mkdir(parents=True, exist_ok=True)
-            (self.ponytail / name).write_text(text, encoding=ENCODING)
-        if not (self.ponytail / ".git").is_dir():
-            git(self.ponytail, "init", "-q")
-        git(self.ponytail, "add", "-A")
-        git(self.ponytail, "commit", "-q", "-m", tag)
-        git(self.ponytail, "tag", "-a", tag, "-m", tag)
+        tagged_release(self.ponytail, tag, files)
+
+    def caveman_release(self, tag, files):
+        tagged_release(self.caveman, tag, files)
 
     def write_skill(self, name, command=None):
         folder = self.source / name / "commands"
@@ -107,6 +120,7 @@ class World:
         env[CONFIG_VAR] = str(self.config)
         env["CLAUDE_SKILLS_OPENCODE_DIR"] = str(self.opencode)
         env["CLAUDE_SKILLS_PONYTAIL_URL"] = self.ponytail.as_uri()
+        env["CLAUDE_SKILLS_CAVEMAN_URL"] = self.caveman.as_uri()
         env["XDG_CONFIG_HOME"] = str(self.xdg)
         env["CLAUDE_SKILLS_GRAPHIFY_INDEX"] = (self.root / "no-index.json").as_uri()
         if path is not None:

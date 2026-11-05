@@ -37,9 +37,9 @@ def unsync(repo, config, registry):
     return {}, lines
 
 
-def sync_skills(repo, config, known, lines):
+def sync_skills(repo, config, known, lines, wanted=None):
     kept = []
-    wanted = skill_names(repo)
+    wanted = skill_names(repo) if wanted is None else wanted
     for name in wanted:
         link, target = config / SKILLS_DIR / name, repo / name
         if is_link(link) and same_path(link, target):
@@ -89,33 +89,33 @@ def sync_commands(repo, folder, known, lines, label=""):
     return kept
 
 
-def place_command(name, source, dest, recorded, lines):
+def place_command(name, source, dest, recorded, lines, kind="command"):
     current = file_hash(dest) if dest.is_file() else None
     wanted = file_hash(source)
     if current == wanted:
-        lines.append((True, f"command {name}: {UNCHANGED}"))
+        lines.append((True, f"{kind} {name}: {UNCHANGED}"))
         return wanted
     if current and not recorded:
-        lines.append((False, f"command {name}: skipped, {dest} is not ours; {AGAIN}"))
+        lines.append((False, f"{kind} {name}: skipped, {dest} is not ours; {AGAIN}"))
         return None
     if current and current != recorded:
-        lines.append((False, f"command {name}: changed by hand, left as is and no longer updated"))
+        lines.append((False, f"{kind} {name}: changed by hand, left as is and no longer updated"))
         return None
     try:
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(source, dest)
     except OSError as error:
-        lines.append((False, f"command {name}: not copied ({error})"))
+        lines.append((False, f"{kind} {name}: not copied ({error})"))
         return None
-    lines.append((True, f"command {name}: copied"))
+    lines.append((True, f"{kind} {name}: copied"))
     return wanted
 
 
-def drop_command(name, dest, recorded, lines):
+def drop_command(name, dest, recorded, lines, kind="command"):
     if not dest.is_file():
         return
     if file_hash(dest) != recorded:
-        lines.append((False, f"command {name}: changed by hand, left as is"))
+        lines.append((False, f"{kind} {name}: changed by hand, left as is"))
         return
     dest.unlink()
-    lines.append((True, f"command {name}: removed"))
+    lines.append((True, f"{kind} {name}: removed"))
