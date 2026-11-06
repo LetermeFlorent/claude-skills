@@ -1,3 +1,4 @@
 .ia/
 __pycache__/
 chrome-bidi/bin/
+progress-board/.state.json

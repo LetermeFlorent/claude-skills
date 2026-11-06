@@ -5,7 +5,7 @@ output, and tell the user what happened.
 
 ## What gets installed
 
-The repository holds 12 skills, one folder each with a `SKILL.md`, and the slash commands that start
+The repository holds 13 skills, one folder each with a `SKILL.md`, and the slash commands that start
 them, in each skill's `commands/` folder. Installing clones the repository into the Claude Code
 configuration folder, links every skill folder into its `skills/` folder and copies every command
 into its `commands/` folder. When OpenCode is installed (`~/.config/opencode` exists), the commands are
@@ -32,7 +32,7 @@ Check git and Python before cloning; the other two are needed by one tool each.
   found, else with `pip install --user`.
 
 Skills are linked through directory junctions on Windows, which need no administrator rights, and
-through symbolic links on macOS and Linux. `chrome-bidi` drives Chrome on Windows only; the other eleven
+through symbolic links on macOS and Linux. `chrome-bidi` drives Chrome on Windows only; the other twelve
 run on any of the three.
 
 ## Install
@@ -55,7 +55,9 @@ Five steps, in this order.
 
    It prints one line per skill and per command: `linked`, `copied`, `already there`, `removed`, or
    `skipped` with the reason, then the Ponytail, caveman and graphify lines, then one line for each hook it adds
-   to `<config>/settings.json` (update, resource and the three Ponytail hooks).
+   to `<config>/settings.json` (update, resource and the three Ponytail hooks), then the progress-board line:
+   the local progress page at http://127.0.0.1:8790 is started and set to start at every login
+   (Windows: the `Run` key of the current user; macOS: a LaunchAgent; Linux: `~/.config/autostart`).
    Exit code 0 means everything is in place, 1 that at least one line was skipped or failed, 2 that
    the clone is not in `<config>/claude-skills`.
 3. A `skipped` line means the user already has a skill or a command with that name. Never move or
@@ -67,7 +69,7 @@ Five steps, in this order.
 
 ## Check
 
-`ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills"` lists the 12 skill folders, the six Ponytail ones, the two caveman ones and graphify,
+`ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills"` lists the 13 skill folders, the six Ponytail ones, the two caveman ones and graphify,
 `ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/agents"` the three `cavecrew-*.md` agents, and
 `ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/commands"` the 13 command files, next to whatever the user
 had before. Then run the update check once:

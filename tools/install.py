@@ -5,6 +5,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / "lib"))
 
+from board import sync_board, unsync_board
 from caveman import sync_caveman, unsync_caveman
 from graphify import sync_graphify, uninstall
 from guard import run_guarded
@@ -40,6 +41,7 @@ def main(argv):
     graphify_state = state_file(repo, GRAPHIFY_FILE)
     lines.extend(uninstall(config, graphify_state) if argv else sync_graphify(config, graphify_state))
     lines.extend(remove_hooks(config) if argv else add_hooks(config, repo))
+    lines.extend(unsync_board(repo) if argv else sync_board(repo))
     for _, text in lines:
         print(text)
     return DONE if all(ok for ok, _ in lines) else FAILED
