@@ -24,6 +24,7 @@ NAME_MAX = 60
 PING_EVERY = 25
 START_TRIES, START_WAIT = 20, 0.25
 TEXT = "text/plain; charset=utf-8"
+ASSET_TYPES = {".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".woff2": "font/woff2"}
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -43,6 +44,9 @@ class Handler(BaseHTTPRequestHandler):
             return self.send(200, store.PAGE.read_bytes(), "text/html; charset=utf-8")
         if path == "/events":
             return self.stream()
+        asset = built_file(path)
+        if asset:
+            return self.send(200, asset.read_bytes(), ASSET_TYPES.get(asset.suffix, "application/octet-stream"))
         parts = [unquote(p) for p in path.strip("/").split("/", 2)]
         if len(parts) < 2 or not parts[0] or not parts[1].isdigit():
             return self.send(400, b"usage: /<project>/<percent>[/<step>]\n")
@@ -88,6 +92,13 @@ class Handler(BaseHTTPRequestHandler):
             except queue.Empty:
                 self.wfile.write(b": ping\n\n")
                 self.wfile.flush()
+
+
+def built_file(path: str) -> Path | None:
+    """A file of the built page; anything else, a project named "assets" included, goes to the agent API."""
+    site = store.PAGE.parent.resolve()
+    f = (site / unquote(path).lstrip("/")).resolve()
+    return f if path.startswith("/assets/") and f.is_relative_to(site) and f.is_file() else None
 
 
 def running(port: int) -> bool:

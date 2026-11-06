@@ -2,3 +2,4 @@
 __pycache__/
 chrome-bidi/bin/
 progress-board/.state.json
+progress-board/web/node_modules/

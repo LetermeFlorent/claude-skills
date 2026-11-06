@@ -1,0 +1,85 @@
+@import "tailwindcss";
+@import "./theme.css";
+
+@plugin "tailwindcss-react-aria-components";
+@plugin "tailwindcss-animate";
+
+@custom-variant dark (&:where(.dark-mode, .dark-mode *));
+@custom-variant label (& [data-label]);
+@custom-variant focus-input-within (&:has(input:focus));
+
+@utility transition-inherit-all {
+    transition-property: inherit;
+    transition-duration: inherit;
+    transition-timing-function: inherit;
+}
+
+/* DIN, the lettering of technical drawings: Bahnschrift on Windows, DIN Alternate on macOS. */
+@theme {
+    --font-body: Bahnschrift, "DIN Alternate", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+    --font-display: var(--font-body);
+}
+
+:root {
+    color-scheme: light;
+    --color-bg-primary: #fcfcfb;
+    --bg: #fcfcfb; --text: #1b2130; --muted: #676f82; --grid: #eef1f6; --grid-strong: #dfe5ef; --axis: #9aa1b2;
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --s6: #008300; --s7: #6250d6; --s8: #e34948;
+    --list-h: calc(100dvh - 120px);
+}
+
+@media (max-width: 760px) {
+    :root {
+        --list-h: 30dvh;
+    }
+}
+
+.dark-mode {
+    color-scheme: dark;
+    --color-bg-primary: #1a1a19;
+    --bg: #1a1a19; --text: #e7e9ee; --muted: #8e95a7; --grid: #222321; --grid-strong: #2d2e2c; --axis: #5f6472;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.4 var(--font-body);
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* The hand on everything that reacts to a click. */
+button:not(:disabled),
+[role="button"],
+[role="tab"],
+[role="option"],
+[role="radio"],
+a[href] {
+    cursor: pointer;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* The React Bits ring follows the mouse; it goes once the mouse and the keyboard leave the list. */
+.al-list:not(:hover):not(:focus-within) [role="listbox"] > div > span[aria-hidden] {
+    opacity: 0 !important;
+}
+
+.dim {
+    opacity: 0.15;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+    }
+}
