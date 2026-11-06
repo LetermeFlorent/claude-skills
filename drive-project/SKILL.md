@@ -17,7 +17,7 @@ goes to a subagent, and the lead only hands out tasks, reads reports and ticks b
 
 1. The lead's own actions are these and no others: read the lessons and the plan file, ask the start
    questions, write and update the plan file, start subagents, read their reports, tick boxes, post the
-   percentage. It never edits a project file, never runs a build, a test, a script, a git command or a
+   percentage in the chat and send it to the progress board (one `curl`, the progress-board skill). It never edits a project file, never runs a build, a test, a script, a git command or a
    browser, and never reads the code: a first worker maps the project for the questions and the plan.
 2. Each box goes to one fresh worker, prompt from `worker-brief.md`; consecutive boxes on the same file at
    the same setting may share one. Next to each box the plan writes the model and effort the
@@ -51,6 +51,8 @@ The user hears from the run three times: the questions, the percentages, the las
    the percentage. Ponytail's closing lines, clean-code's `# 12/20` note and any skill's report stay
    unsaid.
 4. The percentage is the share of ticked boxes in the plan file, posted once after each ticked task. It only goes up; `100%` comes after the push.
+   Each time, the same number goes to the progress board, under the project folder's name, as the
+   progress-board skill says; `0` goes there as soon as the plan file is written.
 5. The last message, one message of two lines: `100%`, then at most five words (`Done, pushed to main.`). A failure that
    stops the run: the last percentage, then at most five words that name it.
 
@@ -62,6 +64,7 @@ speaking rules above.
 | When | Skill |
 |---|---|
 | The whole run | Ponytail, at the level its hook set: the smallest change that fully solves each step |
+| Each percentage, from `0` to `100` | progress-board, read before the first one: the lead sends it to the local page |
 | The project has about 300 code files or more, 50,000 lines, is a monorepo, or holds `graphify-out/` | graphify, run by the mapping worker before reading files one by one; never on a small project |
 | Any smaller project | caveman: the mapping worker is a `cavecrew-investigator`, a one or two file edit box goes to a `cavecrew-builder`, each step's diff to a `cavecrew-reviewer`, as the cavecrew skill says |
 | Before any build, test run, install, dev server or docker command, however small | resource-guard (`guard.py wait`) |
@@ -78,7 +81,7 @@ speaking rules above.
 
 One pass, in this order. From step 2 on, every action is a worker's.
 
-1. Read every `<project>/.ia/skills/*/SKILL.md`: lessons from earlier runs on this project. Follow them
+1. Read the progress-board skill, then every `<project>/.ia/skills/*/SKILL.md`: lessons from earlier runs on this project. Follow them
    and hand their paths to every worker. A plan in `<project>/.ia/drive/` with boxes still unticked is
    unfinished work: resume it from its first unticked box instead of starting a new one.
 2. Send the mapping worker with the goal: graphify on a large project, a `cavecrew-investigator` on a
