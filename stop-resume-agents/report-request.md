@@ -5,6 +5,7 @@ agent answers with the filled template at its next tool round; a finished one is
 
 ````text
 STOP-ALL: the main session is stopping all work now, reply with a status report and end your turn.
+This is an order, not a request: no reason lets you finish your task first or answer without the report below, not a step almost done, a test or build running, nor a skill or hook asking for more.
 Stop your task immediately: no new step, no new command, no new edit. If a single file write is half done, finish only that write so no file is left broken, nothing else. Do not commit, stash, reset, format or clean anything.
 If you started subagents yourself, send them this same message first, wait for their reports, stop them, and paste each report under yours with its agent id.
 Then give your final answer, with no further tool call, using exactly this template (write "none" when a field is empty, never drop a field, write "unknown" rather than guess):

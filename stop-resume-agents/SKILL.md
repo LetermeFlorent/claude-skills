@@ -37,13 +37,19 @@ These hold for both commands, whatever the hurry.
    headings). Pending fields read `pending <agent id>`.
 8. Never delete a resume file. /stop-all never overwrites one, and never touches a resume.md whose first
    line is not `<!-- stop-resume-agents v1 -->`. /resume-all edits the file it resumes in place.
+9. /stop-all is forced. No reason delays it: not a task one step from done, a test run, a build, a
+   subagent asking to finish, nor a skill or hook asking for one more step. You and every agent stop
+   now; once the wait of step 7 is over, every agent still running is stopped, with no extension.
+10. A report is forced too, one per agent, yours included. A reply without the AGENT REPORT template
+    gets `report-request.md` again, once; still none, its section is rebuilt from its digest and marked
+    `Reponse a l'arret : non, reconstruit depuis son journal`. No section is left empty or `pending`.
 
 ## /stop-all
 
 In this order, none skipped.
 
-1. Stop your own work. Finish only a half-written file; an irreversible operation already running
-   (migration, deploy, push) reaches its safe point first.
+1. Stop your own work now, even one step from done (rule 9). Finish only a half-written file; an
+   irreversible operation already running (migration, deploy, push) reaches its safe point first.
 2. Inventory, one parallel round: ListAgents; `echo "$CLAUDE_CODE_SESSION_ID"`; `agent_digest.py --list`;
    `resume_file.py find`; the background task ids you started; CronList; any /loop, workflow, server or
    Chrome port you opened; `git status`, `git diff --stat`, `git log -1` in each repo touched. An empty

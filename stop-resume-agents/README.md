@@ -4,7 +4,7 @@ A skill and two commands to stop all the work in progress, subagents included, t
 
 ## /stop-all
 
-Claude stops its own work and asks each subagent for a report: mission, what is done and checked, current step, files touched, what is left. An agent that stays silent for 5 minutes is stopped, and its record is rebuilt from its log (`/stop-all 10` waits 10 minutes). Everything is written to `.ia/resume.md` at the repository root, otherwise in the project folder, otherwise on the Desktop. The `.ia/` folder stays out of git. No commit, no push.
+The stop is forced: nothing gets finished first, not even a step that is almost done, and every agent owes a report. Claude stops its own work and asks each subagent for a report: mission, what is done and checked, current step, files touched, what is left. An agent that stays silent for 5 minutes is stopped, and its record is rebuilt from its log (`/stop-all 10` waits 10 minutes). Everything is written to `.ia/resume.md` at the repository root, otherwise in the project folder, otherwise on the Desktop. The `.ia/` folder stays out of git. No commit, no push.
 
 ## /resume-all
 
