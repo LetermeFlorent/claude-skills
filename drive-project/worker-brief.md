@@ -12,6 +12,8 @@ Task: <the box text, word for word>
 Files: <the files it touches>
 Done when: <the check from the box: a test, a build, a page seen through chrome-bidi, a script>
 Start answers that bear on it: <the answers, or none>
+Reflection level: <peu | moyen | beaucoup | max | custom, from the plan>: how deep to work this task
+Completion level: <same>: how much connected to the goal this task wires in
 Lessons to follow: <paths of <project>/.ia/skills/*/SKILL.md, or none>
 
 Rules:

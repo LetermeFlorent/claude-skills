@@ -6,7 +6,7 @@ You give a goal, the AI takes it all the way to pushed commits, and you are left
 
 ## /drive
 
-Type `/drive` followed by the goal (`/drive add a CSV export to the reports page`). The AI asks all its questions first, in choice boxes. After your last answer it never asks anything again: when a new choice comes up, it takes the safest option. While it works, the chat shows only a percentage such as `40%`, and the same number goes to the progress page on your computer (the progress-board skill, http://127.0.0.1:8790). At the end you get `100%` and five words at most.
+Type `/drive` followed by the goal (`/drive add a CSV export to the reports page`). The AI asks all its questions first, in choice boxes, always including two levels, each with the estimated task count: reflection (how deep each task is worked and tested) and completion (how many mechanics around the goal get built and wired in: for a monster, its drops, spawns, sounds, links to other mobs). After your last answer it never asks anything again: when a new choice comes up, it takes the safest option. While it works, the chat shows only a percentage such as `40%`, and the same number goes to the progress page on your computer (the progress-board skill, http://127.0.0.1:8790). At the end you get `100%` and five words at most.
 
 ## What the AI does
 

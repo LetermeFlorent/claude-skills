@@ -42,6 +42,19 @@ The user hears from the run three times: the questions, the percentages, the las
    user owns, money, anything deleted, anything published beyond the push of the project branch). Read the
    goal and the mapping worker's report before asking, so the edge cases (an input to handle, a reading of
    a vague word) are asked here and not found later.
+   Two boxes are always asked, never skipped, each with the options *peu*, *moyen*, *beaucoup*, *max*
+   (Other stays open for a custom level), and each box's text states the task count the mapping worker
+   estimated for the goal:
+   - **Reflection level** (depth, per task): how hard each task is worked. *peu*: the smallest change and
+     its one check. *moyen*: plus the edge cases and a test. *beaucoup*: plus the design thought through,
+     several tests, a review. *max*: the best model and effort on every box, the logic and any AI or
+     algorithm worked carefully, tested in many cases and seen running. Example: for a monster, the
+     intelligence and the model are polished and tested.
+   - **Completion level** (breadth, around the goal): how much that touches the goal gets built with it.
+     *peu*: the goal alone. *moyen*: the direct neighbours. *beaucoup*: the mechanics clearly tied to it.
+     *max*: every mechanic the mapping worker found that connects to the goal, each one wired in.
+     Example: for a monster, its drops, loot table, spawn rules, sounds, sprites, effects, achievements,
+     links to other monsters and items.
 2. After the last answer: no question, no `AskUserQuestion`, no waiting, ever. A new choice takes the
    safest option and the run goes on: nothing deleted that this run did not create, nothing published but
    the push, the recommended option of any box a called skill would open. A doubt found while working is a start
@@ -85,11 +98,14 @@ One pass, in this order. From step 2 on, every action is a worker's.
    and hand their paths to every worker. A plan in `<project>/.ia/drive/` with boxes still unticked is
    unfinished work: resume it from its first unticked box instead of starting a new one.
 2. Send the mapping worker with the goal: graphify on a large project, a `cavecrew-investigator` on a
-   small one. Its report gives the files the goal touches, how to build and test, and the edge cases.
+   small one. Its report gives the files the goal touches, how to build and test, the edge cases, an estimated task
+   count, and the list of mechanics around the goal that connect to it (candidates for the completion level).
 3. Ask, as rule 1 of Speaking says, then never again. A resumed plan already holds its answers: no new
    questions.
 4. Write the plan to `<project>/.ia/drive/<YYYY-MM-DD>-<goal-slug>.md` before any code: the goal and the
-   answers to the questions at the top, then every task as a `- [ ]` box, cut down to one action each (one
+   answers to the questions at the top, with the reflection and completion levels on their own lines. The
+   completion level sets which connected mechanics become boxes; the reflection level raises the minimum
+   model and effort of every box and adds the test, review and in-game or on-screen proof boxes it calls for, then every task as a `- [ ]` box, cut down to one action each (one
    file, one function, one test, one command), with the file it touches, the check that proves it done
    and the model and effort of its worker. The clean-code, strip-ai-traces, commit, push and cleanup steps
    are boxes too. Nothing to do lives outside this file.
