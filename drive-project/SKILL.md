@@ -28,7 +28,12 @@ goes to a subagent, and the lead only hands out tasks, reads reports and ticks b
    check, or a failed one: the same box goes out again, one step up as claude-model-effort's rule 6 says.
    A worker that ran a different check than the box's: the lead writes the command that ran into the box
    before ticking it; "close enough" left unwritten is a skipped check.
-4. "A subagent would cost more than doing it", "three small edits", "it is one line", "I already have the
+4. Every box carries a proof, at every reflection level, *peu* included. The worker first reads the code
+   and the result it must change until it can say what it does (understand), then runs the check
+   (test), then looks at the real outcome: the output read, the page seen through chrome-bidi, the
+   game or app run (see). The report pastes the proof and one line saying what was understood. A box
+   without a proof written in the plan is not handed out; a report without it is a failed check.
+5. "A subagent would cost more than doing it", "three small edits", "it is one line", "I already have the
    context", "just this once to save time": each is the excuse this rule exists for. The box goes to a
    worker at its row's minimum.
 

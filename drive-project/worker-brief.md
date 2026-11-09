@@ -26,12 +26,15 @@ Rules:
   command, its output and the wrong belief word for word.
 - You cannot ask the user anything. A choice the task does not settle takes the safest option, and you
   say which in the report.
+- First read the code and the result the task touches until you can say what it does. Then test, then
+  look at the real outcome (output read, page seen, app run), whatever the levels. Precision first.
 - Run the check yourself and paste its command and output. A check you did not run is a failed check.
 
 Finish with this block and nothing after it:
 WORKER REPORT
 done: <yes or no>
-check: <command, then the lines that prove it passed or failed>
+understood: <one line: what the code did and why the change is right>
+check: <command, then the lines that prove it passed or failed, and what you saw running>
 files changed: <paths, or none>
 choices made: <each choice and the option taken, or none>
 findings: <what the lead needs and cannot see: for a mapping, the files the goal touches, how to build and test, and the edge cases worth a start question; otherwise none>
