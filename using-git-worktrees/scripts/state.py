@@ -28,7 +28,7 @@ def report_remote(root):
         print("remote: none, nothing to fetch")
     elif owner:
         print(f"remote: github {owner}. Fetch only when the base must be fresh, "
-              "through the account-keys skill when it is installed, else with:")
+              "through the tool named by CLAUDE_SKILLS_ACCOUNTS when that variable is set, else with:")
         print(f"  git -C {root.as_posix()} fetch origin")
     else:
         print(f"remote: {url} (not GitHub, nothing is fetched here)")

@@ -27,7 +27,7 @@ words ("the clean-commits skill"), never through an `@` path (it loads the whole
 
 In English, for the user, in everyday words and never a translation of `SKILL.md`: what happens when
 they use it, what the files are, and optionally `## What was tested` (or `## Not tested yet`).
-It starts with a line pointing to `INSTALL.md` at the repository root.
+A skill of the claude-skills repository starts it with a line pointing to `INSTALL.md` at the root.
 
 ## The command
 
@@ -70,8 +70,8 @@ Each script follows all of these.
 5. Files under 150 lines, functions under 40, 4 parameters at most, lines of 120 characters, 8 code files
    per folder.
 6. A subprocess runs at BelowNormal priority with a timeout; git with `GIT_TERMINAL_PROMPT=0` and
-   `GCM_INTERACTIVE=never`. GitHub goes through the account-keys skill when installed, never a bare
-   `fetch` or `push`.
+   `GCM_INTERACTIVE=never`. GitHub goes through the tool named by `CLAUDE_SKILLS_ACCOUNTS` when that
+   variable is set (as `clean-commits/scripts/push.py` does), never a bare `fetch` or `push`.
 7. Output is short lines an agent reads: one finding per line, counts at the end. Flags live in `--help`,
    not in `SKILL.md`.
 

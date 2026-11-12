@@ -1,4 +1,4 @@
-"""Progress board: starts its local server now and at every session start, so the page survives a restart."""
+"""Progress board: starts its local server now and at every login, so the page survives a restart."""
 import os
 import subprocess
 import sys

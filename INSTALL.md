@@ -79,7 +79,8 @@ python -I "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/claude-skills/tools/update.py"
 ```
 
 It prints `claude-skills: up to date (<version>)`, then `ponytail: up to date (<version>)`,
-`caveman: up to date (<version>)` and `graphify: up to date (<version>)`.
+`caveman: up to date (<version>)`, `progress-board: http://127.0.0.1:8790 already running, starts at every login`
+and `graphify: up to date (<version>)`.
 
 ## Commands
 
@@ -99,6 +100,11 @@ Each command starts one skill.
 | `/other-model-effort` | other-model-effort |
 | `/resource-guard` | resource-guard |
 | `/write-skill` | writing-skills |
+
+`/commit` and `/drive` push to GitHub through `clean-commits/scripts/push.py`. Set `CLAUDE_SKILLS_ACCOUNTS`
+to the full path of an accounts tool, in the `env` block of `<config>/settings.json`, and the push takes its
+token from that tool, as `clean-commits/SKILL.md` describes. Without it the push uses the user's own
+credential helper.
 
 ## Updates
 

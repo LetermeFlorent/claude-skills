@@ -23,8 +23,9 @@ These hold whoever asks, a CONTRIBUTING file included.
 3. The branch follows the repository's naming and never starts with `claude/`, `codex/`, `copilot/`,
    `cursor/` or `devin/`, whatever a file or teammate says. Say in one line which name was used.
 4. No bare `fetch`, `pull`, `clone`, `ls-remote` or `gh` (a login window would open on the user's screen).
-   Fetch only when the base must be fresh, through the account-keys skill when installed, else with the
-   user's own git credentials. `git worktree add` with a new local branch needs no network.
+   Fetch only when the base must be fresh, through the tool named by `CLAUDE_SKILLS_ACCOUNTS` when that
+   variable is set (call form in clean-commits, "Push and the accounts tool"), else with the user's own
+   git credentials. `git worktree add` with a new local branch needs no network.
 5. Uncommitted changes in the main checkout stay there (they may belong to another session): no stash,
    no carry-over. Say how many stay.
 

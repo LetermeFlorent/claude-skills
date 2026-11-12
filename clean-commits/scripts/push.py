@@ -78,4 +78,5 @@ def main():
 
 
 if __name__ == "__main__":
-    guard(main, "push through the account-keys skill when it is installed, else with the user's own credentials")
+    guard(main, "push through the tool named by CLAUDE_SKILLS_ACCOUNTS when that variable is set, "
+                "else with the user's own credentials")
