@@ -10,7 +10,7 @@ Type `/other-model-effort` followed by a task in a few words (`/other-model-effo
 
 ## What the AI does
 
-It finds the task in claude-model-effort, translates the names, starts at the minimum and only moves up a step when a run fails twice. Unlike with Claude, it may use the tool's highest reasoning setting on any task, since these models spend little there. A model that cannot start other agents does not use this skill at all, and a task that needs several agents never goes to such a model. A model or effort you name yourself always wins.
+It finds the task in claude-model-effort, translates the names, starts at the minimum and only moves up a step when a run fails twice. Unlike with Claude, it may use the tool's highest reasoning setting on any task, since these models spend little there. A model that cannot start other agents uses this skill only to answer the command, and a task that needs several agents never goes to such a model. A model or effort you name yourself always wins.
 
 Change a task's minimum or ceiling in claude-model-effort: both skills follow.
 

@@ -1,13 +1,13 @@
 ---
 name: other-model-effort
-description: Use when the running model can start and follow subagents (any other model skips this skill) and the user types /other-model-effort, or it is about to start an agent, a subagent or a run on a model that is not Claude, in any tool, and its model or reasoning effort must be picked, when such a run seems to need a stronger or a cheaper model, or when a task with several agents is about to go to a model that is not Claude.
+description: Use when the user types /other-model-effort, or when the running model can start and follow subagents (any other model skips this skill) and it is about to start an agent, a subagent or a run on a model that is not Claude, in any tool, and its model or reasoning effort must be picked, when such a run seems to need a stronger or a cheaper model, or when a task with several agents is about to go to a model that is not Claude.
 ---
 
 # Picking a model and an effort level outside Claude
 
-Only a model that can start subagents and follow them uses this skill. A model that cannot (its tool has no
-subagent or task feature, or it loses track of tool calls over a long run) ignores this skill entirely and
-does its own task alone.
+The /other-model-effort command always gets its answer. The rest of this skill is only for a model that
+can start subagents and follow them. A model that cannot (its tool has no subagent or task feature, or it
+loses track of tool calls over a long run) ignores it and does its own task alone.
 
 The task tables live in one place, the claude-model-effort skill (`../claude-model-effort/SKILL.md`, next to
 this folder). Read the row for the task there, then translate its Claude names into the three tiers below.
@@ -52,11 +52,12 @@ workflow) never goes to a model that cannot run them: it goes to a model that ca
 
 ## Rules
 
-Rules 2, 4, 5 and 6 of claude-model-effort hold here: effort sets depth and not quality, the user's choice
-wins, the highest minimum wins for mixed tasks, two failures move up one step (effort first, up to max, then
-the tier, never past the ceiling's tier). Rule 1 does not hold: max is allowed. Rule 3 becomes: set the
-model and the effort where the tool takes them (its command-line flags, its config file, the agent
-definition), on the run itself, never as a global default the user did not ask for.
+Rules 2, 4, 5, 6 and 7 of claude-model-effort hold here: effort sets depth and not quality, the user's choice
+wins, the highest minimum and the highest ceiling win for mixed tasks, two failures move up one step (effort
+one level at a time up to max, then the next tier at the minimum's effort, never past the ceiling's tier), and
+a task with no row takes the closest row, named next to the setting. Rule 1 does not hold: max is allowed.
+Rule 3 becomes: set the model and the effort where the tool takes them (its command-line flags, its config
+file, the agent definition), on the run itself, never as a global default the user did not ask for.
 
 ## /other-model-effort <task>
 
