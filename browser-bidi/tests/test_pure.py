@@ -1,4 +1,5 @@
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -9,8 +10,8 @@ import launch
 import measure_images
 import visual_test
 from actions import capture, inputs, reading
-from core.common import driver_port, split_value
-from core.driver import build_of
+from core.common import driver_port, profile_dir, split_value
+from core.driver import build_of, write_firefox_prefs
 from actions.forms import literal
 from actions.page import flatten, index_of, locator, plain
 from core.wsclient import apply_mask
@@ -28,6 +29,17 @@ class CommonTest(unittest.TestCase):
 
     def test_build_of_keeps_three_fields(self):
         self.assertEqual(build_of("120.0.6099.109"), "120.0.6099")
+
+    def test_profile_name_carries_the_browser(self):
+        self.assertEqual((profile_dir(9300).name, profile_dir(9300, "firefox").name), ("chrome-9300", "firefox-9300"))
+
+    def test_firefox_prefs_are_user_pref_lines(self):
+        with tempfile.TemporaryDirectory() as folder:
+            profile = Path(folder) / "firefox-9300"
+            write_firefox_prefs(profile)
+            lines = (profile / "user.js").read_text(encoding="utf-8").splitlines()
+        self.assertIn('user_pref("marionette.port", 0);', lines)
+        self.assertTrue(all(line.startswith("user_pref(") and line.endswith(");") for line in lines))
 
 
 class SharedTest(unittest.TestCase):

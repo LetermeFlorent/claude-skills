@@ -32,7 +32,7 @@ Check git and Python before cloning; the other two are needed by one tool each.
   found, else with `pip install --user`.
 
 Skills are linked through directory junctions on Windows, which need no administrator rights, and
-through symbolic links on macOS and Linux. `browser-bidi` drives Chrome on Windows only; the other twelve
+through symbolic links on macOS and Linux. `browser-bidi` drives Chrome or Firefox on Windows only; the other twelve
 run on any of the three.
 
 ## Install

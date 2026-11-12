@@ -1,5 +1,5 @@
 ---
-description: Drive Chrome for a page task, or capture a page at phone and desktop widths and measure every image.
+description: Drive Chrome, or Firefox on request, for a page task, or capture a page at phone and desktop widths and measure every image.
 argument-hint: "<url or local folder> [widths, 390,1440 by default] | <what to do on a page>"
 allowed-tools: Read,Bash,Skill
 ---

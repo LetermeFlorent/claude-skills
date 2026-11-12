@@ -16,6 +16,7 @@ NAV_TIMEOUT = 120
 BLANK = "about:blank"
 DEFAULT_SIZE = (1280, 720)
 DEFAULT_PROMPT = "dismiss"
+BROWSERS = ("chrome", "firefox")
 LOCAL = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
 
@@ -44,8 +45,8 @@ def local_url(port, path=""):
     return f"http://{LOCALHOST}:{port}{path}"
 
 
-def profile_dir(port):
-    return WORK_DIR / f"chrome-{port}"
+def profile_dir(port, browser=BROWSERS[0]):
+    return WORK_DIR / f"{browser}-{port}"
 
 
 def downloads_dir(profile):
@@ -53,7 +54,7 @@ def downloads_dir(profile):
 
 
 def state_file(port):
-    return WORK_DIR / f"chrome-{port}.session"
+    return WORK_DIR / f"bidi-{port}.session"
 
 
 def split_value(value, count):
@@ -74,7 +75,8 @@ def free_port():
     start = random.randrange(600)
     for offset in range(600):
         port = 9300 + (start + offset) % 600
-        if not profile_dir(port).exists() and port_free(port) and port_free(driver_port(port)):
+        used = any(profile_dir(port, browser).exists() for browser in BROWSERS)
+        if not used and port_free(port) and port_free(driver_port(port)):
             return port
     raise RuntimeError("no free port pair between 9300 and 9900")
 

@@ -4,8 +4,8 @@ import time
 
 sys.dont_write_bytecode = True
 
-from core.common import (COMMAND_TIMEOUT, DEFAULT_PROMPT, LOCALHOST, WORK_DIR, BidiError, driver_port, http_json,
-                    local_url, state_file)
+from core.common import (BROWSERS, COMMAND_TIMEOUT, DEFAULT_PROMPT, LOCALHOST, WORK_DIR, BidiError, driver_port,
+                    http_json, local_url, state_file)
 from core.wsclient import WebSocket, WebSocketError
 
 
@@ -44,12 +44,14 @@ class Session:
         self.socket.close()
 
 
-def create_session(port, prompt=DEFAULT_PROMPT):
-    options = {"webSocketUrl": True, "unhandledPromptBehavior": prompt,
-               "goog:chromeOptions": {"debuggerAddress": f"{LOCALHOST}:{port}"}}
+def create_session(port, prompt=DEFAULT_PROMPT, browser=BROWSERS[0]):
+    options = {"webSocketUrl": True, "unhandledPromptBehavior": prompt}
+    if browser == "chrome":
+        options["goog:chromeOptions"] = {"debuggerAddress": f"{LOCALHOST}:{port}"}
     created = http_json("POST", local_url(driver_port(port), "/session"),
                         {"capabilities": {"alwaysMatch": options}})["value"]
-    state = {"ws": created["capabilities"]["webSocketUrl"], "session": created["sessionId"], "prompt": prompt}
+    state = {"ws": created["capabilities"]["webSocketUrl"], "session": created["sessionId"], "prompt": prompt,
+             "browser": browser}
     WORK_DIR.mkdir(parents=True, exist_ok=True)
     state_file(port).write_text(json.dumps(state))
     return Session(port, state["ws"], state["session"])
@@ -70,7 +72,7 @@ def open_session(port):
             if session:
                 session.close()
             state_file(port).unlink(missing_ok=True)
-    return create_session(port, state.get("prompt", DEFAULT_PROMPT))
+    return create_session(port, state.get("prompt", DEFAULT_PROMPT), state.get("browser", BROWSERS[0]))
 
 
 def first_context(session):

@@ -22,7 +22,7 @@ def frame_context(top, part):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Run one action on the Chrome started by launch.py.")
+    parser = argparse.ArgumentParser(description="Run one action on the browser started by launch.py.")
     parser.add_argument("action", choices=sorted(ACTIONS))
     parser.add_argument("value", nargs="*", help="parts separated by | when the action takes two")
     parser.add_argument("--port", type=int, required=True)
@@ -32,7 +32,7 @@ def main():
     options = parser.parse_args()
     options.value = " ".join(options.value)
     if port_free(options.port):
-        raise LookupError(f"no Chrome listens on port {options.port}, start one with launch.py --port {options.port}")
+        raise LookupError(f"no browser listens on port {options.port}, start one with launch.py --port {options.port}")
     session = open_session(options.port)
     try:
         contexts = session.call("browsingContext.getTree")["contexts"]

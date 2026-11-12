@@ -7,7 +7,7 @@ sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from core.browser import throwaway
-from core.common import LOCALHOST, NAV_TIMEOUT, guard
+from core.common import BROWSERS, LOCALHOST, NAV_TIMEOUT, guard
 from actions.page import checked
 from core.session import first_context
 from core.target import Target
@@ -107,10 +107,13 @@ def main():
     parser.add_argument("--widths", type=widths_of, default=widths_of(DEFAULT_WIDTHS))
     parser.add_argument("--height", type=int, default=VIEW_HEIGHT)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--browser", choices=BROWSERS, default=BROWSERS[0],
+                        help="firefox only when asked, chrome by default")
     parser.add_argument("--visible", action="store_true", help="show the window, only when the user asked to watch")
     parser.add_argument("--desktop", help="with --visible: virtual desktop index, or 'current'")
     options = parser.parse_args()
-    with Target(options.url) as target, throwaway(visible=options.visible, desktop_choice=options.desktop) as session:
+    browser = throwaway(visible=options.visible, desktop_choice=options.desktop, browser=options.browser)
+    with Target(options.url) as target, browser as session:
         context = first_context(session)
         records = [record for width in options.widths
                    for record in measure_width(session, context, target.url, (width, options.height))]
@@ -120,5 +123,5 @@ def main():
 
 
 if __name__ == "__main__":
-    guard(main, "open the page in Chrome, set each width with browsingContext.setViewport, and read "
+    guard(main, "open the page in the browser, set each width with browsingContext.setViewport, and read "
                 "getBoundingClientRect, naturalWidth and the computed background-image of each element")

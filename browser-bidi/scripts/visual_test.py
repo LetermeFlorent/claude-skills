@@ -9,7 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from core.browser import throwaway
 from actions.capture import save_screenshot
-from core.common import guard
+from core.common import BROWSERS, guard
 from core.session import first_context
 from core.target import Target, run_dir
 from measure_images import DEFAULT_WIDTHS, VIEW_HEIGHT, measure_width, widths_of
@@ -43,6 +43,8 @@ def main():
     parser.add_argument("target", help="page url, or a local folder or file served on 127.0.0.1")
     parser.add_argument("widths", nargs="?", type=widths_of, default=widths_of(DEFAULT_WIDTHS))
     parser.add_argument("--height", type=int, default=VIEW_HEIGHT)
+    parser.add_argument("--browser", choices=BROWSERS, default=BROWSERS[0],
+                        help="firefox only when asked, chrome by default")
     parser.add_argument("--visible", action="store_true", help="show the window, only when the user asked to watch")
     parser.add_argument("--desktop", help="with --visible: virtual desktop index, or 'current'")
     options = parser.parse_args()
@@ -50,7 +52,7 @@ def main():
     with Target(options.target) as target:
         run = run_dir(target.root)
         print(f"page: {target.url}")
-        with throwaway(visible=options.visible, desktop_choice=options.desktop) as session:
+        with throwaway(visible=options.visible, desktop_choice=options.desktop, browser=options.browser) as session:
             context = first_context(session)
             for width in options.widths:
                 records += measure_width(session, context, target.url, (width, options.height))

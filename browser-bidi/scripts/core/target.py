@@ -48,6 +48,11 @@ class QuietHandler(SimpleHTTPRequestHandler):
         pass
 
 
+class QuietServer(ThreadingHTTPServer):
+    def handle_error(self, request, client_address):
+        pass
+
+
 class Target:
     def __init__(self, text):
         self.url, self.root, self.server = text, None, None
@@ -58,7 +63,7 @@ class Target:
         if not path.exists():
             raise FileNotFoundError(f"neither a url with a scheme nor an existing file or folder: {text}")
         folder = path if path.is_dir() else path.parent
-        self.server = ThreadingHTTPServer((LOCALHOST, 0), partial(QuietHandler, directory=str(folder)))
+        self.server = QuietServer((LOCALHOST, 0), partial(QuietHandler, directory=str(folder)))
         threading.Thread(target=self.server.serve_forever, daemon=True).start()
         self.url = local_url(self.server.server_port, "/" + ("" if path.is_dir() else quote(path.name)))
         self.root = git_root(folder) or folder.resolve()
