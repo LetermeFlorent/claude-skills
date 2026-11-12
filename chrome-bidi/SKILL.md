@@ -1,15 +1,16 @@
 ---
 name: chrome-bidi
-description: Use when a page must be opened, read, clicked, filled, screenshotted, printed or measured, checked at phone and desktop widths (/chrome-bidi), compared with its image files, or when a leftover Chrome or chromedriver must be closed.
+description: Use when a page must be opened, read, clicked, filled, screenshotted, printed or measured, checked at phone and desktop widths (/chrome-bidi), or its images checked for blurry or oversized files, or when a leftover Chrome or chromedriver must be closed.
 ---
 
 # Chrome over WebDriver BiDi
 
 The scripts start Chrome with a debugging port and a throwaway profile, a chromedriver of the same
 version on port + 1000 (kept in `bin/`, downloaded from Chrome for Testing when the build differs),
-and talk BiDi over a websocket. Call every script as
-`python -I "<skill dir>/scripts/<name>.py"` with forward slashes. Stdlib only. A failure prints
-`chrome-bidi: <Type>: <message>` and a `by hand:` line, exit 1.
+and talk BiDi over a websocket. Call every script as `python -I "<skill dir>/scripts/<name>.py"` with
+forward slashes. Stdlib only. A failure prints `chrome-bidi: <Type>: <message>` and a `by hand:` line,
+exit 1. A `PermissionError` while the driver updates means another session's chromedriver is running
+from `bin/`: never stop it, and launch again once it is closed.
 
 Scripts: `launch.py` (start, prints the port), `bidi.py` (one action on a running Chrome),
 `measure_images.py` (box of every displayed image per width, JSON), `visual_test.py` (the /chrome-bidi run).
@@ -28,26 +29,36 @@ These hold for every task, whatever the page.
    another session. Never move, hide, resize or close a window you did not start.
 4. Native input only (`input.performActions`, `input.setFiles`, WebDriver element calls). JavaScript
    reads the page, it never clicks, types or scrolls.
-5. Check free RAM, CPU and disk before a launch. One Chrome at a time per session.
-6. Close with `bidi.py close --port P` before the task ends, then check nothing is left.
+5. Before a launch, run resource-guard's `guard.py wait` and launch only on exit 0. One Chrome at a
+   time per session. `launch.py`, `measure_images.py` and `visual_test.py` run directly, never through
+   limited-run, whose job would kill Chrome as soon as `launch.py` returns. Chrome runs detached,
+   headless at below-normal priority, and `close` stops it.
+6. Close with `bidi.py close --port P` before the task ends, then check nothing is left, then delete
+   `chrome-<port>` and `chrome-<port>-downloads` unless the profile holds a sign-in kept on purpose.
 
 ## Procedure
 
-Three steps, from launch to reading the result.
+Five steps, from launch to the leftover check.
 
-1. `python -I "$S/launch.py" --url "http://127.0.0.1:3000"` with `S=<skill dir>/scripts`. Port picked
+1. `python -I "$S/launch.py" --url "http://127.0.0.1:3000"`, where `$S` is `<skill dir>/scripts` written
+   out in full in each call (a shell variable does not last from one call to the next). Port picked
    in 9300-9899 when `--port` is missing; reuse a fixed port only to get back a signed-in profile.
    Options: `--size 1280x720` (content area), `--profile <dir>`, `--prompt dismiss|accept|ignore`
-   (unanswered alert, `dismiss` default), `--visible`, `--desktop`, `--login`.
+   (unanswered alert, `dismiss` default), `--visible`, `--desktop`, `--login`. `already running` on a
+   port this task did not launch means another task owns it: do not drive or close it.
 2. `python -I "$S/bidi.py" <action> [value] --port P [--tab n] [--frame <url part>] [--timeout s]`.
    Each call reconnects to the same session. One call at a time per port.
 3. Read the result of `shot` rather than guessing from the DOM.
 4. `python -I "$S/bidi.py" close --port P`.
-5. Check, replacing `P` and `P1000` (empty output is the only good one):
+5. Check, replacing `P` with the port and `P1000` with port + 1000 (for example 9300 and 10300); empty
+   output is the only good one:
 
    ```bash
    powershell -NoProfile -Command "Get-CimInstance Win32_Process -Filter \"Name='chrome.exe' or Name='chromedriver.exe'\" | ? { \$_.CommandLine -match 'remote-debugging-port=P(?!\d)|--port=P1000(?!\d)' } | Select ProcessId,Name"
    ```
+
+   A pid still listed (for example a chromedriver whose Chrome is gone, which `close` refuses):
+   `MSYS_NO_PATHCONV=1 taskkill /PID <pid> /T /F` on those pids only.
 
 ### /chrome-bidi
 
@@ -62,7 +73,7 @@ Three steps, from launch to reading the result.
 3. Read each shot and the flagged image lines: `blurry` (file narrower than box times dpr),
    `heavy` (over twice the needed width), `not loaded`.
 4. Answer in a few lines: what breaks at which width, images to resize, the folder. The script
-   already closed Chrome; run step 5 with the port it printed.
+   already closed Chrome; run step 5 of the Procedure with the port it printed.
 
 ### Image measures alone
 
@@ -112,8 +123,8 @@ Each of these has cost a run before.
 
 - Git Bash rewrites an argument starting with `/`: prefix with `MSYS_NO_PATHCONV=1` or write
   `(//button)[1]`.
-- `shot` keeps 720 px of height at most; a taller viewport is scaled down and the factor printed.
-  Multiply coordinates read on the image by it before `clickxy` or `hover`.
+- Every capture fits in 1024 px of width and `shot` in 720 px of height; a larger one is scaled down
+  and the factor printed. Multiply coordinates read on a `shot` by it before `clickxy` or `hover`.
 - `--prompt dismiss` closes an alert before `prompt` can answer: launch with `--prompt ignore`.
 - `click` and `fill` take the first match; a hidden duplicate gives "element not interactable".
   Narrow the selector, or `clickxy` then `type`.

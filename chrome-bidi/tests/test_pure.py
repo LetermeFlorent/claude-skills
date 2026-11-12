@@ -8,7 +8,7 @@ sys.path.insert(0, str(SCRIPTS))
 import launch
 import measure_images
 import visual_test
-from actions import inputs, reading
+from actions import capture, inputs, reading
 from core.common import driver_port, split_value
 from core.driver import build_of
 from actions.forms import literal
@@ -115,6 +115,20 @@ class ImageVerdictTest(unittest.TestCase):
 
     def test_fitting_file_is_fine(self):
         self.assertIsNone(self.verdict(300))
+
+
+class ShotScaleTest(unittest.TestCase):
+    def test_small_capture_is_kept(self):
+        self.assertEqual(capture.scale_of(800, 600), 1.0)
+
+    def test_wide_capture_fits_1024(self):
+        self.assertEqual(capture.scale_of(2048, 600), 2.0)
+
+    def test_tall_shot_fits_720(self):
+        self.assertEqual(capture.scale_of(1000, 1440), 2.0)
+
+    def test_full_page_caps_width_only(self):
+        self.assertEqual(capture.scale_of(1024, 9000, None), 1.0)
 
 
 if __name__ == "__main__":
