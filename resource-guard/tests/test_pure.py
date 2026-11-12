@@ -25,11 +25,21 @@ HEAVY = (
     "dotnet build", "tsc --noEmit", "FOO=1 vitest run", "sudo nice -n 10 make -j2", "bash -lc 'npm run build'",
     "./build.sh", "git pull; node server.js", "jest --ci", "npx playwright test", "webpack", "pnpm tauri dev",
     "java -jar app.jar", "py -3 setup.py", "./test",
+    "python -I C:/x/limited-run/scripts/run.py start --name foo -- npm test",
+    'python -I "C:/x/limited-run/scripts/run.py" start --cwd C:/p -- npx vite',
+    "python -I C:/x/chrome-bidi/scripts/launch.py --url x",
+    "python -I C:/x/chrome-bidi/scripts/measure_images.py --url x",
+    'python -I "$S/bidi.py" shot a.png --port 9300 && npm run build',
 )
 LIGHT = (
     "", "ls -la", "git status", 'git commit -m "run the test suite"', "cat build.log", "echo hello",
     "npm --version", "go version", "grep -r docker .", "rg test src", "npm info react", "gofmt -l .",
     "test -f package.json", "nodemon-config", "python -I C:/x/resource-guard/scripts/guard.py wait",
+    'python -I "$S/bidi.py" shot a.png --port 9300', "python -I C:/x/limited-run/scripts/run.py list",
+    'python -I "C:/x/limited-run/scripts/run.py" stop --all',
+    'python -I "C:/x/clean-code/scripts/findings.py" --run "C:/p/.ia/clean-code/r1" list',
+    r"py -3 C:\x\strip-ai-traces\scripts\scan.py a.md --no-git",
+    'python -I "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/claude-skills/progress-board/server.py" start',
 )
 
 

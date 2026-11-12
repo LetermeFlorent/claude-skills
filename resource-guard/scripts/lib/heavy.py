@@ -27,9 +27,21 @@ TARGET = (
     rf"|(?:{SCRIPT_NAMES})\.(?:sh|bat|cmd|ps1){END})"
 )
 PATTERN = re.compile(START + ENV + WRAPPER + SHELL + WRAPPER + PATH + TARGET, re.IGNORECASE)
+LIGHT_SCRIPTS = (
+    r"(?:chrome-bidi[/\\]scripts|\$\{?S\}?)[/\\]bidi",
+    r"clean-code[/\\]scripts[/\\](?:findings|score|plan_check|measure)",
+    r"strip-ai-traces[/\\]scripts[/\\]scan",
+    r"clean-commits[/\\]scripts[/\\]state",
+    r"progress-board[/\\]server",
+)
+LIGHT_SCRIPT = re.compile(
+    rf"\bpy(?:thon[\d.]*)?(?:\.exe)?[\"']?(?:\s+-\w+)*\s+[\"']?[^\s\"';&|]*?"
+    rf"(?:(?:{'|'.join(LIGHT_SCRIPTS)})\.py|limited-run[/\\]scripts[/\\]run\.py(?=[\"']?\s+(?:list|stop)\b))",
+    re.IGNORECASE,
+)
 
 
 def is_heavy(command):
     if not command or TOOL in command.lower():
         return False
-    return PATTERN.search(command) is not None
+    return PATTERN.search(LIGHT_SCRIPT.sub(" ", command)) is not None

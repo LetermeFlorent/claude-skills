@@ -10,7 +10,7 @@ Type `/resource-guard` to see the free memory, the processor load and the disk a
 
 Before each command, the agent checks whether it is heavy: a build, tests, docker, a development server, a package install. A light command (`git status`, `ls`) goes through right away, with nothing measured. A heavy command waits until at least 1.5 GB of memory is free, the processor runs below 85% and the disk is not saturated. After 5 minutes without room, the command is not started and the agent is told why.
 
-Low on space on the C: drive (under 20 GB)? A simple warning is shown, with no wait. Waiting does not free the disk, you have to clean up.
+Low on space on the current drive (under 20 GB)? A simple warning is shown, with no wait. Waiting does not free the disk, you have to clean up.
 
 ## By hand
 
@@ -18,8 +18,8 @@ Low on space on the C: drive (under 20 GB)? A simple warning is shown, with no w
 
 ## With which agent
 
-With Claude Code, the repository installer sets up the check by itself. Codex CLI and Qwen Code have the same kind of hook: `SKILL.md` gives the lines to paste into their configuration. For Gemini CLI and the others, a sentence in their instructions file asks them to run `wait` before a heavy command.
+With Claude Code, the repository installer sets up the check by itself. Codex CLI and Qwen Code have the same kind of hook: `reference/wiring.md` gives the lines to paste into their configuration. For Gemini CLI and the others, a sentence in their instructions file asks them to run `wait` before a heavy command.
 
 ## What is in the folder
 
-`scripts/guard.py` is the tool. `scripts/lib` holds the list of heavy commands, the reading of the incoming event, the thresholds and the measurement, with one file per system (Windows, Linux, macOS). `tests/test_pure.py` checks the list and the thresholds and runs a real measurement.
+`scripts/guard.py` is the tool. `scripts/lib` holds the list of heavy commands, the reading of the incoming event, the thresholds and the measurement, with one file per system (Windows, Linux, macOS). `tests/test_pure.py` checks the list and the thresholds and runs a real measurement. `reference/wiring.md` holds the hook settings for agents other than Claude Code.
