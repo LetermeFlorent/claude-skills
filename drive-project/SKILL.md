@@ -16,7 +16,8 @@ The session that runs `/drive` is the lead. It never does the project's work: ev
 goes to a subagent, and the lead only hands out tasks, reads reports and ticks boxes.
 
 1. The lead's own actions are these and no others: read the lessons and the plan file, ask the start
-   questions, write and update the plan file, start subagents, read their reports, tick boxes, post the
+   questions, write and update the plan file and the project skills (Project skills), start subagents,
+   read their reports, tick boxes, post the
    percentage in the chat and send it to the progress board (one `curl`, the progress-board skill). It never edits a project file, never runs a build, a test, a script, a git command or a
    browser, and never reads the code: a first worker maps the project for the questions and the plan.
 2. Each box goes to one fresh worker, prompt from `worker-brief.md`; consecutive boxes on the same file at
@@ -103,7 +104,7 @@ speaking rules above.
 | Every worker, when Claude runs it | claude-model-effort |
 | Every worker, when a model that is not Claude runs it | other-model-effort |
 | A page, a screen or a layout must be seen | chrome-bidi |
-| A failure followed by the fix that worked | writing-skills, as a lesson in `.ia/skills/` |
+| A failure followed by the fix that worked, or a step the next agent would have to work out again | a project skill in `.ia/skills/`, as Project skills says, never through writing-skills |
 | The work is done and its checks pass | clean-code, on the files this run changed |
 | clean-code is done | strip-ai-traces, on the same files and the commit messages |
 | Last | clean-commits: commit and push |
@@ -138,14 +139,27 @@ One pass, in this order. From step 2 on, every action is a worker's.
    candidate that is plainly wrong (a test class flagged unused) is left as is.
 7. The commit worker runs clean-commits on this run's paths only. A path this run did not touch is left
    to its owner, without asking. It pushes through `push.py`; no remote means the commits stay local.
-8. The cleanup worker stops every process this run started and closes the browser. The last message
+8. The cleanup worker stops every process this run started, closes the browser and tidies
+   `<project>/.ia/skills/` as Project skills says. The last message
    comes only once every box of the plan is ticked.
 
-## Lessons from errors
+## Project skills
 
-Each time something fails and a later attempt works (a command, a flag, a test, a wrong belief), the
-worker that saw it writes the lesson before going on, following the lesson part of writing-skills: the
-command, its output and the wrong belief word for word. A wrong flag or a typo in a command is a lesson too;
-"not specific to this project" is no reason to skip it. It goes to `<project>/.ia/skills/<name>/SKILL.md`;
-the worker picks the name, never asks. `.ia/` is tooling: clean-commits leaves it out of every commit, so
-lessons stay on this machine and step 1 of the next run reads them.
+Any agent of the run, the lead, a worker or a sub-worker at any depth, may write a skill for this
+project in `<project>/.ia/skills/<name>/SKILL.md`, with its scripts in `<name>/scripts/` when a script
+does the job better than text. It must write one each time something fails and a later attempt works (a
+command, a flag, a test, a wrong belief, a typo, or a box's failed `Earlier attempt`), before going on,
+with the command, its output and the wrong belief word for word. It may write one at any other time a
+step it worked out would save the next agent the same search on this project. Each one serves a real
+task on this project: its `Use when` line names the command, file or error it is for, and a note about
+this run is no skill. "Not specific to this project" is no reason to skip one: for this run every
+project skill goes to `<project>/.ia/skills/`, in place of any folder the user's instructions name. The
+agent picks the name, never asks, and updates a skill that covers the same thing instead of writing a
+second one. A skill found wrong or useless (the file, script or command its `Use when` line names is
+gone, or another skill covers it) is deleted by the agent that finds it, which reports it.
+
+The closing worker tidies the folder at the end of every run: it deletes each skill whose `Use when` line
+names a file, script or command the project no longer has (checked with `ls` or `rg`), merges two that
+cover the same thing into one, and lists each folder it deleted or merged under `files changed`. `.ia/`
+is tooling: clean-commits leaves it out of every commit, so project skills stay on this machine and step
+1 of the next run reads them.

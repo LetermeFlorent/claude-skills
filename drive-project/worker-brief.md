@@ -20,13 +20,19 @@ Completion level: <same>: how much connected to the goal this task wires in
 Lessons to follow: <paths of <project>/.ia/skills/*/SKILL.md, or none>
 
 Rules:
-- Work the smallest change that fully does the task, and touch nothing outside it.
+- Work the smallest change that fully does the task, and touch nothing outside it but the project
+  skills of <project>/.ia/skills/.
 - Before any build, test run, install, dev server or docker command, however small, run
   `python -I ~/.claude/claude-skills/resource-guard/scripts/guard.py wait` and start only on exit 0.
   A long or background process goes through the limited-run skill and is stopped before you report.
-- When a command fails and a later attempt works, write the lesson to
-  <project>/.ia/skills/<name>/SKILL.md following the lesson part of the writing-skills skill: the
-  command, its output and the wrong belief word for word.
+- When a command fails and a later attempt works (another command or a workaround that got you past
+  it counts, even when the task still ends `done: no`), write a project skill to
+  <project>/.ia/skills/<name>/SKILL.md before going on: the command, its output and the wrong belief
+  word for word; `lesson written: none` after a failure you got past is a skipped step. You may also
+  write one whenever a step you worked out would save the next agent the same search on this project,
+  with its scripts in <name>/scripts/ when a script does it better than text. One that covers the same
+  thing is updated in place, never written twice; one you find wrong or useless (the file, script or
+  command it names is gone) is deleted and reported.
 - You cannot ask the user anything. A choice the task does not settle takes the safest option, and you
   say which in the report.
 - First read the code and the result the task touches until you can say what it does. Then test, then
@@ -52,6 +58,6 @@ check: <command, then the lines that prove it passed or failed, and what you saw
 files changed: <paths, or none>
 choices made: <each choice and the option taken, or none>
 findings: <what the lead needs and cannot see: for a mapping, the files the goal touches, how to build and test, and the edge cases worth a start question; otherwise none>
-lesson written: <path, or none>
+lesson written: <each project skill written, updated or `deleted <path>`; none only when nothing failed before another command or a workaround got past it>
 processes left running: <none, or each one and why>
 `````
