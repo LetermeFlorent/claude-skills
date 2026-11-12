@@ -1,5 +1,6 @@
 import argparse
 import importlib.util
+import os
 import sys
 from collections import Counter
 from pathlib import Path
@@ -71,23 +72,26 @@ def summary(run, report, findings):
 def main():
     parser = argparse.ArgumentParser(
         description="Measure a scope against the clean-code rules without changing its files.")
-    parser.add_argument("scope", nargs="?", default=".")
+    parser.add_argument("scope", nargs="*", default=["."], help="folders or files, several allowed")
     parser.add_argument("--boxes", action="append", default=[],
                         help="JSON of chrome-bidi measure_images.py, repeatable")
     parser.add_argument("--out", help="folder for the run, instead of .ia/clean-code at the project root")
     args = parser.parse_args()
-    scope = Path(args.scope).resolve()
-    if not scope.exists():
-        raise FileNotFoundError(f"scope {scope} does not exist")
-    root = project_root(scope)
+    scopes = [Path(item).resolve() for item in args.scope]
+    missing = [str(scope) for scope in scopes if not scope.exists()]
+    if missing:
+        raise FileNotFoundError(f"scope {', '.join(missing)} does not exist")
+    root = project_root(Path(os.path.commonpath(scopes)))
     config = load_config(root)
     config["boxes"] = [box for path in args.boxes for box in read_json(Path(path))]
-    files = [describe(path, root) for path in walk(scope, root, config) if wanted(path)]
+    paths = dict.fromkeys(path for scope in scopes for path in walk(scope, root, config))
+    files = [describe(path, root) for path in paths if wanted(path)]
     findings, stats = run_checks(files, root, config)
     previous = runs(root, args.out)
     run = new_run(root, args.out)
-    report = {"scope": relative(scope, root) or ".", "root": str(root), "run": run.name,
-              "previous": previous[-1].name if previous else None, "config": config, "stats": stats}
+    report = {"scope": ", ".join(relative(scope, root) or "." for scope in scopes), "root": str(root),
+              "run": run.name, "previous": previous[-1].name if previous else None, "config": config,
+              "stats": stats}
     write_json(run / MEASURE, report)
     payload = {"findings": findings, "unmeasured": [], "checked": []}
     write_json(run / FINDINGS, payload)
@@ -95,4 +99,4 @@ def main():
 
 
 if __name__ == "__main__":
-    guard(main, "run the per-rule greps listed in SKILL.md and note every count by hand")
+    guard(main, "no run folder was written: report this error and stop the audit")

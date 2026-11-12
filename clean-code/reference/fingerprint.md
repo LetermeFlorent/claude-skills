@@ -17,7 +17,7 @@ Add the strip-ai-traces scan as rule 13 findings. It sees banned vocabulary, Tit
 bold lead-ins, README outline and document metadata:
 
 ```
-python -I "<skills folder>/strip-ai-traces/scripts/scan.py" <scope> --no-git
+python -I "<skill>/../strip-ai-traces/scripts/scan.py" <scope> --no-git
 ```
 
 Its `--fix` mode is the cosmetic step for prose files. Comments and docstrings belong to rule 14,
@@ -35,10 +35,10 @@ Cosmetic fixes (typography, emoji in prose, `---` rules, placeholders, badges) g
 step. An attribution in commits not yet pushed:
 
 ```
-python -I "<skills folder>/strip-ai-traces/scripts/history.py" --fix
+python -I "<skill>/../strip-ai-traces/scripts/history.py" --fix
 ```
 
 An attribution already pushed is never rewritten: the plan gives the count, branches and commands
-(`git filter-repo`, then `push --force-with-lease`) and the user decides through `AskUserQuestion`.
-A bot author is reported, never rewritten. A branch named after a tool is renamed only on request. A
-UI default is a design choice: `Safe: no`, with a proposed replacement.
+(`git filter-repo`, then `push --force-with-lease`) for the user to run themselves; they are never
+run here. A bot author is reported, never rewritten. A branch named after a tool is renamed only on
+request. A UI default is a design choice: `Safe: no`, with a proposed replacement.

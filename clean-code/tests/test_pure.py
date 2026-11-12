@@ -1,4 +1,5 @@
 import json
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -89,6 +90,21 @@ class RunsTest(unittest.TestCase):
         config = runs.load_config(self.root)
         self.assertEqual(config["max_lines"], 200)
         self.assertEqual(config["max_files"], runs.DEFAULTS["max_files"])
+
+
+class MeasureTest(unittest.TestCase):
+    def test_several_scopes_are_measured_together(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            for name in ("a", "b", "c"):
+                (root / name).mkdir()
+                (root / name / "mod.py").write_text("VALUE = 1\n", encoding="utf-8")
+            out = root / "runs"
+            subprocess.run([sys.executable, "-I", str(SCRIPTS / "measure.py"), str(root / "a" / "mod.py"),
+                            str(root / "b"), "--out", str(out)], check=True, capture_output=True)
+            report = json.loads((runs.runs(root, str(out))[0] / runs.MEASURE).read_text(encoding="utf-8"))
+            self.assertEqual(report["stats"]["code_files"], 2)
+            self.assertEqual(report["scope"], "a/mod.py, b")
 
 
 if __name__ == "__main__":

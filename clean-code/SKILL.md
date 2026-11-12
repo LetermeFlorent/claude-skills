@@ -1,13 +1,13 @@
 ---
 name: clean-code
-description: Use when the user types /clean-code, asks to audit or tidy a project's code, or a file or folder has grown too long or crowded. Also holds the writing rules for code this skill writes itself.
+description: Use when the user types /clean-code, asks to audit or tidy a project's code, or a file or folder has grown too long or crowded.
 ---
 
 # Clean code
 
 An audit measures a scope against rules 0 to 19, keeps the findings a fresh agent confirmed, and
-turns them into a note out of 20. Below 20 it writes a plan, asks how much to apply, and applies it
-step by step, one commit per step.
+turns them into a note out of 20. Below 20 it writes a plan, has `plan_check.py` approve it, and
+applies the whole plan without asking, one commit per step.
 
 `<skill>` is this skill's base directory. Call scripts by absolute path with `python -I`, from the
 project root: `python -I "<skill>/scripts/measure.py" src`. They never crash: on failure they print
@@ -17,8 +17,8 @@ Everything the audit writes goes to `.ia/clean-code/<run>/` at the project root 
 `findings.json`, `score.json`, `plan.md`), plus an optional `config.json` next to the runs holding
 the thresholds. The scripts add `.ia/` to `.git/info/exclude`. Outside git, or when the project must
 stay untouched, `measure.py --out <folder>` puts the run elsewhere and the other scripts take
-`--run <run folder>`. Scratch files go to `<temp>/claude-skills/clean-code-<run>`, deleted at the
-end. Delete nothing you did not create.
+`--run <run folder>`. Scratch files go to
+`<temp>/claude-skills/clean-code-<run>`, deleted at the end. Delete nothing you did not create.
 
 ## Rules that never bend
 
@@ -90,7 +90,8 @@ Caps hold the note down, the lowest wins: `secret` 5, `build` 8, `swallowed`, `t
 ## Writing code
 
 Rules 14 to 19 and the size limits bind every line this skill writes. Paste this into the prompt of
-every subagent that writes code:
+every subagent that writes code, with `<skill>` replaced by the absolute base directory and 150 and
+8 by the run's `max_lines` and `max_files`:
 
 `````text
 Code rules for this task:
@@ -117,27 +118,33 @@ for a clean-code pass, so a diff never mixes a fix and a comment sweep.
 
 In this order, each step ending before the next.
 
-1. Scope: the `/clean-code` argument, else `AskUserQuestion`: whole project, then each app or top
-   folder, narrowest first.
-2. Measure: `python -I "<skill>/scripts/measure.py" <scope>`. It prints the run folder, candidates
-   by rule and, past `reader_threshold` [150] code files, the reader batches.
+1. Scope: the `/clean-code` argument, else `AskUserQuestion` with the narrowest app or top folder
+   first (recommended), the wider ones next, the whole project last.
+2. Measure: `python -I "<skill>/scripts/measure.py" <scope>`, a scope of several folders or files
+   given as several arguments. It prints the run folder, candidates by rule and, past
+   `reader_threshold` [150] code files, the reader batches. Then run
+   `python -I "<skill>/../strip-ai-traces/scripts/scan.py" <path> --no-git` on each path of the
+   scope and add each hit with `findings.py add --rule 13 --source scan`.
 3. Images, when the scope has some and the project renders pages: measure live boxes, then measure
    again with `--boxes` before any verdict (`reference/images.md`).
 4. Commands, one heavy process at a time, low priority, two workers at most: typecheck without
-   cache, linter with `--max-warnings 0`, the build only when it writes outside the tree, the test
-   suite. A failure is a rule 12 finding with its output. A command that cannot run is
-   `findings.py unmeasured --rule 12 --why "<reason>"`, never installed.
+   cache, linter with `--max-warnings 0`, the build only when its output can go to the scratch
+   folder, the test suite. A failure is a rule 12 finding with its output. A command that cannot run
+   is never installed; it goes, with a build that would write into the project, into one
+   `findings.py unmeasured --rule 12 --why "<each command and its reason>"`: a second call replaces
+   the first.
 5. Read. Up to `reader_threshold` files, read them yourself. Past that, map the scope first when
    `graphify` is on the PATH, with
    `GRAPHIFY_OUT="<absolute project root>/.ia/graphify-out" graphify update <scope>`: no model call,
    never its skill. The graph goes to `.ia/graphify-out/`, never into the scope, and `.ia/`, which git
    ignores since step 2, stays out of the scan and the measure. A relative `GRAPHIFY_OUT` would land
    under `<scope>`. Then one agent
-   per batch, `readers` at most [4], prompt from `reader-brief.md`, all in one message. Every reading rule ends with findings, `findings.py checked --rule <n> --why "..."` or
-   `findings.py unmeasured --rule <n> --why "..."`.
-6. Verify: one fresh Agent call (never a fork), prompt from
-   `verify-brief.md` with its `<...>` filled. Disagree with a verdict only by sending it back with
-   the proof it missed.
+   per batch, `readers` at most [4], prompt from `reader-brief.md`, all in one message. Every
+   reading rule (2, 5, 7, 9, 11, 16) ends with findings,
+   `findings.py checked --rule <n> --why "..."` or `findings.py unmeasured --rule <n> --why "..."`.
+6. Verify, only when `python -I "<skill>/scripts/findings.py" list --status candidate` prints a
+   `| candidate |` row: one fresh Agent call (never a fork), prompt from `verify-brief.md` with its
+   `<...>` filled. Disagree with a verdict only by sending it back with the proof it missed.
 7. Score: `python -I "<skill>/scripts/score.py"`. It refuses while a candidate has no verdict or a
    reading rule is uncovered. At 20, stop: no plan, no question.
 8. Plan: write `<run>/plan.md` from `plan-template.md`, in English, then run
@@ -147,7 +154,7 @@ In this order, each step ending before the next.
 
 ## Apply
 
-Steps run in phase order; splitting files comes last, once the tests guard it.
+Steps run in phase order; files are split only after the tests and the merges are in.
 
 | Phase | Rules |
 |---|---|
@@ -157,6 +164,10 @@ Steps run in phase order; splitting files comes last, once the tests guard it.
 | 4 | 5, 6 |
 | 5 | 1, 2, 4 (`git mv`) |
 | 6 | 10, 11, secrets |
+
+What failed in audit step 4, listed on the plan's `Suite:` line, is the baseline. A check in this
+section, a step's own check included, is red only when something fails that is not on that list; a
+test or error a step fixes comes off it.
 
 For each step of the plan:
 
@@ -168,14 +179,16 @@ For each step of the plan:
 4. Red: restore the step's own files, report the output, continue only with steps that do not
    depend on it.
 
-At the end of each phase, run the typecheck without cache and the full suite. Red: revert the
-phase's step commits newest first with `git revert --no-edit` until it turns green. The last one
-reverted broke it: report its output. Bring back the newer ones by reverting their revert commits
-and run the suite again; one that turns it red goes back out and is reported with the culprit.
+At the end of each phase that applied at least one step, run the typecheck without cache and the
+full suite. Red: revert the phase's step commits newest first with `git revert --no-edit` until it
+turns green. The last one reverted broke it: report its output. Bring back the newer ones by
+reverting their revert commits and run the suite again; one that turns it red goes back out and is
+reported with the culprit.
 
 A secret moves to the environment with a sample entry in `.env.example`. If it was ever committed it
-has leaked: ask whether to rotate it, and never print it. A UI step ends with before and after
-screenshots at phone and desktop widths.
+has leaked: ask whether to rotate it, and never print it. When the caller forbids questions, never
+rotate a secret or rewrite history; list them under `Left as is` and hand them back to the caller. A
+UI step ends with before and after screenshots at phone and desktop widths.
 
 After the last step, measure, verify and score again on the same scope.
 
@@ -187,5 +200,6 @@ only for what the user alone decides, such as rotating a leaked secret.
 
 ## Files
 
-A new module in `scripts/checks/` with a `check(files, root, config)` function joins the measure.
+A new module in `scripts/checks/files/` (per file) or `scripts/checks/project/` (whole scope) whose
+`check(files, root, config)` returns `(findings, stats)` joins the measure.
 Tests: `python -I -B -m unittest discover -s tests -p "test_*.py"` from this folder.

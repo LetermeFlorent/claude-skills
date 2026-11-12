@@ -22,8 +22,8 @@ split that would push a folder past its file limit moves the group into a new su
 # Plan clean-code
 
 Scope: <measured scope>
-Run: <name of the run folder>, score <score>/20
-Suite: <command that runs the test suite>, green at the start: <yes or no>
+Run: <name of the run folder>, note <note>/20
+Suite: <command that runs the test suite>, green at the start: <yes, or no and each failing test or error>
 
 ## Step 1: <what the step changes, in plain words>
 
