@@ -10,19 +10,19 @@ point marked by the project's icon and name, a card per project below. An agent 
 GET request and nothing else. The server stamps the time itself, keeps the history on disk and pushes
 each change to every open page.
 
-`<board>` below is `${CLAUDE_CONFIG_DIR:-$HOME/.claude}/claude-skills/progress-board`.
+`<board>` below is the folder this SKILL.md is in (the base directory the Skill tool prints).
 
 ## Report
 
 ```bash
-curl -s "http://127.0.0.1:8790/<project>/<percent>/<step>"
+curl -sS "http://127.0.0.1:8790/<project>/<percent>/<step>"
 ```
 
 The answer is `ok`. In PowerShell call `curl.exe`, never `curl` (an alias of `Invoke-WebRequest` there).
 
 | Part | Rule |
 |---|---|
-| `<project>` | The project folder's name, the same for the whole run (`site-shop`, `mod-minecraft`). Letters, digits, hyphens. |
+| `<project>` | The project folder's name, the same for the whole run (`site-shop`, `mod-minecraft`), never a path: lowercased, each run of characters other than a-z and 0-9 turned into one hyphen (`Mon Site_v2` gives `mon-site-v2`). |
 | `<percent>` | A whole number from 0 to 100. |
 | `<step>` | Optional on every report, `0` and `100` included; one to three words joined by hyphens (`tests`, `write-docs`). Never a space, a slash or a sentence. |
 
@@ -30,8 +30,9 @@ The answer is `ok`. In PowerShell call `curl.exe`, never `curl` (an alias of `In
    the run is done. One request per change, never a loop and never a request just to say nothing changed.
 2. Never send a time, a date or a query string: the server takes its own clock when the request arrives.
 3. A percentage may go down when work turns out larger than planned; send the real value.
-4. Several agents on one project send under the same `<project>` only when one of them owns the
-   percentage (the drive-project lead). Otherwise each agent reports its own project name.
+4. In a drive-project run only the lead reports; workers and sub-workers never call the board.
+   Elsewhere, several agents on one project send under the same `<project>` only when one of them
+   owns the percentage; otherwise each agent reports its own project name.
 5. The answer stays out of the chat. Reporting never adds a word to what the user reads.
 6. Never post to the board's settings routes (`/_cfg`, `/_del/...`, `/_clear`): the user runs them from the
    page.
@@ -46,16 +47,12 @@ python -I "<board>/server.py" start
 ```
 
 It answers `http://127.0.0.1:8790 started` or `... already running`, then send the report again, once. It
-is safe to run any time: it never starts a second server. When it still fails, go on with the work without
-the board and mention it in the final answer only; the board is never a reason to stop a run.
+is safe to run any time: it never starts a second server. The server is shared and stays up: never stop
+it, even when this run started it. When it still fails, send no more reports for the rest of this run:
+go on with the work without the board and mention it in the final answer only; the board is never a
+reason to stop a run.
 
-## What the user sees and controls
+## Start at login
 
-The page follows the system theme and has a settings window (time shown on the width, delay before a
-finished project leaves, delay before a project with no news leaves, theme, removing projects). Those are
-the user's: an agent never changes them. Defaults: a finished project leaves after 1 hour, a project with
-no report for 3 days leaves too. A project reporting again after that comes back with its old icon and
-color on a new line.
-
-The installer (`tools/install.py`) sets the server to start at every login and starts it at once;
-`--uninstall` removes the start at login. The data lives in `<board>/.state.json`.
+The server starts at every login (set by `tools/install.py`) and keeps its data in `<board>/.state.json`;
+an agent never edits that file.

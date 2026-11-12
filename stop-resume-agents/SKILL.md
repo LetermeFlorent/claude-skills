@@ -123,11 +123,13 @@ In order, from the file back to working agents.
    agent's own recorded work). On drift, AskUserQuestion before relaunching the agents it touches; the
    others start meanwhile. An accepted drift goes into the brief as a known difference.
 5. Depth 1 agents only, one by one (a parent's brief lists its children and their reports).
-   `Status: done` or `To relaunch: no`: skip, write why. File written by this same session
-   (origin session equals `$CLAUDE_CODE_SESSION_ID`): SendMessage the RESUME-ALL text of
-   `relaunch-brief.md` to the old id and check as that file says. Otherwise, or if that fails: Agent in
-   the background with the same subagent_type, description `<old description> (resumed)`, prompt filled
-   from `relaunch-brief.md`. A type that no longer exists: general-purpose.
+   `Status: done` or `To relaunch: no`: skip, write why. A worker of a /drive run (prompt starting
+   `You are a worker of a /drive run` or `Worker of a /drive run`): skip it, write why; the main session
+   takes its /drive run back through the drive-project skill, which resumes from the plan file. File
+   written by this same session (origin session equals `$CLAUDE_CODE_SESSION_ID`): SendMessage the
+   RESUME-ALL text of `relaunch-brief.md` to the old id and check as that file says. Otherwise, or if that
+   fails: Agent in the background with the same subagent_type, description `<old description> (resumed)`,
+   prompt filled from `relaunch-brief.md`. A type that no longer exists: general-purpose.
 6. Independent agents start together, four at most at once, the next when a slot frees. `after agent
    <id>` means after that agent finished and its result was checked. Two agents owning the same file
    never run together.
