@@ -11,6 +11,7 @@ import tree
 from common import FAILED, INTERRUPTED, SIGNAL_BASE, refuse, say
 
 POLL_SECONDS = 0.5
+QUEUE_PAUSE = 2
 STOP_SIGNALS = ("SIGTERM", "SIGINT", "SIGBREAK", "SIGHUP")
 
 
@@ -40,17 +41,24 @@ def _wait(process):
             continue
 
 
-def _claim(folder, name, command, record):
+def _claim(folder, name, record, queue):
     if name is None:
-        name = records.claim_next(folder, command, record)
+        name = records.claim_next(folder, record["command"], record)
         if name is None:
             refuse("no free name left for this command, pass --name")
-        return name
+        return name, False
     if not records.valid_name(name):
         refuse(f"bad name {name!r}: letters, digits, dot, dash or underscore, 40 at most")
-    if not records.claim(folder, name, record):
-        refuse(f"a live task is already named {name}: pick another --name or stop it first")
-    return name
+    deadline = time.monotonic() + queue
+    waited = False
+    while not records.claim(folder, name, record):
+        if time.monotonic() >= deadline:
+            refuse(f"a live task is already named {name}: pick another --name or stop it first")
+        if not waited:
+            say(f"waiting for {name}")
+            waited = True
+        time.sleep(QUEUE_PAUSE)
+    return name, waited
 
 
 def _run(folder, name, command, record):
@@ -72,19 +80,28 @@ def _run(folder, name, command, record):
         tree.close(running)
 
 
-def start(command, name, cwd, ram_mb):
+def _fresh(ram_mb):
+    return {"started": time.time(), "cap_mb": memory.cap_mb(memory.free_mb()) if ram_mb is None else ram_mb}
+
+
+def start(command, options):
     if not command:
         refuse("no command after --")
-    if ram_mb is not None and ram_mb < 0:
+    if options.ram_mb is not None and options.ram_mb < 0:
         refuse("--ram-mb must be 0 (no cap) or more")
+    if options.queue < 0:
+        refuse("--queue must be 0 or more")
     folder = records.state_dir()
-    folder_of_task = Path(cwd or os.getcwd()).resolve()
+    folder_of_task = Path(options.cwd or os.getcwd()).resolve()
     if not folder_of_task.is_dir():
         refuse(f"no such folder: {folder_of_task}")
     record = {"launcher_pid": os.getpid(), "launcher_created": procs.identity(os.getpid()), "command": command,
-              "cwd": str(folder_of_task), "started": time.time(),
-              "cap_mb": memory.cap_mb(memory.free_mb()) if ram_mb is None else ram_mb}
-    name = _claim(folder, name, command, record)
+              "cwd": str(folder_of_task), **_fresh(options.ram_mb)}
+    name, waited = _claim(folder, options.name, record, options.queue)
+    if waited:
+        fresh = _fresh(options.ram_mb)
+        record.update(fresh)
+        records.update(folder, name, fresh)
     try:
         _catch_signals()
         return _run(folder, name, command, record)

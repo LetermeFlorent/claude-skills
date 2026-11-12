@@ -10,7 +10,7 @@ Type `/limited-run` followed by a command to start it with a memory limit. `/lim
 
 It goes through `scripts/run.py start -- <command>` for everything it starts. By default the limit is half of the free memory, between 512 and 4096 MB. On Windows, it covers the program and everything it starts in turn, and if the launcher dies, everything stops with it. On Linux and macOS, it applies to each program separately.
 
-When the result is there (the page shows up, the tests have passed), it stops the task. Before handing back, it prints the list of tasks still running with `run.py list` and stops them with `run.py stop`. It never touches a program it did not start itself with this tool: it may belong to another session.
+When the result is there (the page shows up, the tests have passed), it stops the task. Before handing back, it stops each task it started itself, with `run.py stop <name>`. The list of tasks is shared by every session on the PC, so it never runs `stop --all` and never stops a task or a program it did not start: it may belong to another session.
 
 ## Other agents
 
@@ -18,4 +18,4 @@ Claude Code reads the skill by itself. For Codex CLI, Gemini CLI or Qwen Code, a
 
 ## What is in the folder
 
-`SKILL.md` holds the rules. `scripts/run.py` starts, lists and stops tasks, with its parts in `scripts/lib`. `tests/test_pure.py` checks the calculations and starts real programs on the machine: exit code, memory limit exceeded, low priority, stopping the whole process tree.
+`SKILL.md` holds the rules. `scripts/run.py` starts, lists and stops tasks, with its parts in `scripts/lib`. `tests/test_pure.py` checks the calculations and the task records. `tests/test_end_to_end.py` starts real programs on the machine: exit code, memory limit exceeded, low priority, stopping the whole process tree, a second task waiting for a name in use.

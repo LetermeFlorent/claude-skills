@@ -12,17 +12,20 @@ starts with a RAM cap and low priority, is tracked, and is stopped as soon as it
 `<skill>` is this folder. The script needs Python 3, standard library only:
 
 ```
-python -I "<skill>/scripts/run.py" start [--ram-mb N] [--name NAME] [--cwd DIR] -- <command...>
+python -I "<skill>/scripts/run.py" start [--ram-mb N] [--name NAME] [--queue S] [--cwd DIR] -- <command...>
 python -I "<skill>/scripts/run.py" list
 python -I "<skill>/scripts/run.py" stop NAME|PID
 python -I "<skill>/scripts/run.py" stop --all
 ```
 
-`start` runs the command, waits for it and returns its exit code (2 is a refusal, 1 a failure of the tool,
-128 plus the signal number when the launcher was stopped). It prints one line first:
-`limited-run: <name> pid <pid>, cap <N> MB, below normal priority`. The default cap is half of the free RAM,
-between 512 and 4096 MB; `--ram-mb 0` drops the memory cap and keeps the low priority. The default name is the
-command's first word plus a counter (`npm-1`); a name already used by a live task is refused.
+`start` runs the command, waits for it and returns its exit code. Just before the command runs, it prints one
+line: `limited-run: <name> pid <pid>, cap <N> MB, below normal priority`. After that line the exit code is the
+command's, or 128 plus the signal number when the launcher was stopped; without that line, 2 is a refusal
+(`refused: ...`) and 1 a failure of the tool. The default cap is half of the free RAM, between 512 and 4096 MB;
+`--ram-mb 0` drops the memory cap and keeps the low priority. The default name is the command's first word plus
+a counter (`npm-1`). A name already used by a live task is refused, unless `--queue S` comes with `--name`:
+`start` then prints `limited-run: waiting for <name>` once and takes the name as soon as that task ends,
+refusing only after S seconds, so one name works as a lock between agents.
 
 | System | What `start` does |
 |---|---|
@@ -51,12 +54,15 @@ These hold for every agent, in every project.
    Inside `run.py start` the runtime cap still helps: set the node heap or `-Xmx` to about three quarters of
    the cap, since the cap counts the whole process and the heap is only part of it.
 2. A long-lived process (server, watcher) runs in the agent's background mode, still wrapped:
-   `run_in_background` in Claude Code, or the agent's equivalent. Never `&` alone, `nohup` or `start /b`
-   without the wrapper.
+   `run_in_background` in Claude Code, or the agent's equivalent. Never `&` alone, `nohup` or `start /b` without
+   the wrapper. A build or test run that may outlast the shell timeout also runs in background mode, or with a
+   longer timeout.
 3. Stop each task the moment its result is in hand: the page loaded, the test passed or failed, the build
    finished. `stop <name>` stops the whole tree.
-4. Before ending a turn or a session, run `list` and `stop` what is left. A task kept on purpose for the user
-   (a preview they are looking at) is named in the reply with the command that stops it.
+4. Before ending a turn or a session, stop each name you started, read from its `limited-run: <name>` line.
+   The records are shared by every session on the machine, so never `stop --all` and never stop a name you
+   did not start. A task kept on purpose for the user (a preview they are looking at) is named in the reply
+   with the command that stops it.
 5. Never stop a process this tool did not start, even one that looks like a leftover: another session may own
    it. `stop` only acts on records this tool wrote, and checks the process is still the one recorded.
 

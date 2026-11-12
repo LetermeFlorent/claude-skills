@@ -26,6 +26,8 @@ def arguments():
                                                   "512 to 4096; 0 means no memory cap")
     start.add_argument("--name", help="task name; default the command's first word plus a counter")
     start.add_argument("--cwd", help="folder to run the command in")
+    start.add_argument("--queue", type=int, default=0, help="with --name: seconds to wait for a live task of that "
+                                                            "name to end, instead of refusing")
     start.add_argument("command", nargs=argparse.REMAINDER, help="-- then the command and its arguments")
     actions.add_parser("list", help="one line per live task started by this tool")
     stop = actions.add_parser("stop", help="stop a task started by this tool, with its whole tree")
@@ -90,7 +92,7 @@ def main():
     if options.action == "stop":
         sys.exit(stop(options.target, options.all))
     command = options.command[1:] if options.command[:1] == ["--"] else options.command
-    sys.exit(launch.start(command, options.name, options.cwd, options.ram_mb))
+    sys.exit(launch.start(command, options))
 
 
 if __name__ == "__main__":
