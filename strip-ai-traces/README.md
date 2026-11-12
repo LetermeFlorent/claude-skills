@@ -14,7 +14,7 @@ Strings in code, translation files, data and code blocks do not change: they are
 
 ## Git history
 
-On the first git command in a repository, Claude runs `history.py`. The unpushed commits of the current branch lose their signature lines, the author stays. Commits already pushed are never rewritten: Claude gives their number and their ids, then asks. A co-author who is a person stays, even if their name is Claude.
+On the first git command in a repository, Claude runs `history.py`, unless the commits go through clean-commits, which checks and cleans the same commits. The unpushed commits of the current branch lose their signature lines, the author stays. Commits already pushed are never rewritten: Claude gives their number, their ids and the commands for you to run yourself. A co-author who is a person stays, even if their name is Claude.
 
 ## What is never removed
 

@@ -50,7 +50,7 @@ def main():
     dirty = read(root, "status", "--porcelain", "--untracked-files=no")
     if not name or dirty:
         refuse(["the rewrite needs a branch and no change to tracked files; those changes may be another "
-                "session's work: never stash them, ask the user"])
+                "session's work: never stash them, report the commit hashes and skip the push"])
     _rewrite(root, name)
     left = _marked(root)
     print(f"attribution left in {len(left)} unpushed commits" if left else

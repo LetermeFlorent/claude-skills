@@ -56,9 +56,8 @@ The audit runs these steps in order.
 
 | Flag | Action |
 |---|---|
-| Signed commits not pushed | `history.py --fix` on the current branch |
 | Signed commits on another local branch | Report; fix only when the work moves there, never switch branches for it |
-| Signed commits already pushed | Never rewrite. Report count, hashes, branches; propose `git filter-repo` then `git push --force-with-lease` once open PRs are merged or closed; ask with `AskUserQuestion` |
+| Signed commits already pushed | Never rewrite. Report count, hashes, branches; give the user the `git filter-repo` and `git push --force-with-lease` commands to run themselves once open PRs are merged or closed; never run them |
 | Emoji or typography inside a string literal | Propose the new string, ask |
 | Stock README outline, table of contents on a short page | Propose a new outline, ask before removing a section |
 | Commit by a bot identity | Report; the author is never touched |
@@ -73,7 +72,7 @@ The audit runs these steps in order.
 
 ## Git history
 
-At the first git command in a repository, run `python -I "<skill>/scripts/history.py"`. It counts signed commits (pushed or not) and bot-identity commits; a clean history needs no announcement. `--fix` rewrites messages on `HEAD --not --remotes` only, keeps the author, drops `refs/original`, checks again, and refuses when tracked files hold changes (they may be another session's: never stash, ask). GitHub caches contributor statistics after a rewrite; that is expected.
+At the first git command in a repository, run `python -I "<skill>/scripts/history.py"`, unless this task commits through the clean-commits skill: its `state.py` already reports these commits and its `scrub.py` rewrites the unpushed ones. `history.py` counts signed commits (pushed or not) and bot-identity commits; a clean history needs no announcement. `--fix` rewrites messages on `HEAD --not --remotes` only, keeps the author, drops `refs/original`, checks again, and refuses when tracked files hold changes (they may be another session's: never stash, ask). GitHub caches contributor statistics after a rewrite; that is expected.
 
 ## What stays, said once
 

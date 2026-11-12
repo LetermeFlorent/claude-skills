@@ -14,7 +14,7 @@ If the `CLAUDE_SKILLS_ACCOUNTS` variable points to an accounts tool, the GitHub 
 
 ## Called by another skill
 
-clean-code calls clean-commits at the end of each step with the exact list of files: no question, no push.
+clean-code calls clean-commits at the end of each step with the exact list of files: no question, no push. The closing box of drive-project hands over its files the same way, then pushes.
 
 ## What never goes through
 
