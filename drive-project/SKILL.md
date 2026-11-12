@@ -97,7 +97,7 @@ speaking rules above.
 |---|---|
 | The whole run | Ponytail, at the level its hook set: the smallest change that fully solves each step |
 | Each percentage, from `0` to `100` | progress-board, read before the first one: the lead sends it to the local page |
-| The project has about 300 code files or more, 50,000 lines, is a monorepo, or holds `graphify-out/` | graphify, run by the mapping worker before reading files one by one; never on a small project |
+| The project has about 300 code files or more, 50,000 lines, is a monorepo, or holds `graphify-out/` | graphify's command line, never its skill, run by the mapping worker before reading files one by one as step 2 says; never on a small project. The graph goes to `<project>/.ia/graphify-out/` |
 | Any smaller project | caveman: the mapping worker is a `cavecrew-investigator`, a one or two file edit box goes to a `cavecrew-builder`, each step's diff to a `cavecrew-reviewer`, as the cavecrew skill says |
 | Before any build, test run, install, dev server or docker command, however small | resource-guard (`guard.py wait`) |
 | Every process that runs long or in the background | limited-run, with a memory cap, stopped as soon as its result is in |
@@ -116,8 +116,10 @@ One pass, in this order. From step 2 on, every action is a worker's.
 1. Read the progress-board skill, then every `<project>/.ia/skills/*/SKILL.md`: lessons from earlier runs on this project. Follow them
    and hand their paths to every worker. A plan in `<project>/.ia/drive/` with boxes still unticked is
    unfinished work: resume it from its first unticked box instead of starting a new one.
-2. Send the mapping worker with the goal: graphify on a large project, a `cavecrew-investigator` on a
-   small one. Its report gives the files the goal touches, how to build and test, the edge cases, an estimated task
+2. Send the mapping worker with the goal: a `cavecrew-investigator` on a small project. On a large one
+   it first builds or refreshes the code graph from the project root, with no model call:
+   `GRAPHIFY_OUT="$PWD/.ia/graphify-out" graphify update .`, `.ia/` kept in `.git/info/exclude` so the
+   scan skips it, then queries it with `--graph .ia/graphify-out/graph.json`. Its report gives the files the goal touches, how to build and test, the edge cases, an estimated task
    count, and the list of mechanics around the goal that connect to it (candidates for the completion level).
 3. Ask, as rule 1 of Speaking says, then never again. A resumed plan already holds its answers: no new
    questions.

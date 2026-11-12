@@ -25,7 +25,7 @@ end. Delete nothing you did not create.
 These hold in every mode, whatever the user asks.
 
 1. Read-only until `plan_check.py` prints `plan ok`: nothing written in the project apart from
-   `.ia/` and `graphify-out/`.
+   `.ia/`.
 2. Scope first: the `/clean-code` argument, else one question. In doubt, the narrowest. Outside the
    scope, findings are reported, never fixed.
 3. A finding needs `file:line` and a proof. Verdicts come from a fresh agent that never saw the
@@ -127,9 +127,12 @@ In this order, each step ending before the next.
    cache, linter with `--max-warnings 0`, the build only when it writes outside the tree, the test
    suite. A failure is a rule 12 finding with its output. A command that cannot run is
    `findings.py unmeasured --rule 12 --why "<reason>"`, never installed.
-5. Read. Up to `reader_threshold` files, read them yourself. Past that, map the scope first with
-   `graphify update <scope>` when `graphify` is on the PATH: no model call, it writes or refreshes
-   `<scope>/graphify-out/`, which measure.py keeps out of git and out of the measure. Then one agent
+5. Read. Up to `reader_threshold` files, read them yourself. Past that, map the scope first when
+   `graphify` is on the PATH, with
+   `GRAPHIFY_OUT="<absolute project root>/.ia/graphify-out" graphify update <scope>`: no model call,
+   never its skill. The graph goes to `.ia/graphify-out/`, never into the scope, and `.ia/`, which git
+   ignores since step 2, stays out of the scan and the measure. A relative `GRAPHIFY_OUT` would land
+   under `<scope>`. Then one agent
    per batch, `readers` at most [4], prompt from `reader-brief.md`, all in one message. Every reading rule ends with findings, `findings.py checked --rule <n> --why "..."` or
    `findings.py unmeasured --rule <n> --why "..."`.
 6. Verify: one fresh Agent call (never a fork), prompt from
