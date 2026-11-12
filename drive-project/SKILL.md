@@ -22,17 +22,29 @@ goes to a subagent, and the lead only hands out tasks, reads reports and ticks b
 2. Each box goes to one fresh worker, prompt from `worker-brief.md`; consecutive boxes on the same file at
    the same setting may share one. Next to each box the plan writes the model and effort the
    claude-model-effort skill gives its task (other-model-effort when the model is not Claude), starting at
-   the row's minimum, and the call sets them. One worker at a time, in plan order, so two builds or test
-   runs never overlap; for this run, that replaces the rule keeping builds in the main session.
+   the row's minimum, and the call sets them.
+   Boxes run at the same time when they do not get in each other's way: no file in common, neither needs
+   the other's result, and at most one of the two runs a heavy command (build, test run, docker, dev
+   server). Never more than two workers working at once across the whole tree, a worker waiting on its
+   own sub-workers not counting. The plan marks each box `after: <ids>` or `with: <ids>`; a box with
+   neither goes alone. For this run, that replaces the rule keeping builds in the main session.
+   A worker may split its box into sub-tasks and hand them to sub-workers, as `worker-brief.md` says,
+   to a depth of three below the lead. Every brief names the effort skill's path
+   (`~/.claude/claude-skills/claude-model-effort/SKILL.md`, or `other-model-effort` for a model that is
+   not Claude) so each sub-worker gets its model and effort from it.
 3. A box is ticked only when the report shows its check passing, command and output pasted. No pasted
    check, or a failed one: the same box goes out again, one step up as claude-model-effort's rule 6 says.
    A worker that ran a different check than the box's: the lead writes the command that ran into the box
    before ticking it; "close enough" left unwritten is a skipped check.
-4. Every box carries a proof, at every reflection level, *peu* included. The worker first reads the code
-   and the result it must change until it can say what it does (understand), then runs the check
-   (test), then looks at the real outcome: the output read, the page seen through chrome-bidi, the
-   game or app run (see). The report pastes the proof and one line saying what was understood. A box
-   without a proof written in the plan is not handed out; a report without it is a failed check.
+4. Every box carries a mandatory proof that the thing works, at every reflection level, *peu* included,
+   and for every worker at every depth. The worker first reads the code and the result it must change
+   until it can say what it does (understand), then runs the check (test), then looks at the real
+   outcome (see). The proof is a script run with its output pasted, a visual proof (the page seen
+   through chrome-bidi, the app or game run, a screenshot looked at), or both when the result can be
+   seen. "It builds", "it looks right in the code" and "should work" are no proof. The report pastes the
+   proof and one line saying what was understood. A box without its proof written in the plan is not
+   handed out; a report without it is a failed check. A worker that split its box checks each
+   sub-report's proof itself and adds its own proof for the whole.
 5. "A subagent would cost more than doing it", "three small edits", "it is one line", "I already have the
    context", "just this once to save time": each is the excuse this rule exists for. The box goes to a
    worker at its row's minimum.
@@ -67,7 +79,8 @@ The user hears from the run three times: the questions, the percentages, the las
 3. Every text message during the run is one line, a whole number followed by `%` (`35%`), nothing else: no
    word, no file name, no list, no heading. A reminder from the tool to update the user is answered with
    the percentage. Ponytail's closing lines, clean-code's `# 12/20` note and any skill's report stay
-   unsaid.
+   unsaid. Workers and sub-workers are silent too: their only text outside the final report block is one
+   line, a number and `%` for how far their own task is, nothing else.
 4. The percentage is the share of ticked boxes in the plan file, posted once after each ticked task. It only goes up; `100%` comes after the push.
    Each time, the same number goes to the progress board, under the project folder's name, as the
    progress-board skill says; `0` goes there as soon as the plan file is written.
@@ -112,10 +125,11 @@ One pass, in this order. From step 2 on, every action is a worker's.
    completion level sets which connected mechanics become boxes; the reflection level raises the minimum
    model and effort of every box and adds the test, review and in-game or on-screen proof boxes it calls for, then every task as a `- [ ]` box, cut down to one action each (one
    file, one function, one test, one command), with the file it touches, the check that proves it done
-   and the model and effort of its worker. The clean-code, strip-ai-traces, commit, push and cleanup steps
-   are boxes too. Nothing to do lives outside this file.
-5. Hand out box by box, in order. Tick the box in the file (`- [x]`) the moment its report shows the check
-   passing, never before and never several at once; a failed check goes out again before the next box. A
+   the proof, the model and effort of its worker, and its `after:` or `with:` ids. The clean-code,
+   strip-ai-traces, commit, push and cleanup steps are boxes too. Nothing to do lives outside this file.
+5. Hand out the boxes in plan order, together when rule 2 of the lead allows it. Tick a box in the file
+   (`- [x]`) the moment its report shows its proof passing, never before; a failed check goes out again
+   before any box that comes after it. A
    task found on the way, in a report or otherwise, is added as a new box before it is handed out.
 6. The clean-code worker applies the whole clean-code plan on the changed files, then the strip-ai-traces
    worker runs on the same files. Both run on every change, however small, through their scripts
