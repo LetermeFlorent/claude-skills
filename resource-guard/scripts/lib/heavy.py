@@ -28,7 +28,7 @@ TARGET = (
 )
 PATTERN = re.compile(START + ENV + WRAPPER + SHELL + WRAPPER + PATH + TARGET, re.IGNORECASE)
 LIGHT_SCRIPTS = (
-    r"(?:chrome-bidi[/\\]scripts|\$\{?S\}?)[/\\]bidi",
+    r"(?:browser-bidi[/\\]scripts|\$\{?S\}?)[/\\]bidi",
     r"clean-code[/\\]scripts[/\\](?:findings|score|plan_check|measure)",
     r"strip-ai-traces[/\\]scripts[/\\]scan",
     r"clean-commits[/\\]scripts[/\\]state",

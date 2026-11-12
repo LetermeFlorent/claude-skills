@@ -26,9 +26,9 @@ def git_root(folder):
 
 
 def run_dir(root):
-    base = WORK_DIR / "chrome-bidi"
+    base = WORK_DIR / "browser-bidi"
     if root:
-        base = root / ".ia" / "chrome-bidi"
+        base = root / ".ia" / "browser-bidi"
         base.mkdir(parents=True, exist_ok=True)
         git_dir = git(root, "rev-parse", "--absolute-git-dir")
         if git_dir:

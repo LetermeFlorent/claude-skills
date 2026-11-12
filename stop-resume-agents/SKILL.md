@@ -90,7 +90,7 @@ In this order, none skipped.
    PID and command line, list the others as not found. A non-matching process is not yours.
 10. Write every remaining item in resume.md in one edit, then stop them: background tasks and workflows
     with TaskStop, a dynamic /loop with `ScheduleWakeup({stop: true})`, crons this session created with
-    CronDelete, servers by PID after reading their command line, Chrome ports with the chrome-bidi
+    CronDelete, servers by PID after reading their command line, Chrome ports with the browser-bidi
     skill's close action (`bidi.ps1 -Action close`), step 9 processes with `taskkill /PID <pid> /T /F`
     through PowerShell.
 11. Complete each main session findings entry by comparing report, digest and git; never trust a report alone. The digest

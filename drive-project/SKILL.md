@@ -79,7 +79,7 @@ goes to a subagent, and the lead only hands out tasks, reads reports and ticks b
    and for every worker at every depth. The worker first reads the code and the result it must change
    until it can say what it does (understand), then runs the check (test), then looks at the real
    outcome (see). The proof is a script run with its output pasted, plus a visual proof when the result
-   is a page or a screen (the page seen through chrome-bidi, a screenshot looked at). A box whose result
+   is a page or a screen (the page seen through browser-bidi, a screenshot looked at). A box whose result
    nothing here can capture (a desktop app, a game outside the browser) says `script only` in its
    `proof:` and needs the script proof alone. What a visual proof pastes is in the Rules of
    `worker-brief.md`. "It builds", "it looks right in the code" and "should work" are no proof. The report pastes the proof and one line saying
@@ -88,7 +88,7 @@ goes to a subagent, and the lead only hands out tasks, reads reports and ticks b
    own proof for the whole.
    The fixed boxes' proofs: a box that commits pastes `git log -1` and `git status -sb`, and once it has
    pushed, the branch line shows no `ahead` or `push.py` printed `no remote: the commits stay local`; a
-   box that cleans up pastes the `stopped <name> pid <n>` line of each process it stopped, chrome-bidi's
+   box that cleans up pastes the `stopped <name> pid <n>` line of each process it stopped, browser-bidi's
    `browser closed, port <P> released` when a browser ran, then that skill's Procedure step 5 check,
    empty.
 5. "A subagent would cost more than doing it", "three small edits", "it is one line", "I already have the
@@ -165,7 +165,7 @@ its own `SKILL.md`, under the speaking rules above.
 | Every build, test run, install, typecheck, dev server, watcher and container | limited-run, with a memory cap: one-shot commands through the run's heavy lock, the rest stopped as soon as their result is in |
 | Setting each worker's model and effort (the lead in the plan, a worker for its sub-workers) | claude-model-effort |
 | The same, for a worker on a model that is not Claude | other-model-effort |
-| A web page or its layout must be seen | chrome-bidi: visual_test.py to look at a page, launch.py and bidi.py only to act on it |
+| A web page or its layout must be seen | browser-bidi: visual_test.py to look at a page, launch.py and bidi.py only to act on it |
 | A failure followed by the fix that worked, or a step the next agent would have to work out again | a project skill in `.ia/skills/`, as Project skills says, never through writing-skills |
 | The work is done and its checks pass | clean-code on the files this run changed; the same box runs the strip-ai-traces scan (step 6), so strip-ai-traces gets no worker of its own |
 | Last | clean-commits, twice: the commit box before clean-code, then the closing box, which commits the rest and pushes |
@@ -211,7 +211,7 @@ One pass, in this order.
    branch; on any other branch the run pushes the branch it is on.
    Each sign-in only a human can type that `Edges:` lists is asked too: sign in now (recommended), or
    the boxes that need it prove without it. Sign in now: a worker whose Box is that sign-in runs
-   chrome-bidi's `launch.py --port <p> --login --visible --url <page>` and pastes its output as proof,
+   browser-bidi's `launch.py --port <p> --login --visible --url <page>` and pastes its output as proof,
    then one more question box asks the user to answer once signed in with the window closed. The answers
    keep `<p>`, and boxes that use it never share a `with:`.
 4. Write the plan to `<project>/.ia/drive/<YYYY-MM-DD>-<goal-slug>.md` before any code: `lead: running`
@@ -316,8 +316,8 @@ One pass, in this order.
    shared with every session on the PC). Then it stops each name, pid or Chrome port the reports list
    under `processes still running`, which the lead copies into its box line, and nothing else:
    `run.py stop <name or pid>`, or
-   `python -I ~/.claude/claude-skills/chrome-bidi/scripts/bidi.py close --port <port>` followed by
-   chrome-bidi's Procedure step 5 check for that port. Last, it tidies `<project>/.ia/skills/` as
+   `python -I ~/.claude/claude-skills/browser-bidi/scripts/bidi.py close --port <port>` followed by
+   browser-bidi's Procedure step 5 check for that port. Last, it tidies `<project>/.ia/skills/` as
    Project skills says. Its proof is the `push.py` output, a last `run.py list` and
    `ls <project>/.ia/skills` before and after the tidy, besides what rule 4 of the lead asks of a box
    that commits and one that cleans up.

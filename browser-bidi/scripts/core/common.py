@@ -31,7 +31,7 @@ def guard(main, hint):
     except KeyboardInterrupt:
         sys.exit(130)
     except Exception as error:
-        print(f"chrome-bidi: {type(error).__name__}: {error}")
+        print(f"browser-bidi: {type(error).__name__}: {error}")
         print(f"by hand: {hint}")
         sys.exit(1)
 

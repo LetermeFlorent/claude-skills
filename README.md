@@ -17,7 +17,7 @@ Each line gives the command that starts the skill and what it does.
 | Skill | Command | Role |
 |---|---|---|
 | strip-ai-traces | `/strip-ai-traces` | writes and fixes text and code without the marks of AI-written text |
-| chrome-bidi | `/chrome-bidi` | drives Chrome to open, read, click and capture a page, Windows only |
+| browser-bidi | `/browser-bidi` | drives Chrome to open, read, click and capture a page, Windows only |
 | clean-code | `/clean-code` | audits and tidies code: short files, one logic per file, dead code |
 | drive-project | `/drive` | takes a goal to pushed commits: every question first, then a silent run that shows only a percentage, every task handed to helper agents |
 | clean-commits | `/commit` | splits changes into clean commits, one per intention |

@@ -33,7 +33,7 @@ These hold in every mode, whatever the user asks.
 4. The repository is shared with other sessions: commit only your own paths, never `git add .`,
    never on a red check, never push, no stash, revert or clean on changes you did not make.
 5. Removed code is deleted, git keeps it. Outside git, move it to `old/`.
-6. Visual checks go through the `chrome-bidi` skill, headless.
+6. Visual checks go through the `browser-bidi` skill, headless.
 7. No attribution to any AI tool anywhere. Pushed history is never rewritten: the user decides.
 
 ## The rules
@@ -69,7 +69,7 @@ Defaults of the thresholds in brackets. "Script" means a module under `scripts/c
     the project already has them. Script.
 18. As few hardcoded values as possible: `reference/values.md`. Script.
 19. Every image WebP, cropped to its box, at 1x and 2x; an SVG stays SVG: `reference/images.md`.
-    Script, live boxes through `chrome-bidi`.
+    Script, live boxes through `browser-bidi`.
 
 `score.py` starts from 20 and deducts only for confirmed findings:
 
@@ -105,7 +105,7 @@ Code rules for this task:
   keys. Existing gaps are reported, not filled.
 - Images go in as WebP cropped to their box at 1x and 2x through <skill>/scripts/apply/fit_image.py.
 - A file stays under 150 lines and a folder under 8 code files: split before crossing.
-- Visual checks go through chrome-bidi, headless.
+- Visual checks go through browser-bidi, headless.
 - Typecheck, lint and tests run through the project's package manager, never npx.
 - Defects in code you did not touch are reported, not fixed.
 - No `shortcut:` or other note comment either: name the shortcut in your reply.

@@ -27,8 +27,8 @@ HEAVY = (
     "java -jar app.jar", "py -3 setup.py", "./test",
     "python -I C:/x/limited-run/scripts/run.py start --name foo -- npm test",
     'python -I "C:/x/limited-run/scripts/run.py" start --cwd C:/p -- npx vite',
-    "python -I C:/x/chrome-bidi/scripts/launch.py --url x",
-    "python -I C:/x/chrome-bidi/scripts/measure_images.py --url x",
+    "python -I C:/x/browser-bidi/scripts/launch.py --url x",
+    "python -I C:/x/browser-bidi/scripts/measure_images.py --url x",
     'python -I "$S/bidi.py" shot a.png --port 9300 && npm run build',
 )
 LIGHT = (

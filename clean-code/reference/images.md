@@ -16,7 +16,7 @@ three lines of the reference, a guess that CSS or `object-fit` can change.
 When the project renders pages, with the dev server running:
 
 ```bash
-python -I "<chrome-bidi>/scripts/measure_images.py" --url <page url> --widths 390,1440 --out "<run>/boxes-home.json"
+python -I "<browser-bidi>/scripts/measure_images.py" --url <page url> --widths 390,1440 --out "<run>/boxes-home.json"
 ```
 
 Add the widths where the CSS media queries change layout. One `--out` per page, then stop the

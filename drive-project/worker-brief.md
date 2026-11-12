@@ -62,7 +62,7 @@ Every worker follows these, at every depth.
   - A file stays under 150 lines and a folder under 8 code files (`max_lines` and `max_files` in
     <project>/.ia/clean-code/config.json when set): split before crossing. A file or folder already
     past it is left for the clean-code box.
-  - Visual checks go through chrome-bidi, headless.
+  - Visual checks go through browser-bidi, headless.
   - Typecheck, lint and tests run through the project's package manager, never npx.
   - Defects in code you did not touch are reported, not fixed.
   - No `shortcut:` or other note comment: name the shortcut under choices made.
@@ -81,7 +81,7 @@ Every worker follows these, at every depth.
 - A dev server, watcher or container also goes through `run.py start`, in the background, named
   `--name <Run tag>-<box id>-<n>`, n counting from 1 (a name already in use: the next n), and is
   stopped with `run.py stop <name>` before you report. Chrome never goes through limited-run:
-  chrome-bidi's scripts start it, and `bidi.py close` stops it before you report.
+  browser-bidi's scripts start it, and `bidi.py close` stops it before you report.
 - Follow every lesson the box's `lessons:` field names.
 - When something fails and a later attempt works (a command, a flag, a test, a wrong belief or a typo;
   a failed `Earlier attempt:` counts; so does another command or a workaround that got you past it, even
@@ -114,7 +114,7 @@ Every worker follows these, at every depth.
   say which under `choices made`: no file or stored data deleted that this run did not create, nothing
   published but the push, a called skill's recommended option, and with none, the one that changes
   least.
-- A sign-in only a human can type (chrome-bidi's `--login` window): never open one unless your box is
+- A sign-in only a human can type (browser-bidi's `--login` window): never open one unless your box is
   that sign-in. Use the signed-in port the Answers give; with none, report `done: no` and name the
   sign-in under findings.
 - Work in <project> on its current branch: never create a git worktree or a branch unless your box says
@@ -135,15 +135,15 @@ Every worker follows these, at every depth.
 - A check that fails only on a file listed in Running beside: run it once more; still failing only
   there, report `done: no` with `neighbour:` and the failing lines under check. It is not a lesson.
 - The proof is mandatory: a script run with its output pasted, plus a visual proof (page seen through
-  chrome-bidi, screenshot looked at) when the result is a page or a screen and the box does not say
+  browser-bidi, screenshot looked at) when the result is a page or a screen and the box does not say
   `script only`. A visual proof pastes the command that made it, the screenshot's file path and a text
-  read of the element or value that shows the change (a chrome-bidi `text` or `eval` read, a log
+  read of the element or value that shows the change (a browser-bidi `text` or `eval` read, a log
   line); a screenshot with no path is no proof. "It builds" or "it should work" is no proof. No proof
   means `done: no`.
 - A proof that is only a page seen, with nothing to click, fill or sign in: run
-  `python -I ~/.claude/claude-skills/chrome-bidi/scripts/visual_test.py "<url>" 390,1440`, `<url>`
+  `python -I ~/.claude/claude-skills/browser-bidi/scripts/visual_test.py "<url>" 390,1440`, `<url>`
   being the page address or the built folder, and read each screenshot it prints. Then run the
-  leftover check of chrome-bidi's SKILL.md, Procedure step 5 only, with the port from its
+  leftover check of browser-bidi's SKILL.md, Procedure step 5 only, with the port from its
   `browser closed, port ... released` line. Use launch.py and bidi.py only when the proof must click,
   type, wait for a selector or sign in.
 - When your task holds several boxes whose visual proof needs the same running app: do each box's

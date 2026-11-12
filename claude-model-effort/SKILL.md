@@ -55,7 +55,7 @@ The core of the work.
 | Everyday code: a function, a component, a simple fix | Sonnet low | Sonnet medium | Low for well-framed work. |
 | Script writer: short bash or Python, throwaway automation | Haiku medium | Sonnet medium | Haiku low forgets edge cases. |
 | Running tests, reading the failure, fixing | Sonnet medium | Opus medium | A failing test means tracing a cause; Opus avoids fix loops. |
-| Browser test: chrome-bidi, screenshots, responsive | Sonnet medium | Opus medium | Seeing the gap between expected and shown is visual reasoning. |
+| Browser test: browser-bidi, screenshots, responsive | Sonnet medium | Opus medium | Seeing the gap between expected and shown is visual reasoning. |
 | Git and commits: message, diff summary, simple conflict | Haiku low | Haiku medium | No deep reasoning; the best place to save tokens. |
 | Run upkeep: commit and push through scripts, stop your own processes, close the browser | Haiku low | Haiku medium | Every command is known; the scripts refuse what is wrong. |
 | Technical writing: README, API explanations | Haiku medium | Sonnet medium | Sonnet keeps tone and consistency over a long document. |

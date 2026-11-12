@@ -74,7 +74,7 @@ def main():
         description="Measure a scope against the clean-code rules without changing its files.")
     parser.add_argument("scope", nargs="*", default=["."], help="folders or files, several allowed")
     parser.add_argument("--boxes", action="append", default=[],
-                        help="JSON of chrome-bidi measure_images.py, repeatable")
+                        help="JSON of browser-bidi measure_images.py, repeatable")
     parser.add_argument("--out", help="folder for the run, instead of .ia/clean-code at the project root")
     args = parser.parse_args()
     scopes = [Path(item).resolve() for item in args.scope]

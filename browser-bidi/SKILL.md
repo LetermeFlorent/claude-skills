@@ -1,6 +1,6 @@
 ---
-name: chrome-bidi
-description: Use when a page must be opened, read, clicked, filled, screenshotted, printed or measured, checked at phone and desktop widths (/chrome-bidi), or its images checked for blurry or oversized files, or when a leftover Chrome or chromedriver must be closed.
+name: browser-bidi
+description: Use when a page must be opened, read, clicked, filled, screenshotted, printed or measured, checked at phone and desktop widths (/browser-bidi), or its images checked for blurry or oversized files, or when a leftover Chrome or chromedriver must be closed.
 ---
 
 # Chrome over WebDriver BiDi
@@ -8,12 +8,12 @@ description: Use when a page must be opened, read, clicked, filled, screenshotte
 The scripts start Chrome with a debugging port and a throwaway profile, a chromedriver of the same
 version on port + 1000 (kept in `bin/`, downloaded from Chrome for Testing when the build differs),
 and talk BiDi over a websocket. Call every script as `python -I "<skill dir>/scripts/<name>.py"` with
-forward slashes. Stdlib only. A failure prints `chrome-bidi: <Type>: <message>` and a `by hand:` line,
+forward slashes. Stdlib only. A failure prints `browser-bidi: <Type>: <message>` and a `by hand:` line,
 exit 1. A `PermissionError` while the driver updates means another session's chromedriver is running
 from `bin/`: never stop it, and launch again once it is closed.
 
 Scripts: `launch.py` (start, prints the port), `bidi.py` (one action on a running Chrome),
-`measure_images.py` (box of every displayed image per width, JSON), `visual_test.py` (the /chrome-bidi run).
+`measure_images.py` (box of every displayed image per width, JSON), `visual_test.py` (the /browser-bidi run).
 
 ## Rules
 
@@ -21,7 +21,7 @@ These hold for every task, whatever the page.
 
 1. Pick the mode yourself and never ask about it. `--visible` when a person has to see or act in the
    window: a sign-in, a code or phone check, the user saying they want to watch. Headless for
-   everything else (reading, checks, screenshots, /chrome-bidi).
+   everything else (reading, checks, screenshots, /browser-bidi).
 2. One port per task, never shared. Profile `<temp>/claude-skills/chrome-<port>`, downloads in
    `chrome-<port>-downloads`, session in `chrome-<port>.session`. Never the user's profile.
 3. Never stop a `chrome.exe` or `chromedriver.exe` whose command line lacks
@@ -60,16 +60,16 @@ Five steps, from launch to the leftover check.
    A pid still listed (for example a chromedriver whose Chrome is gone, which `close` refuses):
    `MSYS_NO_PATHCONV=1 taskkill /PID <pid> /T /F` on those pids only.
 
-### /chrome-bidi
+### /browser-bidi
 
-`/chrome-bidi <url or local folder> [widths]`.
+`/browser-bidi <url or local folder> [widths]`.
 
 1. `python -I "$S/visual_test.py" "<target>" 390,1440`. Widths default to 390,1440, height 720
    (`--height`), `--visible` only if the user wrote it. A local folder or file is served on
    127.0.0.1 during the run.
-2. Output goes to `<project>/.ia/chrome-bidi/<date-time>/` (`shot-<width>.png`, `images.json`),
+2. Output goes to `<project>/.ia/browser-bidi/<date-time>/` (`shot-<width>.png`, `images.json`),
    `.ia/` added to `.git/info/exclude`. Project is the git root of the target, or of the current
-   folder for a url; with none, `<temp>/claude-skills/chrome-bidi/`.
+   folder for a url; with none, `<temp>/claude-skills/browser-bidi/`.
 3. Read each shot and the flagged image lines: `blurry` (file narrower than box times dpr),
    `heavy` (over twice the needed width), `not loaded`.
 4. Answer in a few lines: what breaks at which width, images to resize, the folder. The script

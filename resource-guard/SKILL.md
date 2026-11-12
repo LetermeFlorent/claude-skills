@@ -47,7 +47,7 @@ The hook runs before every shell call, so a light command costs one Python start
 sampling, no output, exit 0. It reads the command from `tool_input.command` (a string, or a list where a
 leading `bash -lc` style wrapper is dropped), `tool_input.cmd` or a top-level `command`. Any command whose
 text contains `resource-guard` is never held, so chain a heavy command after `guard.py wait` with `&&`, never
-`;`. Light skill scripts run through Python are not held either: chrome-bidi's `bidi.py`, clean-code's
+`;`. Light skill scripts run through Python are not held either: browser-bidi's `bidi.py`, clean-code's
 `findings.py`, `score.py`, `plan_check.py` and `measure.py`, strip-ai-traces' `scan.py`, clean-commits'
 `state.py`, progress-board's `server.py`, and limited-run's `run.py list` and `run.py stop`. `run.py start` is
 always held, and a heavy command chained after a light script still waits.
