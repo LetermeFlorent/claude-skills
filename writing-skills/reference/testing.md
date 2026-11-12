@@ -11,9 +11,9 @@ backslashes on Windows). For code, the fixture is a small git repo with a local 
 `user.email`, and every commit made with `git -c core.hooksPath=<an empty folder>`: the global hooks may
 rewrite messages and strip AI trailers, and a fixture built to hold one would pass for the wrong reason.
 
-When the skill writes to the home folder, the Desktop or the temp folder, the fixture holds stand-ins
-(`<run>/home`, `<run>/Desktop`, `<run>/tmp`) and the prompt says which real path each one replaces. A
-baseline must never drop a skill into the real `~/.claude/skills`.
+When the skill writes to the home folder, the Desktop or `<temp>/claude-skills`, the fixture holds the
+stand-ins `<run>/home`, `<run>/Desktop` and `<run>/tmp`, which the test rules of `subject-brief.md` map
+to those real paths. A baseline must never drop a skill into the real `~/.claude/skills`.
 
 `scenarios.md` holds, per scenario, the prompt as the user would type it and a checklist of observable
 results (files, paths, `git log`, test output, the report). The prompt is identical for every run apart
@@ -22,10 +22,9 @@ what the new one must do: only the lines where they differ are the test.
 
 ## Subjects
 
-A fresh subagent through the Agent tool, never a fork (a fork knows the answer). Subjects cannot talk to the user: questions go under
-QUESTIONS with options and the recommended one, then the subject takes it and goes on. Independent runs
-go out in one message, two at a time at most, one at a time when free memory is under 1.5 GB or CPU over
-85 %. Remove a stopped subject at once.
+A fresh subagent through the Agent tool, never a fork (a fork knows the answer). Its test rules are those
+of `subject-brief.md`. Independent runs go out in one message, two at a time at most, one at a time when
+free memory is under 1.5 GB or CPU over 85 %. Remove a stopped subject at once.
 
 ## Baseline and pressure
 

@@ -11,12 +11,12 @@ already does the right thing there is no skill. If it fails, write the smallest 
 failure, rerun the same task with the skill, and close the loopholes the runs still show. A constraint a
 regex or a hook can enforce is a script or a hook, not a skill; the account of one session is not a skill.
 
-Examples in `<claude-skills>` (the clone of this repository, `${CLAUDE_CONFIG_DIR:-$HOME/.claude}/claude-skills`):
-open the closest before writing.
+Examples in `<claude-skills>`, the parent folder of this skill's own folder (its base directory, with the
+link resolved): open the closest before writing.
 
 ## Rules
 
-These hold for a new skill, an edit, a remaster and a lesson alike.
+These hold for a new skill, an edit and a remaster; a lesson keeps only what the Lessons section names.
 
 1. A baseline decides whether a skill exists. New skill: against no skill. Edit: against the current
    version, only when the edit changes what an agent does. A fail-then-success lesson from this session is
@@ -46,8 +46,17 @@ These hold for a new skill, an edit, a remaster and a lesson alike.
 | holds for every project of the user | `~/.claude/skills/<name>/` |
 | is a remaster or a Desktop skill | the folder the user names |
 | is one line of project convention | that project's `CLAUDE.md`, no skill |
+| is a lesson from a `/drive` run | `<project>/.ia/skills/<name>/` |
 
-Skills are not committed (`.claude/` is tooling, which the clean-commits skill refuses) unless the user asks.
+A skill in a project's `.claude/skills` folder is tooling and is not committed (the clean-commits skill
+refuses it); a skill of a skills repository such as claude-skills is committed like any file.
+
+## Lessons
+
+A lesson keeps one fail-then-success for the next agent, so it costs a few lines and no test loop. It
+needs rule 1's written baseline, rule 6 and a `SKILL.md`, nothing else: its writer picks the name without
+asking, no subagent runs, it has no command, tests or README, and `check_skill.py` is not run on it. A
+lesson from a `/drive` run uses the template in drive-project's `worker-brief.md`.
 
 ## Folder
 
@@ -55,9 +64,11 @@ Skills are not committed (`.claude/` is tooling, which the clean-commits skill r
 
 - `SKILL.md` in English: front matter (`name` = folder name, `description`), a `# Title`, then only what
   the skill needs. Aim for 150 lines, 500 is the limit.
-- `README.md` in English, for the user, in everyday words, never a translation of `SKILL.md`. It starts with a line pointing to `INSTALL.md` at the repository root, and may hold `## What was tested` or `## Not tested yet`.
+- `README.md` in English, for the user, in everyday words, never a translation of `SKILL.md`. A skill of
+  the claude-skills repository starts it with a line pointing to `INSTALL.md` at the root. It may hold
+  `## What was tested` or `## Not tested yet`.
 - `commands/<command>.md` only when the user starts the skill by hand: English, ASCII only, file name
-  included. A lesson that fires on a situation has no command.
+  included.
 - `scripts/` with `tests/test_pure.py`, only where a script checks better than reading does (counts,
   formats, parsing, git state). Python 3 called with `python -I`, never crashing.
 - `<role>-brief.md` at the root when the skill sends subagents; `reference/*.md` for material that only
@@ -65,13 +76,16 @@ Skills are not committed (`.claude/` is tooling, which the clean-commits skill r
 
 ## Procedure
 
-One skill goes through the whole loop before the next one starts.
+One skill goes through the whole loop before the next one starts. A review runs `check_skill.py` and the
+strip-ai-traces `scan.py <folder> --no-git` and reads the skill against the Rules and `reference/format.md`;
+no subagent runs unless the user asks.
 
 1. Grill: say in one sentence how big the request reads, then ask only what the user alone decides, one
    question at a time (name and command, a real design choice).
 2. Classify: the folder, what the baseline runs against, the failures you expect. For an edit, find the
-   current version first (`~/.claude/skills/<name>/`, `$CLAUDE_CONFIG_DIR/skills/<name>/`, the plugin
-   cache); not found is a question for the user, never a baseline against nothing.
+   current version first (`<repo>/.claude/skills/<name>/`, `~/.claude/skills/<name>/`,
+   `$CLAUDE_CONFIG_DIR/skills/<name>/`, the plugin cache); not found is a question for the user, never a
+   baseline against nothing.
 3. Build the test material following `reference/testing.md`, on data already on disk and the current
    version's own examples (a sample made up by an agent who knows the traps passes for the wrong reason).
    Each scenario has a checklist of observable results with at least one line that splits old from new.
@@ -83,7 +97,7 @@ One skill goes through the whole loop before the next one starts.
    output and its parts. An element left out: a required slot in the template. Behaviour that depends on the
    case: a condition on something observable. Avoid "prefer" and "consider" for rules agents skip, and
    nuance clauses ("unless it matters"), which reopen the bargaining.
-   Then `python -I "<skill>/scripts/check_skill.py" <folder>` until it refuses nothing.
+   Then `python -I "<claude-skills>/writing-skills/scripts/check_skill.py" <folder>` until it refuses nothing.
 6. Green: the same scenarios with the skill; read each report against the checklist. Each new excuse is
    named and forbidden in the rule and its symptom added to the description. A subject that read the skill
    and still failed is asked why with the follow-up block of `subject-brief.md`. Repeat until nothing new
@@ -94,4 +108,4 @@ One skill goes through the whole loop before the next one starts.
    showed, what stays untested.
 
 `check_skill.py` checks the front matter, description, size, local links, `README.md`, commands and the
-script rules. Its `refused:` lines must go, `check:` lines get a look.
+script rules. Its `refused:` lines must go, `check:` lines get a look, `note:` lines are information only.
