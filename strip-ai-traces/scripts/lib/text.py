@@ -4,6 +4,8 @@ from patterns import (CURLY, EMOJI, FRENCH_QUOTES, HAND_TYPOGRAPHY, INVISIBLE, P
                       SIGNATURE, SPACES, STRAIGHT, VOCABULARY, WIDE_PUNCTUATION)
 
 INLINE_CODE = re.compile(r"(`+).+?\1")
+STRING = re.compile(r"([\"'`]).*?\1")
+VALUE_KINDS = ("em dash", "quotes", "invisible", "space", "emoji", "signature")
 SAFE = (("quotes", CURLY), ("invisible", INVISIBLE), ("space", SPACES))
 LINE = (("signature", SIGNATURE), ("residue", RESIDUE), ("placeholder", PLACEHOLDER), ("emoji", EMOJI),
         ("em dash", HAND_TYPOGRAPHY), ("wide punctuation", WIDE_PUNCTUATION))
@@ -47,6 +49,11 @@ def line_markers(text, prose):
         if matches:
             found.append(f"{kind}: {', '.join(matches)}" if kind in DETAILED else kind)
     return found
+
+
+def in_value(kind, line):
+    head = kind.split(":")[0]
+    return head in VALUE_KINDS and not (head == "signature" and SIGNATURE.search(STRING.sub("", line)))
 
 
 def safe_markers(text):

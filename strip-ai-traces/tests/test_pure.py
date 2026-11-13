@@ -34,6 +34,14 @@ class TrailerTest(unittest.TestCase):
     def test_a_person_named_claude_stays(self):
         self.assertIsNone(TRAILER.search("Co-authored-by: Claude Martin <claude.martin@example.fr>"))
 
+    def test_a_subject_named_after_a_skill_stays(self):
+        for line in ("claude-model-effort: pick a cheaper model", "claude-skills: release v1.7",
+                     "Claude-model-effort: pick"):
+            self.assertIsNone(TRAILER.search(line), line)
+        subject = "claude-model-effort: pick\n\nbody\n"
+        self.assertEqual(history.clean(subject), subject)
+        self.assertTrue(TRAILER.search("Claude-Model: opus"))
+
     def test_bot_identities(self):
         self.assertTrue(BOT_IDENTITY.search("Marie (aider)"))
         self.assertTrue(BOT_IDENTITY.search("google-labs-jules[bot]"))

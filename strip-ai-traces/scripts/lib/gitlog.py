@@ -11,9 +11,20 @@ WORKFLOWS = ".github/workflows/"
 SHORT = 8
 
 
+class GitError(Exception):
+    pass
+
+
 def read(root, *args):
     code, out, _ = run([GIT, *args], root)
     return out if code == 0 else None
+
+
+def need(root, *args):
+    code, out, err = run([GIT, *args], root)
+    if code != 0:
+        raise GitError(f"history not read: git {args[0]}: {err.strip() or f'exit {code}'}")
+    return out
 
 
 def find_root(start):
@@ -23,7 +34,7 @@ def find_root(start):
 
 
 def _commits(root):
-    for record in (read(root, "log", "--all", LOG_FORMAT) or "").split(RECORD):
+    for record in need(root, "log", "--all", LOG_FORMAT).split(RECORD):
         parts = record.strip("\n").split(FIELD)
         if len(parts) == 6:
             yield parts
@@ -34,7 +45,7 @@ def unpushed(root):
 
 
 def pushed(root):
-    return set((read(root, "rev-list", "--remotes") or "").split())
+    return set(need(root, "rev-list", "--remotes").split())
 
 
 def history(root):
@@ -89,3 +100,17 @@ def rewrite(root, filter_command):
 
 def drop_backup(root, name):
     run([GIT, "update-ref", "-d", f"refs/original/refs/heads/{name}"], root)
+
+
+def findings(root):
+    try:
+        (signed, bots), hand = history(root), []
+    except GitError as error:
+        signed, bots, hand = {"local": [], "pushed": []}, [], [(root, str(error))]
+    local, remote = signed["local"], signed["pushed"]
+    if local:
+        hand.append((root, f"signed commits not pushed ({len(local)}): {', '.join(local)}"))
+    flags = [(root, f"signed commits already pushed ({len(remote)}): {', '.join(remote)}")] if remote else []
+    flags += [(root, f"commit by a bot identity {row}") for row in bots]
+    flags += [(root, f"branch named after an AI tool: {name}") for name in branches(root)]
+    return hand, flags + [(root / name, "tracked AI tool file") for name in tracked(root)]

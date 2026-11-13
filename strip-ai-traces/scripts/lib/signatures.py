@@ -6,7 +6,7 @@ AI_EMAILS = (r"noreply@anthropic\.com|noreply@openai\.com|cursoragent@cursor\.co
 AI_MODELS = r"claude[ -](code|opus|sonnet|haiku|fable|\d)|chatgpt|gpt-?\d|codex|copilot|cursor( agent)?\b|gemini"
 TRAILER = re.compile(
     rf"^\s*(co-authored-by|co-developed-by|assisted-by|generated-by)\s*:.*({AI_EMAILS}|{AI_MODELS}|anthropic|openai)"
-    r"|^\s*claude-[\w-]+\s*:|^\s*made[- ]with\s*:?\s*cursor|^\s*agent-logs-url\s*:"
+    r"|(?-i:^\s*Claude-[A-Z][\w-]*\s*:)|^\s*made[- ]with\s*:?\s*cursor|^\s*agent-logs-url\s*:"
     r"|generated (with|by) \[?(claude|codex|copilot|cursor|gemini|chatgpt|devin|jules|aider)"
     r"|claude\.ai/code|claude\.com/claude-code|chatgpt\.com/codex"
     rf"|{AI_EMAILS}", FLAGS)

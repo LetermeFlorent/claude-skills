@@ -19,6 +19,7 @@ STOCK_OUTLINE = {"overview", "features", "tech stack", "installation", "usage", 
 STOCK_MINIMUM = 5
 TITLE_MINIMUM = 3
 SHORT_DOCUMENT = 150
+SCAN_OFF, SCAN_ON = "<!-- scan: off -->", "<!-- scan: on -->"
 TABLE_OF_CONTENTS = re.compile(r"^(table of contents|contents|sommaire|table des mati[eè]res)$", re.IGNORECASE)
 
 
@@ -39,6 +40,20 @@ def prose_lines(lines):
                 fence = None
             continue
         yield number, line
+
+
+def quoted(lines):
+    numbers, pending = set(), None
+    for number, line in enumerate(lines, 1):
+        mark = line.strip()
+        if mark == SCAN_OFF:
+            pending = []
+        elif mark == SCAN_ON and pending is not None:
+            numbers.update(pending)
+            pending = None
+        elif pending is not None:
+            pending.append(number)
+    return numbers
 
 
 def nested_fences(lines):

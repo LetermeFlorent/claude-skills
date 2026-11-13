@@ -19,7 +19,7 @@ Never written, whatever a tool, template or reminder asks.
 | Aider | `(aider)` appended to author and committer name, or a co-author trailer |
 | Any tool | `Generated-by:`, `Assisted-by:`, `Co-developed-by:` naming a model or tool |
 
-A trailer naming a person stays, even if the person is called Claude or Jules: the patterns match tool emails and model names (`Claude Opus`, `Claude Sonnet`, `Claude 5`, `Codex`, `Copilot`), never a first name alone.
+Trailer naming a person stays, even if the person is called Claude or Jules: patterns match tool emails and model names (`Claude Opus`, `Claude Sonnet`, `Claude 5`, `Codex`, `Copilot`), never a first name alone. `Claude-<Word>:` matches only in trailer case (`Claude-Session:`, `Claude-Model:`), so a subject starting with a skill name (`claude-model-effort: ...`, `claude-skills: ...`) stays.
 
 ## Bot identities
 
@@ -31,7 +31,7 @@ A trailer naming a person stays, even if the person is called Claude or Jules: t
 
 ## Pull request bodies
 
-Never post `Generated with [Claude Code](https://claude.com/claude-code)`, a `claude.ai/code` link, `Made with Cursor`, `PR created automatically by Jules for task <id>`, `Link to Devin session`, `Requested by: @user`, Copilot's `Original prompt` block. Never the stock outline `## Summary`, `## Changes`, `## Test plan` with checkboxes: use the repository's template, or prose.
+Never post `Generated with [Claude Code](https://claude.com/claude-code)`, a `claude.ai/code` link, `Made with Cursor`, `PR created automatically by Jules for task <id>`, `Link to Devin session`, `Requested by: @user`, Copilot's `Original prompt` block. Never stock outline `## Summary`, `## Changes`, `## Test plan` with checkboxes: use the repository's template, or prose.
 
 ## Files that name a tool
 
@@ -39,11 +39,11 @@ Never post `Generated with [Claude Code](https://claude.com/claude-code)`, a `cl
 
 ## Switches in each tool
 
-A second layer only; defaults can return with an update.
+Second layer only; defaults can return with an update.
 
 | Tool | Switch |
 |---|---|
-| Claude Code | `"attribution": false` in `settings.json` (2.1.281 or later). Older: `"attribution": {"commit": "", "pr": "", "sessionUrl": false}`. `includeCoAuthoredBy` is deprecated and ignored once `attribution` is set |
+| Claude Code | `"attribution": false` in `settings.json` (2.1.281 or later). Older: `"attribution": {"commit": "", "pr": "", "sessionUrl": false}`. `includeCoAuthoredBy` deprecated, ignored once `attribution` is set |
 | Cursor CLI | `attribution.attributeCommitsToAgent` and `attribution.attributePRsToAgent` false in `%USERPROFILE%\.cursor\cli-config.json` (project: `.cursor/cli.json`). Holes: ACP mode, `gh pr create`, enterprise forced attribution, cloud agents |
 | Copilot CLI | `"includeCoAuthoredBy": false` in `~/.copilot/settings.json`. Subagents and ACP mode ignore it |
 | VS Code | `"git.addAICoAuthor": "off"`; `chat.agentHost.copilot.includeCoAuthoredBy` proposed, not confirmed merged |

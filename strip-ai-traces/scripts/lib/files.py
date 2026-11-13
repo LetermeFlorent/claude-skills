@@ -1,6 +1,8 @@
+import os
 from pathlib import Path
 
 from common import ENCODING
+from gitlog import find_root
 
 SKIPPED_DIRS = {".git", "node_modules", "target", "build", "dist", "out", ".next", ".nuxt", ".venv", "venv",
                 "__pycache__", ".ia", ".claude", "vendor", "coverage", ".cache", ".gradle", ".idea", ".vs"}
@@ -41,10 +43,20 @@ def walk(target):
     if target.is_file():
         yield target
         return
-    for path in sorted(target.rglob("*")):
-        relative = path.relative_to(target).parts[:-1]
-        if path.is_file() and not SKIPPED_DIRS & set(relative):
-            yield path
+    for folder, dirnames, filenames in os.walk(target):
+        dirnames[:] = sorted(name for name in dirnames if name not in SKIPPED_DIRS)
+        for name in sorted(filenames):
+            yield Path(folder, name)
+
+
+def scanned(targets):
+    seen = set()
+    for target in targets:
+        anchor = find_root(target) or (target.parent if target.is_dir() else target.parent.parent)
+        for path in walk(target):
+            if path not in seen:
+                seen.add(path)
+                yield path, anchor
 
 
 def read_text(path):
