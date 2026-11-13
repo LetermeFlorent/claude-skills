@@ -5,7 +5,7 @@ output, and tell the user what happened.
 
 ## What gets installed
 
-The repository holds 13 skills, one folder each with a `SKILL.md`, and the slash commands that start
+The repository holds 14 skills, one folder each with a `SKILL.md`, and the slash commands that start
 them, in each skill's `commands/` folder. Installing clones the repository into the Claude Code
 configuration folder, links every skill folder into its `skills/` folder and copies every command
 into its `commands/` folder. When OpenCode is installed (`~/.config/opencode` exists), the commands are
@@ -91,6 +91,7 @@ Each command starts one skill.
 | `/strip-ai-traces` | strip-ai-traces |
 | `/browser-bidi` | browser-bidi |
 | `/clean-code` | clean-code |
+| `/clean-arch` | clean-architecture |
 | `/commit` | clean-commits |
 | `/drive` | drive-project |
 | `/stop-all`, `/resume-all` | stop-resume-agents |
