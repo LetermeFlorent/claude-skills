@@ -107,5 +107,27 @@ class MeasureTest(unittest.TestCase):
             self.assertEqual(report["scope"], "a/mod.py, b")
 
 
+class StoreTest(unittest.TestCase):
+    def test_swap_retries_a_busy_target(self):
+        import store
+        real, calls = store.os.replace, []
+
+        def busy_once(source, target):
+            calls.append(target)
+            if len(calls) == 1:
+                raise PermissionError("in use")
+            real(source, target)
+
+        with tempfile.TemporaryDirectory() as base:
+            scratch, path = Path(base, "a.tmp"), Path(base, "a.json")
+            scratch.write_text("{}", encoding="utf-8")
+            store.os.replace = busy_once
+            try:
+                store._swap(scratch, path)
+            finally:
+                store.os.replace = real
+            self.assertEqual((len(calls), path.read_text(encoding="utf-8")), (2, "{}"))
+
+
 if __name__ == "__main__":
     unittest.main()

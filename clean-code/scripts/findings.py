@@ -8,7 +8,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE / "lib"))
 
 from common import guard
-from runs import latest_run, project_root
+from runs import latest_run, project_root, run_help
 from store import CANDIDATE, CAPS, CONFIRMED, LISTS, NO_CAP, REFUTED, SECRET, opened
 
 RULES = range(20)
@@ -78,7 +78,7 @@ def points(text):
 
 def parser():
     top = argparse.ArgumentParser(description="Read and update the findings of a clean-code run.")
-    top.add_argument("--run", help="run folder, defaults to the latest under .ia/clean-code")
+    top.add_argument("--run", help=run_help())
     commands = top.add_subparsers(dest="command", required=True)
     listing = commands.add_parser("list")
     listing.add_argument("--status", choices=(CANDIDATE, CONFIRMED, REFUTED))

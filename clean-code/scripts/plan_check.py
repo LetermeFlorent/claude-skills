@@ -9,8 +9,9 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE / "lib"))
 sys.path.insert(0, str(HERE / "checks" / "project"))
 
+import runs
 from common import ENCODING, FAILED, guard, read_json
-from runs import FINDINGS, PLAN, latest_run, project_root
+from runs import FINDINGS, PLAN, latest_run, project_root, run_help
 from store import CONFIRMED, SECRET
 from repository import SIGNED
 
@@ -105,15 +106,16 @@ def check(text, findings):
 def main():
     parser = argparse.ArgumentParser(description="Check a clean-code plan.md against the verified findings.")
     parser.add_argument("plan", nargs="?", help="plan.md, defaults to the one in the latest run")
-    parser.add_argument("--run", help="run folder, defaults to the latest under .ia/clean-code")
+    parser.add_argument("--run", help=run_help())
     args = parser.parse_args()
     run = latest_run(project_root(Path.cwd()), args.run)
     path = Path(args.plan).resolve() if args.plan else run / PLAN
     payload = read_json(run / FINDINGS)
     findings = {finding["id"]: finding for finding in payload["findings"]}
     problems, steps, safe, kept = check(path.read_text(encoding=ENCODING), findings)
-    if ".ia/clean-code/" not in path.as_posix():
-        problems.insert(0, f"{path} must live in .ia/clean-code/<run>/")
+    folder = "/".join(runs.TOOL_PARTS)
+    if f"{folder}/" not in path.as_posix():
+        problems.insert(0, f"{path} must live in {folder}/<run>/")
     if problems:
         print(f"plan refused, {len(problems)} problems:")
         print("\n".join(f"- {problem}" for problem in problems))

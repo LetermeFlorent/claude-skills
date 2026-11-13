@@ -81,3 +81,7 @@ def load_config(root):
         except ValueError as error:
             print(f"warning: {path} unreadable ({error}), defaults used")
     return config
+
+
+def run_help():
+    return f"run folder, defaults to the latest under {'/'.join(TOOL_PARTS)}"

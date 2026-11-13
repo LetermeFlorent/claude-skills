@@ -36,6 +36,18 @@ def _acquire(lock):
         time.sleep(POLL)
 
 
+def _swap(scratch, path):
+    deadline = time.monotonic() + LOCK_WAIT
+    while True:
+        try:
+            os.replace(scratch, path)
+            return
+        except PermissionError:
+            if time.monotonic() > deadline:
+                raise
+            time.sleep(POLL)
+
+
 @contextmanager
 def opened(run, save=True):
     path, lock = run / FINDINGS, run / LOCK
@@ -47,6 +59,6 @@ def opened(run, save=True):
         yield payload
         if save:
             write_json(run / SCRATCH, payload)
-            os.replace(run / SCRATCH, path)
+            _swap(run / SCRATCH, path)
     finally:
         lock.unlink(missing_ok=True)

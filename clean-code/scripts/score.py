@@ -9,7 +9,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE / "lib"))
 
 from common import guard, read_json, write_json
-from runs import FINDINGS, MEASURE, SCORE, latest_run, project_root, runs
+from runs import FINDINGS, MEASURE, SCORE, latest_run, project_root, run_help, runs
 from store import CANDIDATE, CONFIRMED, REFUTED
 
 TOP = 20
@@ -97,7 +97,7 @@ def report(score, confirmed, previous):
 
 def main():
     parser = argparse.ArgumentParser(description="Compute the note out of 20 from the verified findings of a run.")
-    parser.add_argument("--run", help="run folder, defaults to the latest under .ia/clean-code")
+    parser.add_argument("--run", help=run_help())
     args = parser.parse_args()
     root = project_root(Path.cwd())
     run = latest_run(root, args.run)
