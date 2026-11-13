@@ -86,6 +86,7 @@ def find(start):
         found, other = scan(folder)
         ours += found
         foreign += other
+    ours = [item for item in ours if not item[2].startswith("State: REPLACED")]
     for mtime, path, state, origin in sorted(ours, reverse=True):
         stamp = datetime.datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M")
         print(f"{stamp}\t{state}\tsession {origin}\t{os.path.normpath(path)}")

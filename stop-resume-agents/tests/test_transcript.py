@@ -70,6 +70,14 @@ class Transcript(unittest.TestCase):
             self.assertEqual(list(found), ["a1"])
             self.assertEqual(agent_digest.latest_session(folder), "sess-unit-test")
 
+    def test_find_transcripts_reads_workflow_agents(self):
+        with tempfile.TemporaryDirectory() as folder:
+            workflow = Path(folder, "projects", "proj", "sess-unit-test", "subagents", "workflows", "wf_x")
+            workflow.mkdir(parents=True)
+            Path(workflow, "agent-w1.jsonl").write_text("", encoding="utf-8")
+            found = agent_digest.find_transcripts(folder, "sess-unit-test")
+            self.assertEqual(list(found), ["w1"])
+
     def test_build_reports_missing_agents(self):
         body, wanted = agent_digest.build("s", {}, ["zz"])
         self.assertEqual(wanted, {})

@@ -1,10 +1,10 @@
 # Shape of resume.md
 
-resume.md is written in English. Keep the first line, the `State:` line and every `## Agent <id>`
-heading exactly as below: /resume-all and `scripts/resume_check.py` look for them, and the checker
-refuses any placeholder of this template left in the file. A field with nothing to say gets `none`.
-Verbatim blocks use four backticks, because reports often hold three. While answers are awaited a
-field reads `pending <agent id>`, never a bare `pending`, so Edit can target one section.
+resume.md written in English. Keep first line, `State:` line and every `## Agent <id>` heading exactly as
+below: /resume-all and `scripts/resume_check.py` look for them; checker refuses any placeholder of this
+template left in file. Field with nothing to say gets `none`. Verbatim blocks use four backticks (reports
+often hold three). While answers awaited, field reads `pending <agent id>`, never bare `pending`, so Edit
+can target one section.
 
 `````markdown
 <!-- stop-resume-agents v1 -->
@@ -87,10 +87,10 @@ how to relaunch it, whether it must be relaunched. Includes background Bash comm
 - <YYYY-MM-DD HH:MM> stopped by /stop-all, session <id>, <n> agents, <n> without an answer
 `````
 
-When the digest prints `PROMPT NOT FOUND` and neither your context nor the parent's digest holds the
-prompt, keep that text in the block and add `Brief lost: <why>` under it.
+Digest prints `PROMPT NOT FOUND` and neither your context nor parent's digest holds prompt: keep that
+text in block, add `Brief lost: <why>` under it.
 
-States: `STOP IN PROGRESS`, then `STOPPED` when complete. Each /resume-all adds a `## Resumed on <date>`
-section above `## Log`, a Log line, and sets `State: RESUMED on <YYYY-MM-DD HH:MM>, session <id>`.
-A file taken over by a newer /stop-all of the same session reads `State: REPLACED by <path of the new
-file>`; /resume-all skips it.
+States: `STOP IN PROGRESS`, then `STOPPED` when complete. Each /resume-all adds `## Resumed on <date>`
+section above `## Log`, a Log line, sets `State: RESUMED on <YYYY-MM-DD HH:MM>, session <id>`. File taken
+over by newer /stop-all of same session reads `State: REPLACED by <path of the new file>`; /resume-all
+and `resume_file.py find` skip it.

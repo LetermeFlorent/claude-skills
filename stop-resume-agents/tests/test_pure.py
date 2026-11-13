@@ -1,3 +1,5 @@
+import contextlib
+import io
 import os
 import sys
 import tempfile
@@ -74,6 +76,8 @@ class ResumeCheck(unittest.TestCase):
     def test_forbidden_character_and_unclosed_block(self):
         dashed = resume_text() + "a " + chr(0x2014) + " b\n"
         self.assertTrue(any("em dash" in p for p in resume_check.check(dashed, [])))
+        for code in (0x2018, 0x2009, 0x200B, 0xFEFF):
+            self.assertTrue(resume_check.check(resume_text() + "a" + chr(code) + "b\n", []))
         self.assertTrue(any("never closed" in p for p in resume_check.check(resume_text() + "````text\nx\n", [])))
 
     def test_template_placeholder_left(self):
@@ -99,6 +103,18 @@ class ResumeFile(unittest.TestCase):
     def test_scan_of_an_empty_folder(self):
         with tempfile.TemporaryDirectory() as folder:
             self.assertEqual(resume_file.scan(folder), ([], []))
+
+    def test_find_skips_replaced_files(self):
+        with tempfile.TemporaryDirectory() as folder:
+            Path(folder, ".ia").mkdir()
+            Path(folder, ".ia", "resume.md").write_text(resume_text(), encoding="utf-8")
+            Path(folder, ".ia", "resume-2026-01-01-0900.md").write_text(
+                resume_text("REPLACED by resume.md"), encoding="utf-8")
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                resume_file.find(folder)
+        self.assertIn(os.path.normpath(str(Path(folder, ".ia", "resume.md"))), out.getvalue())
+        self.assertNotIn("resume-2026-01-01-0900.md", out.getvalue())
 
     def test_candidate_dirs_start_with_ia_folder_and_skip_missing(self):
         with tempfile.TemporaryDirectory() as folder:

@@ -3,6 +3,7 @@ import sys
 
 MARKER = "<!-- stop-resume-agents v1 -->"
 FAILED = 2
+INTERRUPTED = 130
 
 
 def config_dir():
@@ -14,6 +15,8 @@ def guard(main, hint):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     try:
         main()
+    except KeyboardInterrupt:
+        sys.exit(INTERRUPTED)
     except Exception as error:
         print(f"{error!r}. {hint}")
         sys.exit(FAILED)

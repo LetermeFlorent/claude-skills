@@ -24,8 +24,8 @@ def find_transcripts(config, session):
     found = {}
     others = sorted(glob.glob(os.path.join(os.path.expanduser("~"), ".claude*")))
     for root in [config] + others:
-        pattern = os.path.join(root, "projects", "*", session, "subagents", "agent-*.jsonl")
-        for path in glob.glob(pattern):
+        pattern = os.path.join(root, "projects", "*", session, "subagents", "**", "agent-*.jsonl")
+        for path in sorted(glob.glob(pattern, recursive=True)):
             found.setdefault(os.path.basename(path)[len("agent-"):-len(".jsonl")], path)
     temp = os.environ.get("TEMP") or os.environ.get("TMP") or "/tmp"
     for path in glob.glob(os.path.join(temp, "claude", "*", session, "tasks", "a*.output")):

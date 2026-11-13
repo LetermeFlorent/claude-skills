@@ -1,7 +1,7 @@
 # Message sent to each subagent on /stop-all
 
-Send this text unchanged with SendMessage, one call per subagent, all in the same turn. A running
-agent answers with the filled template at its next tool round; a finished one is woken by it.
+Send text unchanged with SendMessage, one call per subagent, all in same turn. Running agent answers with
+filled template at next tool round; finished one is woken by it.
 
 ````text
 STOP-ALL: the main session is stopping all work now, reply with a status report and end your turn.

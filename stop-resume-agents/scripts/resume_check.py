@@ -15,7 +15,9 @@ STATES = r"^State: (STOP IN PROGRESS|STOPPED|RESUMED|REPLACED)"
 PENDING = re.compile(r"(^|: |, )(pending|to decide|to fill)(\s+\S+)?\s*$")
 NO_PROMPT_MARKS = (NO_PROMPT,)
 BAD_CHARS = {chr(0x2014): "em dash", chr(0x201C): "curly quote", chr(0x201D): "curly quote",
-             chr(0x2019): "curly apostrophe", chr(0xA0): "no-break space", chr(0x202F): "narrow no-break space"}
+             chr(0x2018): "curly apostrophe", chr(0x2019): "curly apostrophe", chr(0xA0): "no-break space",
+             chr(0x202F): "narrow no-break space", chr(0x2009): "thin space", chr(0x200B): "zero-width space",
+             chr(0xFEFF): "byte order mark"}
 HINT = "Check the file by hand against resume-template.md."
 
 

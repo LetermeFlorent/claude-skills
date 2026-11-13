@@ -1,8 +1,8 @@
 # Prompts for resumed subagents
 
-The first text is the Agent `prompt` of a new agent that takes over. The second is the SendMessage
-that wakes the old agent itself, when resume.md was written by this same session. Fill every `<...>`
-from the agent's section of resume.md and the reality check; none may stay in the sent text.
+First text: Agent `prompt` of new agent taking over. Second: SendMessage waking old agent itself, when
+resume.md was written by same session. Fill every `<...>` from agent's section of resume.md and reality
+check; none may stay in sent text.
 
 ## New agent
 
@@ -43,10 +43,13 @@ FINAL ANSWER: what you did, files changed with absolute paths, how you verified 
 
 ## Old agent woken by SendMessage
 
-Send it to the old agent id; it keeps its memory, so the text only lifts the stop and says what
-changed. If no notification or new activity shows within two rounds of `sleep 30` (check with
-`agent_digest.py --agent <id> --out "<scratch>/digest-<id>.md"`: its last activity must move), launch
-a new agent with the text above and note it in the Resumed section.
+Send to old agent id; it keeps its memory, so text only lifts stop and says what changed. Then wait with
+Monitor, `timeout_ms` 60000, command
+`until d=$(python -I "<base>/scripts/agent_digest.py" --agent <id>) && printf '%s
+' "$d" | grep -q "last activity: " && ! printf '%s
+' "$d" | grep -qF "last activity: <its last activity in the digest before the send>"; do sleep 10; done; echo active`.
+No notification and no `active` before expiry: launch new agent with text above, note it in Resumed
+section.
 
 ````text
 RESUME-ALL: the STOP-ALL you received earlier is cancelled. Go back to your task and finish it.
