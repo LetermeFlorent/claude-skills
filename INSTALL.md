@@ -32,7 +32,7 @@ Check git and Python before cloning; the other two are needed by one tool each.
   found, else with `pip install --user`.
 
 Skills are linked through directory junctions on Windows, which need no administrator rights, and
-through symbolic links on macOS and Linux. `browser-bidi` drives Chrome or Firefox on Windows only; the other twelve
+through symbolic links on macOS and Linux. `browser-bidi` drives Chrome or Firefox on Windows only; the other thirteen
 run on any of the three.
 
 ## Install
@@ -69,18 +69,17 @@ Five steps, in this order.
 
 ## Check
 
-`ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills"` lists the 13 skill folders, the six Ponytail ones, the two caveman ones and graphify,
+`ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills"` lists the 14 skill folders, the six Ponytail ones, the two caveman ones and graphify,
 `ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/agents"` the three `cavecrew-*.md` agents, and
-`ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/commands"` the 13 command files, next to whatever the user
+`ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/commands"` the 14 command files, next to whatever the user
 had before. Then run the update check once:
 
 ```bash
 python -I "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/claude-skills/tools/update.py"
 ```
 
-It prints `claude-skills: up to date (<version>)`, then `ponytail: up to date (<version>)`,
-`caveman: up to date (<version>)`, `progress-board: http://127.0.0.1:8790 already running, starts at every login`
-and `graphify: up to date (<version>)`.
+It prints only what changed or failed, one `claude-skills: ` line each, so right after an install it
+usually prints nothing, or a `graphify: installing <version> in the background` line.
 
 ## Commands
 
@@ -112,16 +111,29 @@ credential helper.
 The installer adds a `SessionStart` hook (matcher `startup`) to `<config>/settings.json` that runs
 `tools/update.py` each time Claude Code opens. The script:
 
+- asks GitHub, Ponytail, caveman and PyPI at most once every six hours; the time of the last check is
+  the date of `<config>/claude-skills/.ia/update-check.stamp`, so a second account opening sooner skips
+  the network and only does the local steps below;
 - asks GitHub for the highest release tag `vX.Y.Z`; commits pushed to `main` without a release are
   ignored;
 - when that release is newer than the clone, fetches it, fast-forwards, links new skills, copies
   changed commands and removes what left the repository, then prints
   `claude-skills: updated <old> to <new>: <skills>`;
-- leaves a clone with local edits or local commits untouched, and says so;
+- leaves a clone with local edits or local commits untouched, and says so; a fast-forward that fails
+  (a file git does not track is in the way) prints `claude-skills: could not install <tag>: <reason>`
+  and the rest of the update still runs;
+- links every skill folder of the clone at each run, even one committed locally without a release,
+  and puts back the hooks; a Ponytail hook whose script is gone is removed;
+- prints nothing when everything is up to date, only what changed or failed;
 - keeps the installed version when GitHub gives no answer within 20 seconds;
 - never opens a login window: the credential helper is switched off for these calls.
 
-Every planned outcome exits 0. To update by hand, run the same command.
+Every planned outcome exits 0. To update by hand, delete `.ia/update-check.stamp` in the clone, then
+run the same command.
+
+The hooks hold the full path of the Python and Node.js found at install time. After installing,
+moving or removing a Python or Node.js version, run `install.py` again: once the old Python is gone,
+the update hook cannot start and cannot repair itself.
 
 To publish a version, create a release on GitHub (or push an annotated tag) with a higher
 `vX.Y.Z` number.
@@ -185,7 +197,7 @@ installs it that way:
   session and leaves it aside on small projects;
 - graphify's own installer is never run on the real configuration folder: it would add a section to
   `CLAUDE.md` and, for OpenCode, a plugin, which would turn it on everywhere;
-- on every session start `update.py` compares the PyPI version with the installed one and, when it is
+- each time `update.py` asks the network, it compares the PyPI version with the installed one and, when it is
   newer, upgrades in the background at low priority, writing to `claude-skills/.ia/graphify.log`.
 
 ## Resource hook
