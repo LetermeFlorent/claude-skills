@@ -3,6 +3,7 @@ import os
 import re
 from pathlib import PurePosixPath
 
+from files import relative, walk
 from runs import git
 
 RULE = 3
@@ -32,7 +33,7 @@ def check(files, root, config):
     scope = scope_of(files)
     listed = git(root, "ls-files", "-z", "--", scope)
     tracked = listed is not None
-    paths = listed.split(NUL)[:-1] if tracked else [item["rel"] for item in files]
+    paths = listed.split(NUL)[:-1] if tracked else [relative(path, root) for path in walk(root / scope, root, config)]
     findings = []
     for rel in paths:
         why = junk(rel)

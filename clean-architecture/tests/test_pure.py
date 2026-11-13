@@ -39,13 +39,9 @@ def rules(findings):
 
 
 class EngineTest(unittest.TestCase):
-    def test_runs_go_to_their_own_folder(self):
+    def test_own_folder_and_every_rule_phased_and_scored(self):
         self.assertEqual(runs.TOOL_PARTS, (".ia", "clean-architecture"))
-
-    def test_every_rule_has_a_phase(self):
         self.assertEqual(set(engine.PHASES), set(engine.RULES))
-
-    def test_scored_rules_cover_all_but_zero(self):
         self.assertEqual(set(engine.EACH) | {0}, set(engine.RULES))
 
 
@@ -80,11 +76,20 @@ class LinksTest(unittest.TestCase):
         cycle = [f for f in found if f["rule"] == links.CYCLE_RULE]
         self.assertEqual(len(cycle), 1)
         self.assertIn("app/data/store.py:1", cycle[0]["proof"])
-
-    def test_parent_using_child_is_fine(self):
         self.assertTrue(links.related(".", "app/ui"))
         self.assertTrue(links.related("app", "app/ui"))
         self.assertFalse(links.related("app/ui", "app/data"))
+
+    def test_es_imports_without_suffix_and_require(self):
+        with tempfile.TemporaryDirectory() as base:
+            files = project(base, {
+                "src/api/client.js": "export const get = () => 1;\n",
+                "src/pages/home.js": "import { get } from '../api/client';\nexport const home = get;\n",
+                "src/store/index.js": "const { panel } = require('../views/panel.js');\nmodule.exports = panel;\n",
+                "src/views/panel.js": "import start from '../store';\nexport const panel = start;\n"})
+            found, _ = links.check(files, Path(base), config())
+        self.assertEqual(rules(found), [(2, "src/api/client.js"), (2, "src/store/index.js"),
+                                        (2, "src/views/panel.js"), (5, "src/store")])
 
 
 class FoldersTest(unittest.TestCase):
@@ -99,8 +104,6 @@ class FoldersTest(unittest.TestCase):
         crowd = [f for f in found if f["rule"] == folders.CROWDED_RULE]
         self.assertIn("sales/ (5), stock/ (5)", crowd[0]["what"])
         self.assertEqual(stats["code_files"], len(tree))
-
-    def test_one_prefix_for_all_is_no_group(self):
         self.assertEqual(folders.prefix_groups(["user_a", "user_b", "user_c"], 3), {})
 
 
@@ -120,15 +123,20 @@ class JunkTest(unittest.TestCase):
             found, _ = junk.check(files, Path(base), config())
         self.assertEqual(rules(found), [(3, "notes.bak"), (3, "été.log")])
 
+    def test_without_git_the_disk_is_listed(self):
+        with tempfile.TemporaryDirectory() as base:
+            files = project(base, {"src/main.py": SAME})
+            project(base, {"src/notes.bak": "x\n", "debug.log": "x\n"})
+            found, _ = junk.check(files, Path(base), config())
+        self.assertEqual(rules(found), [(3, "src/notes.bak")])
+
 
 class NamingTest(unittest.TestCase):
-    def test_styles(self):
+    def test_styles_mixed_names_and_test_places(self):
         self.assertEqual(naming.style("user_card"), "snake_case")
         self.assertEqual(naming.style("userCard"), "camelCase")
         self.assertEqual(naming.style("UserCard"), "PascalCase")
         self.assertIsNone(naming.style("user"))
-
-    def test_mixed_names_and_test_places(self):
         tree = {"ui/user_card.py": SAME, "ui/userList.py": SAME, "ui/menu.py": SAME,
                 "tests/test_a.py": "import unittest\n", "tests/test_b.py": "import unittest\n",
                 "ui/test_c.py": "import unittest\n", "tests/__init__.py": ""}

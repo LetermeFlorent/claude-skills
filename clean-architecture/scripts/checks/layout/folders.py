@@ -44,9 +44,10 @@ def crowded(files, config):
     for folder, stems in sorted(code.items()):
         if len(stems) > config["max_files"]:
             groups = prefix_groups(stems, config["group_min"])
-            split = ", ".join(f"{word}/ ({count})" for word, count in sorted(groups.items())) or "no shared prefix"
+            split = ", ".join(f"{word}/ ({count})" for word, count in sorted(groups.items()))
+            hint = f"group into {split}" if split else "no name prefix to split by, group by reading"
             findings.append({"rule": CROWDED_RULE, "file": folder, "line": 0,
-                             "what": f"{len(stems)} code files > {config['max_files']}, group into {split}",
+                             "what": f"{len(stems)} code files > {config['max_files']}, {hint}",
                              "proof": "files in folder, prefixes of their names"})
     return findings
 

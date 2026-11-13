@@ -12,7 +12,7 @@ STYLES = (("snake_case", re.compile(r"^[a-z0-9]+(_[a-z0-9]+)+$")),
           ("PascalCase", re.compile(r"^([A-Z][a-z0-9]+)+$")))
 FREE_STEMS = {"index", "main", "__init__", "__main__", "readme", "conftest"}
 SHOWN = 3
-PLACES = ("test folder", "next to the code")
+PLACES = ("in a test folder", "next to the code")
 
 
 def style(stem):
@@ -45,7 +45,7 @@ def test_places(files):
     if len(places) < len(PLACES):
         return []
     fewer, more = sorted(places, key=lambda place: (len(places[place]), place))
-    return [{"rule": TESTS_RULE, "file": rel, "line": 0, "what": f"test {fewer}, most tests are {more}",
+    return [{"rule": TESTS_RULE, "file": rel, "line": 0, "what": f"test {fewer}, {len(places[more])} other {more}",
              "proof": f"{more}: {len(places[more])}, {fewer}: {len(places[fewer])}"} for rel in places[fewer]]
 
 
