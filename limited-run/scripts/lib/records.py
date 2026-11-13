@@ -67,6 +67,24 @@ def _publish(path, record, exclusive):
         temp.unlink(missing_ok=True)
 
 
+def _drop_dead(path):
+    aside = path.with_name(f".{path.stem}.{os.getpid()}.dead")
+    try:
+        os.rename(path, aside)
+    except FileNotFoundError:
+        return
+    except PermissionError:
+        time.sleep(REPLACE_PAUSE)
+        return
+    try:
+        if is_live(read(aside)):
+            os.link(aside, path)
+    except FileExistsError:
+        pass
+    finally:
+        aside.unlink(missing_ok=True)
+
+
 def claim(folder, name, record):
     path = folder / f"{name}{SUFFIX}"
     for _ in range(REPLACE_TRIES):
@@ -77,7 +95,7 @@ def claim(folder, name, record):
             existing = read(path)
             if is_live(existing) or existing is None and path.exists():
                 return False
-            path.unlink(missing_ok=True)
+            _drop_dead(path)
     return False
 
 
@@ -122,5 +140,5 @@ def live_records(folder):
         elif is_live(record):
             found.append(record)
         else:
-            path.unlink(missing_ok=True)
+            _drop_dead(path)
     return sorted(found, key=lambda item: item.get("started", 0))

@@ -102,7 +102,7 @@ def _taskkill(pid):
 def kill_recorded(record):
     launcher, child = record.get("launcher_pid"), record.get("child_pid")
     if not WINDOWS:
-        if child:
+        if child and procs.same(child, record.get("child_created")):
             kill_group(child)
         return
     if procs.same(launcher, record.get("launcher_created")):

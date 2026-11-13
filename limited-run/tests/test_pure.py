@@ -4,6 +4,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 sys.dont_write_bytecode = True
 SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
@@ -12,6 +13,7 @@ sys.path.insert(0, str(SCRIPTS / "lib"))
 import memory
 import procs
 import records
+import tree
 
 RUN = str(SCRIPTS / "run.py")
 TIMEOUT = 60
@@ -63,6 +65,32 @@ class RecordTest(TaskFolder):
         self.assertTrue(records.claim(self.folder, "old", {**self.mine(), "launcher_created": -1}))
         self.assertTrue(records.claim(self.folder, "old", self.mine()))
         self.assertEqual([records.valid_name(name) for name in ("bad name", "vite-1", "")], [False, True, False])
+
+    def test_a_dead_record_swapped_for_a_live_one_is_kept(self):
+        path = self.folder / "race.json"
+        records.claim(self.folder, "race", {**self.mine(), "launcher_created": -1})
+        real, raced = records.read, []
+
+        def racing(target):
+            found = real(target)
+            if target == path and not raced:
+                raced.append(True)
+                path.unlink()
+                records.claim(self.folder, "race", {**self.mine(), "tag": "first"})
+            return found
+
+        with mock.patch.object(records, "read", racing):
+            self.assertFalse(records.claim(self.folder, "race", {**self.mine(), "tag": "second"}))
+        self.assertEqual(records.read(path)["tag"], "first")
+        self.assertEqual(sorted(item.name for item in self.folder.iterdir()), ["race.json"])
+
+    def test_stop_skips_a_child_whose_pid_was_reused(self):
+        record = {"launcher_pid": os.getpid(), "child_pid": os.getpid()}
+        with mock.patch.object(tree, "WINDOWS", False), mock.patch.object(tree, "kill_group") as killed:
+            tree.kill_recorded({**record, "child_created": -1})
+            killed.assert_not_called()
+            tree.kill_recorded({**record, "child_created": procs.identity(os.getpid())})
+            killed.assert_called_once_with(os.getpid())
 
     def test_write_read_update_prune(self):
         records.claim(self.folder, "live", self.mine())

@@ -5,11 +5,11 @@ description: Use when the user types /limited-run, when about to start a dev ser
 
 # Running task processes with a cap, then closing them
 
-Several agent sessions share one machine. Each process an agent starts takes RAM and CPU from all the others
-until someone stops it, and a dev server or watcher left behind keeps doing so for hours. So every task process
-starts with a RAM cap and low priority, is tracked, and is stopped as soon as its result is in hand.
+Several agent sessions share one machine. Each started process takes RAM and CPU from all others until stopped;
+dev server or watcher left behind does so for hours. So every task process starts with RAM cap and low
+priority, is tracked, and stops as soon as its result is in hand.
 
-`<skill>` is this folder. The script needs Python 3, standard library only:
+`<skill>` = this folder. Script needs Python 3, standard library only:
 
 ```
 python -I "<skill>/scripts/run.py" start [--ram-mb N] [--name NAME] [--queue S] [--cwd DIR] -- <command...>
@@ -18,29 +18,28 @@ python -I "<skill>/scripts/run.py" stop NAME|PID
 python -I "<skill>/scripts/run.py" stop --all
 ```
 
-`start` runs the command, waits for it and returns its exit code. Just before the command runs, it prints one
-line: `limited-run: <name> pid <pid>, cap <N> MB, below normal priority`. After that line the exit code is the
-command's, or 128 plus the signal number when the launcher was stopped; without that line, 2 is a refusal
-(`refused: ...`) and 1 a failure of the tool. The default cap is half of the free RAM, between 512 and 4096 MB;
-`--ram-mb 0` drops the memory cap and keeps the low priority. The default name is the command's first word plus
-a counter (`npm-1`). A name already used by a live task is refused, unless `--queue S` comes with `--name`:
-`start` then prints `limited-run: waiting for <name>` once and takes the name as soon as that task ends,
-refusing only after S seconds, so one name works as a lock between agents.
+`start` runs command, waits, returns its exit code. Just before command runs, prints one line:
+`limited-run: <name> pid <pid>, cap <N> MB, below normal priority`. After that line exit code is command's, or
+128 plus signal number when launcher was stopped; without that line, 2 = refusal (`refused: ...`), 1 = tool
+failure. Default cap: half of free RAM, between 512 and 4096 MB; `--ram-mb 0` drops memory cap, keeps low
+priority. Default name: command's first word plus counter (`npm-1`). Name used by live task is refused, unless
+`--queue S` comes with `--name`: `start` then prints `limited-run: waiting for <name>` once, takes name as soon
+as that task ends, refuses only after S seconds. So one name works as lock between agents.
 
 | System | What `start` does |
 |---|---|
-| Windows | A Job Object holds the whole tree: one RAM cap for all its processes together, below normal priority, and the tree dies with the launcher, even when the launcher is killed. The command starts suspended and joins the job before it runs, so no child escapes. |
-| Linux, macOS | New session, `nice` 10, and `RLIMIT_AS` at the cap. That limit applies to each process on its own, not to the tree, and it counts address space: node and JVMs reserve far more than they use, so give them `--ram-mb 0` and the runtime's own cap below. |
+| Windows | Job Object holds whole tree: one RAM cap for all its processes together, below normal priority, tree dies with launcher, even when launcher is killed. Command starts suspended, joins job before it runs, so no child escapes. |
+| Linux, macOS | New session, `nice` 10, `RLIMIT_AS` at cap. Limit applies per process, not per tree, and counts address space: node and JVMs reserve far more than they use, so give them `--ram-mb 0` and runtime's own cap below. |
 
-Ctrl+C or SIGTERM on the launcher stops the whole tree and removes the record. Records live in
-`<system temp>/limited-run/` (or the folder in `LIMITED_RUN_STATE`); `list` drops those whose launcher died.
+Ctrl+C or SIGTERM on launcher stops whole tree, removes record. Records live in `<system temp>/limited-run/`
+(or folder in `LIMITED_RUN_STATE`); `list` drops those whose launcher died.
 
 ## Rules
 
-These hold for every agent, in every project.
+Hold for every agent, every project.
 
-1. Every dev server, watcher, build, test run and container goes through `run.py start`. When the agent cannot
-   wrap a command (a tool runs it for you), give the runtime its own cap, picked from free RAM the same way:
+1. Every dev server, watcher, build, test run and container goes through `run.py start`. When agent cannot wrap
+   command (a tool runs it for you), give runtime its own cap, picked from free RAM same way:
 
    | Runtime | Cap |
    |---|---|
@@ -49,32 +48,29 @@ These hold for every agent, in every project.
    | vitest, jest | `--maxWorkers=2` |
    | make, cargo | `-j2` |
    | turbo, lerna | `--concurrency 2`; pnpm: `--workspace-concurrency 2`; nx: `--parallel=2` |
-   | docker | `docker run --memory <MB>m --cpus 1`; compose: `mem_limit` and `cpus` under the service |
+   | docker | `docker run --memory <MB>m --cpus 1`; compose: `mem_limit` and `cpus` under service |
 
-   Inside `run.py start` the runtime cap still helps: set the node heap or `-Xmx` to about three quarters of
-   the cap, since the cap counts the whole process and the heap is only part of it.
-2. A long-lived process (server, watcher) runs in the agent's background mode, still wrapped:
-   `run_in_background` in Claude Code, or the agent's equivalent. Never `&` alone, `nohup` or `start /b` without
-   the wrapper. A build or test run that may outlast the shell timeout also runs in background mode, or with a
-   longer timeout.
-3. Stop each task the moment its result is in hand: the page loaded, the test passed or failed, the build
-   finished. `stop <name>` stops the whole tree.
-4. Before ending a turn or a session, stop each name you started, read from its `limited-run: <name>` line.
-   The records are shared by every session on the machine, so never `stop --all` and never stop a name you
-   did not start. A task kept on purpose for the user (a preview they are looking at) is named in the reply
-   with the command that stops it.
-5. Never stop a process this tool did not start, even one that looks like a leftover: another session may own
-   it. `stop` only acts on records this tool wrote, and checks the process is still the one recorded.
+   Inside `run.py start` runtime cap still helps: set node heap or `-Xmx` to about three quarters of cap, since
+   cap counts whole process and heap is only part of it.
+2. Long-lived process (server, watcher) runs in agent's background mode, still wrapped: `run_in_background` in
+   Claude Code, or agent's equivalent. Never `&` alone, `nohup` or `start /b` without wrapper. Build or test run
+   that may outlast shell timeout also runs in background mode, or with longer timeout.
+3. Stop each task the moment its result is in hand: page loaded, test passed or failed, build finished.
+   `stop <name>` stops whole tree.
+4. Before ending turn or session, stop each name you started, read from its `limited-run: <name>` line. Records
+   are shared by every session on machine, so never `stop --all`, never stop a name you did not start. Task kept
+   on purpose for user (a preview they look at) is named in reply with command that stops it.
+5. Never stop process this tool did not start, even one that looks like leftover: another session may own it.
+   `stop` only acts on records this tool wrote, and checks process is still the one recorded.
 
 ## Following this from other agents
 
-Claude Code reads this folder as a skill. Codex CLI, Gemini CLI and Qwen Code do not load skills: add one line
-to their instructions file (`AGENTS.md` for Codex CLI, `GEMINI.md` for Gemini CLI, `QWEN.md` for Qwen Code),
-global or per project, for example:
+Claude Code reads this folder as skill. Codex CLI, Gemini CLI and Qwen Code do not load skills: add one line to
+their instructions file (`AGENTS.md` for Codex CLI, `GEMINI.md` for Gemini CLI, `QWEN.md` for Qwen Code), global
+or per project, for example:
 
 ```
 Start every server, watcher, build and test run as described in <absolute path>/limited-run/SKILL.md, and stop them before ending.
 ```
 
-Any other agent that reads an instructions file takes the same line. Hooks that enforce this are not part of
-the skill.
+Any other agent reading instructions file takes same line. Hooks enforcing this are not part of skill.
