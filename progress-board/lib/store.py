@@ -1,9 +1,6 @@
-"""Projects on the board, kept in .state.json and pushed to every open page.
-
-cfg is in seconds and set from the page: window is the time the chart width shows, done the delay before a
-finished project leaves, idle the delay before a project with no report leaves and its color and icon are
-forgotten.
-"""
+"""Projects on the board, kept in .state.json and pushed to every open page. cfg is in seconds and set from the page:
+window is the time the chart width shows, done the delay before a finished project leaves, idle the delay before a
+project with no report leaves and its color and icon are forgotten."""
 import json
 import queue
 import random
@@ -16,13 +13,10 @@ HERE = Path(__file__).resolve().parent.parent
 PAGE = HERE / "site" / "index.html"
 STATE = HERE / ".state.json"
 ICONS = ["star", "bolt", "heart", "moon", "diamond", "flame", "crown", "leaf"]
-COLORS = 8
-DONE = 100
-MAX_POINTS = 500
+COLORS, DONE, MAX_POINTS, SWEEP_EVERY = 8, 100, 500, 30
 HOUR, DAY = 3600, 86400
 DEFAULTS = {"window": HOUR, "done": HOUR, "idle": 3 * DAY}
 LIMITS = {"window": (60, DAY), "done": (60, 7 * DAY), "idle": (HOUR, 60 * DAY)}
-SWEEP_EVERY = 30
 
 lock = threading.Lock()
 listeners: list[queue.Queue] = []
@@ -41,7 +35,15 @@ state = load()
 
 
 def save() -> None:
-    STATE.write_text(json.dumps(state, ensure_ascii=False), encoding="utf-8")
+    temp, text = STATE.with_name(STATE.name + ".tmp"), json.dumps(state, ensure_ascii=False)
+    temp.write_text(text, encoding="utf-8")
+    for _ in range(20):
+        try:
+            return temp.replace(STATE)
+        except PermissionError:
+            time.sleep(0.05)
+    STATE.write_text(text, encoding="utf-8")
+    temp.unlink(missing_ok=True)
 
 
 def page() -> str:
@@ -70,9 +72,7 @@ def prune(now: float) -> bool:
 
 def new_project(name: str) -> dict:
     """A returning name gets its old color and icon back, unless a project on screen wears that pair.
-
-    Otherwise an icon nobody shows, or past eight projects one no other project of that color shows.
-    """
+    Otherwise an icon nobody shows, or past eight projects one no other project of that color shows."""
     shown = {(p["slot"] % COLORS, p["icon"]) for p in state["projects"]}
     old = state["known"].get(name)
     if old and (old[0] % COLORS, old[1]) not in shown:

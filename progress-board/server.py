@@ -38,13 +38,21 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def allowed(self, write: bool) -> bool:
+        host, port = self.headers.get("Host"), self.server.server_port
+        origin, site = self.headers.get("Origin"), self.headers.get("Sec-Fetch-Site", "none")
+        local = host in (None, f"127.0.0.1:{port}", f"localhost:{port}")
+        return local and (not write or origin in (None, f"http://{host}") and site in ("none", "same-origin"))
+
     def do_GET(self):
         path, _, query = self.path.partition("?")
+        asset = built_file(path)
+        if not self.allowed(write=path not in ("/", "/events") and not asset):
+            return self.send(403, b"forbidden\n")
         if path == "/":
             return self.send(200, store.PAGE.read_bytes(), "text/html; charset=utf-8")
         if path == "/events":
             return self.stream()
-        asset = built_file(path)
         if asset:
             return self.send(200, asset.read_bytes(), ASSET_TYPES.get(asset.suffix, "application/octet-stream"))
         parts = [unquote(p) for p in path.strip("/").split("/", 2)]
@@ -57,9 +65,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send(200, b"ok\n")
 
     def do_POST(self):
-        """A page from another site could post here; a browser always names that site in Origin."""
-        origin = self.headers.get("Origin")
-        if origin and origin.split("//")[-1] != self.headers.get("Host"):
+        if not self.allowed(write=True):
             return self.send(403, b"forbidden\n")
         path, _, query = self.path.partition("?")
         self.send(200, b"ok\n") if store.admin(path, query) else self.send(404, b"not found\n")
@@ -114,10 +120,8 @@ def start(port: int) -> None:
     exe = Path(sys.executable)
     quiet = exe.with_name("pythonw.exe")
     exe = quiet if os.name == "nt" and quiet.exists() else exe
-    if os.name == "nt":
-        flags = {"creationflags": subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP}
-    else:
-        flags = {"start_new_session": True}
+    flags = ({"creationflags": subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == "nt"
+             else {"start_new_session": True})
     me = Path(__file__).resolve()
     subprocess.Popen([str(exe), "-I", str(me), str(port)], cwd=store.HERE, stdin=subprocess.DEVNULL,
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **flags)
@@ -128,12 +132,16 @@ def start(port: int) -> None:
     sys.exit(f"{url} did not start; run it in the foreground to see why: python {me} {port}")
 
 
+def serve(port: int) -> ThreadingHTTPServer:
+    ThreadingHTTPServer.daemon_threads, ThreadingHTTPServer.allow_reuse_address = True, os.name != "nt"
+    return ThreadingHTTPServer(("127.0.0.1", port), Handler)
+
+
 def main() -> None:
     args = sys.argv[1:]
     if args[:1] == ["start"]:
         return start(PORT)
-    ThreadingHTTPServer.daemon_threads = True
-    server = ThreadingHTTPServer(("127.0.0.1", int(args[0]) if args else PORT), Handler)
+    server = serve(int(args[0]) if args else PORT)
     threading.Thread(target=store.sweep, daemon=True).start()
     server.serve_forever()
 

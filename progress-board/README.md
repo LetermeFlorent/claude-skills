@@ -29,6 +29,7 @@ The server uses the Python standard library only. The page is built with React f
 - `lib/store.py`: the saved projects and the settings.
 - `site/`: the built page (`index.html` and `assets/`), served as is.
 - `web/`: the page's sources. After a change, `npm install` then `npm run build` in `web/` rebuilds `site/`; an open page reloads by itself.
+- `tests/test_pure.py`: checks the saved projects and a throwaway server on a free port, with no network.
 - `.state.json`: the saved projects, created on first use, never committed.
 
 ## What was tested
