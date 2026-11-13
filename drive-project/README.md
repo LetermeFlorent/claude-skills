@@ -18,13 +18,13 @@ Every error that gets solved on the way becomes a short skill in the project's `
 
 ## Helpers, proofs and parallel work
 
-Helpers are as silent as the main AI: their only text is a percentage for their own task, then their final report. Every task needs a proof that it works: a script run with its output pasted, plus a look at the page or screen when there is one. "It builds" is not a proof, and a report without one counts as failed. A failed task goes back once to the same helper, then to a fresh one on a stronger setting; a task still failing at the strongest setting its kind allows, or that only you can unblock, ends the run.
+Helpers are as silent as the main AI: they write nothing but their final report. Every task needs a proof that it works: a script run with its output pasted, plus a look at the page or screen when there is one. "It builds" is not a proof, and a report without one counts as failed. A failed task goes back once to the same helper, then to a fresh one on a stronger setting; a task still failing at the strongest setting its kind allows, or that only you can unblock, ends the run.
 
 A helper whose task runs alone can hand parts of it to its own helpers, two at a time, and those never split again; a helper working beside another sends its parts back, and they become new tasks. Each brief points to the claude-model-effort skill so every helper picks the model and effort for its part. Tasks run at the same time when they share no file and do not need each other's result; their builds and test runs take turns, at most one keeps a server running, and never more than two work at once.
 
 ## Files
 
-`SKILL.md` holds the rules, `worker-brief.md` the block each helper agent gets and the rules it reads, `commands` the command.
+`SKILL.md` holds the rules, `worker-brief.md` the block each helper agent gets and the rules it reads, `start-brief.md` what the mapping and run kit helpers alone read, `commands` the command.
 
 ## What was tested
 
