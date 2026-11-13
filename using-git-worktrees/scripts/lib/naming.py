@@ -1,7 +1,8 @@
 import re
 from collections import Counter
 
-FORBIDDEN = re.compile(r"^(refs/(heads|remotes/[^/]+)/)?(claude|codex|copilot|cursor|devin)/", re.I)
+TOOLS = "claude|codex|copilot|cursor|devin|jules|gemini|aider|windsurf|kiro|amazonq|openhands|cline|junie"
+FORBIDDEN = re.compile(rf"(^|/)({TOOLS})[/-]", re.I)
 SHARED = {"main", "master", "develop", "trunk", "dev"}
 VALID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/-]*$")
 MAX_SLUG = 40
@@ -18,7 +19,7 @@ def short_names(names):
 
 
 def convention(names):
-    work = [name for name in short_names(names) if name not in SHARED and not FORBIDDEN.match(name)]
+    work = [name for name in short_names(names) if name not in SHARED and not FORBIDDEN.search(name)]
     counts = Counter(name.split("/")[0] + "/" for name in work if "/" in name)
     if not counts:
         return ""
@@ -28,8 +29,8 @@ def convention(names):
 
 def problems(name, existing):
     found = []
-    if FORBIDDEN.match(name):
-        found.append(f"branch '{name}' starts with a tool prefix (claude/, codex/, copilot/, cursor/, devin/)")
+    if FORBIDDEN.search(name):
+        found.append(f"branch '{name}' carries a tool name followed by / or - ({TOOLS.replace('|', ', ')})")
     if not VALID.match(name) or ".." in name or name.endswith((".lock", "/", ".")):
         found.append(f"branch '{name}' is not a valid name")
     if name in short_names(existing):

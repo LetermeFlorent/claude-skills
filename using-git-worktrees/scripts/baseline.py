@@ -14,11 +14,13 @@ sys.path.insert(0, str(HERE / "lib"))
 import commands
 import gitinfo
 import resources
-from common import FAILED, LOW_PRIORITY, guard, refuse
+from common import FAILED, LOW_PRIORITY, guard, refuse, run
 
 TOOL = "using-git-worktrees"
 LOG_FOLDER = ("claude-skills", "worktree-baseline")
 TIMEOUT = 540
+LIST_TIMEOUT = 120
+INSTALL, TESTS = "install", "tests"
 TAIL_LINES = 15
 Place = namedtuple("Place", "cwd log env")
 
@@ -48,13 +50,36 @@ def tail(log):
     return "\n".join(lines[-TAIL_LINES:])
 
 
-def finish(code, log):
-    print(tail(log))
+def status(code, step):
     if code == 0:
-        print(f"BASELINE DONE exit=0 log={Path(log).as_posix()}")
-        return
-    print(f"BASELINE FAILED exit={code} log={Path(log).as_posix()}")
-    sys.exit(FAILED)
+        return "BASELINE DONE exit=0"
+    if code is None:
+        return f"BASELINE TIMED OUT after {TIMEOUT} s ({step})"
+    return f"BASELINE INSTALL FAILED exit={code}" if step == INSTALL else f"BASELINE FAILED exit={code}"
+
+
+def finish(code, log, step=TESTS):
+    print(tail(log))
+    print(f"{status(code, step)} log={Path(log).as_posix()}")
+    if code != 0:
+        sys.exit(FAILED)
+
+
+def runner_check(main_root, worktree):
+    if not worktree.is_relative_to(main_root):
+        return "runner check: the worktree is outside the repository, no runner of the main checkout reads it"
+    command = commands.list_command(main_root)
+    if not command:
+        return "runner check: no list mode for this test runner, check the runner hints by hand"
+    code, out, err = run(command, main_root, LIST_TIMEOUT)
+    shown = " ".join(command)
+    if code is None:
+        return f"runner check: could not run {shown}: {err}"
+    if commands.reads_worktree(out + err, worktree, main_root):
+        return f"runner check: {shown} lists worktree files: show the runner hints, edit config only if the user agrees"
+    if code not in (0, 5):
+        return f"runner check: {shown} failed (exit {code}), check the runner hints by hand"
+    return f"runner check: {shown} does not read the worktree"
 
 
 def main():
@@ -76,8 +101,11 @@ def main():
     env = commands.extra_env(main_root, resources.heap_mb(seen["free_mb"] if seen else resources.MIN_FREE_MB))
     place = Place(worktree, log, env)
     install = commands.install_command(worktree)
-    if install and run_logged(install, place, TIMEOUT) != 0:
-        finish(None, log)
+    if install:
+        done = run_logged(install, place, TIMEOUT)
+        if done != 0:
+            finish(done, log, INSTALL)
+    print(runner_check(main_root, worktree))
     test = commands.test_command(worktree, workers)
     if test is None:
         print("BASELINE SKIPPED no test command found")

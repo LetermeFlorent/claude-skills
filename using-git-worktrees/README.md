@@ -8,7 +8,7 @@ Type `/isolate` when a task must start without touching your folder, its branch 
 
 By default the worktree goes in `<repo>/.ia/worktrees/<task>`, a folder excluded from git without touching `.gitignore`. A folder you name, or that the repository declares, comes first. Never the temp folder or the home folder. Vitest, jest, tsc, eslint or pytest may read this folder a second time: Claude shows the config line that would keep them out and only changes it if you agree.
 
-The branch follows the repository's naming and never carries a tool prefix (`claude/`, `codex/`, `copilot/`, `cursor/`, `devin/`). No bare `git fetch`: it would open a login window. Files that are modified but not committed stay in your original folder.
+The branch follows the repository's naming and never carries the name of an AI tool followed by `/` or `-` (`claude/`, `codex-`, `gemini/` and the rest of the list strip-ai-traces checks). No bare `git fetch`: it would open a login window, so without an accounts tool Claude asks you first. Files that are modified but not committed stay in your original folder.
 
 ## The starting tests
 

@@ -1,4 +1,5 @@
 import argparse
+import os
 import sys
 
 sys.dont_write_bytecode = True
@@ -14,6 +15,8 @@ import place
 from common import guard
 
 TOOL = "using-git-worktrees"
+ACCOUNTS_VAR = "CLAUDE_SKILLS_ACCOUNTS"
+TOKEN_HELPER = r'credential.helper=!f() { echo username=x-access-token; echo password=\$GH_TOKEN; }; f'
 
 
 def isolation(root):
@@ -22,14 +25,22 @@ def isolation(root):
     return linked, (common.parent if common else root)
 
 
+def fetch_lines(root, owner, value):
+    tool = Path(value).expanduser() if value else None
+    if not tool or not tool.exists():
+        why = f"{ACCOUNTS_VAR} is not set" if not tool else f"{tool.as_posix()} does not exist"
+        return [f"remote: github {owner}. No accounts tool ({why}): never a bare fetch, ask the user before any fetch"]
+    return [f"remote: github {owner}. Fetch only when the base must be fresh, through the accounts tool:",
+            f'  sh "{tool.as_posix()}" run github {owner} --cwd "{root.as_posix()}" -- git -c credential.helper= '
+            f'-c "{TOKEN_HELPER}" fetch origin']
+
+
 def report_remote(root):
     owner, url = gitinfo.remote_owner(root)
     if not url:
         print("remote: none, nothing to fetch")
     elif owner:
-        print(f"remote: github {owner}. Fetch only when the base must be fresh, "
-              "through the tool named by CLAUDE_SKILLS_ACCOUNTS when that variable is set, else with:")
-        print(f"  git -C {root.as_posix()} fetch origin")
+        print("\n".join(fetch_lines(root, owner, os.environ.get(ACCOUNTS_VAR))))
     else:
         print(f"remote: {url} (not GitHub, nothing is fetched here)")
 

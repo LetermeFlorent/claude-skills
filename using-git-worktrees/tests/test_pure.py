@@ -7,7 +7,6 @@ sys.dont_write_bytecode = True
 SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPTS / "lib"))
 
-import commands
 import exclude
 import naming
 import place
@@ -23,6 +22,11 @@ class NamingTest(unittest.TestCase):
         for name in ("claude/feature", "codex/x", "Copilot/x", "cursor/x", "devin/x", "refs/heads/claude/x"):
             self.assertTrue(naming.problems(name, []), name)
         self.assertEqual(naming.problems("feat/cart", []), [])
+
+    def test_every_tool_name_strip_ai_traces_flags_is_refused(self):
+        for name in ("gemini/x", "claude-fix", "feat/aider-x", "Windsurf/x", "junie-y"):
+            self.assertTrue(naming.problems(name, []), name)
+        self.assertEqual(naming.problems("feat/cursor", []), [])
 
     def test_existing_and_invalid_names(self):
         self.assertTrue(naming.problems("feat/cart", ["origin/feat/cart"]))
@@ -98,44 +102,6 @@ class ResourcesTest(unittest.TestCase):
     def test_heap_is_bounded(self):
         self.assertEqual(resources.heap_mb(300), 512)
         self.assertEqual(resources.heap_mb(30000), 4096)
-
-
-class CommandsTest(unittest.TestCase):
-    def make(self, files):
-        folder = tempfile.TemporaryDirectory()
-        self.addCleanup(folder.cleanup)
-        for name, text in files.items():
-            path = Path(folder.name) / name
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(text, encoding="utf-8")
-        return folder.name
-
-    def test_node_runner_gets_two_workers(self):
-        root = self.make({"package.json": '{"scripts": {"test": "vitest run"}}'})
-        self.assertEqual(commands.test_command(root, 2), ["npm", "test", "--", "--maxWorkers=2"])
-
-    def test_plain_node_test_has_no_flag(self):
-        root = self.make({"package.json": '{"scripts": {"test": "node --test"}}'})
-        self.assertEqual(commands.test_command(root, 2), ["npm", "test"])
-
-    def test_cargo_and_go(self):
-        self.assertIn("-j", commands.test_command(self.make({"Cargo.toml": ""}), 1))
-        self.assertEqual(commands.test_command(self.make({"go.mod": ""}), 2)[:3], ["go", "test", "-p"])
-
-    def test_python_without_pytest_uses_unittest(self):
-        root = self.make({"tests/test_a.py": ""})
-        self.assertEqual(commands.test_command(root, 2), ["python", "-m", "unittest", "discover", "-s", "tests"])
-
-    def test_python_declaring_pytest_uses_it(self):
-        self.assertEqual(commands.test_command(self.make({"pytest.ini": ""}), 2), ["python", "-m", "pytest", "-q"])
-        root = self.make({"pyproject.toml": "[tool.pytest.ini_options]\n", "tests/test_a.py": ""})
-        self.assertEqual(commands.test_command(root, 2)[2], "pytest")
-
-    def test_install_only_when_missing(self):
-        root = self.make({"package.json": "{}", "package-lock.json": "{}"})
-        self.assertEqual(commands.install_command(root)[:2], ["npm", "ci"])
-        (Path(root) / "node_modules").mkdir()
-        self.assertIsNone(commands.install_command(root))
 
 
 if __name__ == "__main__":

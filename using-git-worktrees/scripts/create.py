@@ -59,7 +59,7 @@ def main():
     parser.add_argument("--base", default="HEAD")
     args = parser.parse_args()
     root = gitinfo.toplevel(Path.cwd())
-    path = Path(args.path)
+    path = Path(args.path).resolve()
     common = check(root, args, path)
     added = exclude.ensure_excluded(common, patterns_for(path, root))
     add(root, args, path)
