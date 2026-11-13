@@ -18,5 +18,6 @@ def guard(main, hint):
     except KeyboardInterrupt:
         sys.exit(INTERRUPTED)
     except Exception as error:
-        print(f"{error!r}. {hint}")
+        print(f"stop-resume-agents: {type(error).__name__}: {error}")
+        print(f"by hand: {hint}")
         sys.exit(FAILED)
