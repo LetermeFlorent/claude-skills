@@ -30,6 +30,9 @@ HEAVY = (
     "python -I C:/x/browser-bidi/scripts/launch.py --url x",
     "python -I C:/x/browser-bidi/scripts/measure_images.py --url x",
     'python -I "$S/bidi.py" shot a.png --port 9300 && npm run build',
+    "pip install x", "uv pip install -r r.txt", "uv run pytest", "uvx ruff check", "deno task build", "rustc a.rs",
+    "cd ~/.claude/claude-skills/resource-guard && npm run build", "npm run build # resource-guard",
+    'git commit -m "x" && npm test', "cat <<EOF > a.md\nx\nEOF\nnpm test",
 )
 LIGHT = (
     "", "ls -la", "git status", 'git commit -m "run the test suite"', "cat build.log", "echo hello",
@@ -39,7 +42,12 @@ LIGHT = (
     'python -I "C:/x/limited-run/scripts/run.py" stop --all',
     'python -I "C:/x/clean-code/scripts/findings.py" --run "C:/p/.ia/clean-code/r1" list',
     r"py -3 C:\x\strip-ai-traces\scripts\scan.py a.md --no-git",
+    'python -I "C:/x/stop-resume-agents/scripts/agent_digest.py" --since 2h',
     'python -I "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/claude-skills/progress-board/server.py" start',
+    "python -I C:/x/resource-guard/scripts/guard.py wait && npm run build",
+    'git commit -m "$(cat <<EOF\nfix hook\n\nMake the guard lighter\nEOF\n)"',
+    "cat > a.md <<'EOF'\nNode is used\nEOF", 'rg -n "(node|vite)" src', 'git log --grep "; make"',
+    "grep -e 'make' -e 'node' f",
 )
 
 

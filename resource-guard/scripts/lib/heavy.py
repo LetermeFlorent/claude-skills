@@ -1,11 +1,9 @@
 import re
 
-from common import TOOL
-
 PROGRAMS = (
     "docker-compose", "docker", "podman", "vite", "next", "node", "npx", "pnpx", "bunx", r"python[\d.]*", "py",
     "pytest", "java", "gradlew", "gradle", "mvnw", "mvn", "cargo", "dotnet", "tauri", "tsc", "webpack", "vitest",
-    "jest", "playwright", "make", "cmake", "ninja", "msbuild",
+    "jest", "playwright", "make", "cmake", "ninja", "msbuild", r"pip[\d.]*", "uv", "uvx", "deno", "rustc",
 )
 MANAGERS = "npm|pnpm|yarn|bun"
 MANAGER_VERBS = "run-script|run|install|i|ci|add|test|t|build|exec|x|dlx|start|dev|tauri|vite|next"
@@ -33,15 +31,24 @@ LIGHT_SCRIPTS = (
     r"strip-ai-traces[/\\]scripts[/\\]scan",
     r"clean-commits[/\\]scripts[/\\]state",
     r"progress-board[/\\]server",
+    r"stop-resume-agents[/\\]scripts[/\\](?:agent_digest|resume_file|resume_check)",
 )
 LIGHT_SCRIPT = re.compile(
     rf"\bpy(?:thon[\d.]*)?(?:\.exe)?[\"']?(?:\s+-\w+)*\s+[\"']?[^\s\"';&|]*?"
     rf"(?:(?:{'|'.join(LIGHT_SCRIPTS)})\.py|limited-run[/\\]scripts[/\\]run\.py(?=[\"']?\s+(?:list|stop)\b))",
     re.IGNORECASE,
 )
+GUARD_CALL = re.compile(r"resource-guard[/\\]scripts[/\\]guard\.py", re.IGNORECASE)
+HEREDOC = re.compile(r"<<-?[ \t]*([\"']?)(\w+)\1[^\n]*\n(?:.*?\n)?[ \t]*\2(?=\s|$|\))", re.DOTALL)
+QUOTED = r"\"(?:[^\"\\]|\\.)*\"|'[^']*'"
+TEXT_ARGUMENT = re.compile(
+    rf"((?:\s(?:-m|--message|--grep|-e|--regexp)(?:=|\s+)|\b(?:rg|grep|egrep|fgrep)(?:\.exe)?\s+(?:-\S+\s+)*))"
+    rf"(?:{QUOTED})"
+)
 
 
 def is_heavy(command):
-    if not command or TOOL in command.lower():
+    if not command or GUARD_CALL.search(command):
         return False
-    return PATTERN.search(LIGHT_SCRIPT.sub(" ", command)) is not None
+    text = TEXT_ARGUMENT.sub(r"\1''", HEREDOC.sub(" ", command))
+    return PATTERN.search(LIGHT_SCRIPT.sub(" ", text)) is not None

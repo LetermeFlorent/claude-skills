@@ -6,9 +6,9 @@ allowed-tools: Read,Bash,Skill
 
 Arguments: $ARGUMENTS.
 
-Load the `resource-guard` skill and use its `scripts/guard.py`:
+Load `resource-guard` skill, use its `scripts/guard.py`:
 
-- empty: `guard.py check`, and say what is short if anything is;
-- a command: `guard.py wait`, then run the command only when it exits 0; on exit 2 say what stayed too high and do not run it.
+- empty: `guard.py check`, say what is short if anything;
+- a command: one call `guard.py wait && python -I "<limited-run>/scripts/run.py" start -- <command>`, `<limited-run>` = limited-run skill folder, in background when server or watcher; on exit 2 from `guard.py wait` say what stayed too high, command did not run.
 
-Short final answer in the user's language: the numbers, and whether the command ran.
+Short final answer in user's language: numbers, and whether command ran.
