@@ -10,15 +10,14 @@ from common import guard
 from history import describe, profile
 from message import ATTRIBUTION
 from paths import OK_KIND, classify
-from repo import branch, changes, find_root, message, operation, pushed_matching, remote, unpushed
+from repo import branch, changes, find_root, operation, pushed_matching, remote, unpushed, unpushed_matching
 from tools import detect
 
 WIDTH = 4
-SHORT = 7
 
 
 def _attribution(root):
-    local = [commit[:SHORT] for commit in unpushed(root) if ATTRIBUTION.search(message(root, commit))]
+    local = unpushed_matching(root, ATTRIBUTION)
     if local:
         print(f"attribution: {len(local)} unpushed commits carry one ({', '.join(local)}): run scrub.py")
     pushed = pushed_matching(root, ATTRIBUTION)

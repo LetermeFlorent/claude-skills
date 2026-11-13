@@ -18,14 +18,21 @@ STDIN = "-"
 
 def _relative(root, raw):
     given = Path(raw)
-    return given.resolve().relative_to(root).as_posix() if given.is_absolute() else raw.replace("\\", "/")
+    if not given.is_absolute():
+        return raw.replace("\\", "/")
+    resolved = given.resolve()
+    return resolved.relative_to(root).as_posix() if resolved.is_relative_to(root) else None
 
 
 def _paths(root, wanted, allow_large):
     known = {entry["path"]: entry for entry in changes(root)}
     known.update({entry["from"]: {**entry, "path": entry["from"]} for entry in list(known.values()) if "from" in entry})
     picked, problems = [], []
-    for path in (_relative(root, raw) for raw in wanted):
+    for raw in wanted:
+        path = _relative(root, raw)
+        if path is None:
+            problems.append(f"{raw} is outside the repository")
+            continue
         entry = known.get(path)
         if entry is None:
             problems.append(f"{path} has no change to commit (list files one by one, not folders)")
@@ -81,4 +88,4 @@ def main():
 
 
 if __name__ == "__main__":
-    guard(main, 'git add -- <new files>; git commit -o -F <message file> -- <paths>')
+    guard(main, "report this error to the user; never commit by hand")

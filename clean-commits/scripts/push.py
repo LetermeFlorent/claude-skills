@@ -10,8 +10,8 @@ sys.path.insert(0, str(HERE / "lib"))
 
 from common import FAILED, REFUSED, guard, joined, refuse, run
 from message import ATTRIBUTION
-from repo import (GIT, GITHUB_KIND, NO_REMOTE, ORIGIN, OTHER_KIND, branch, find_root, message, operation, remote,
-                  unpushed)
+from repo import (GIT, GITHUB_KIND, NO_REMOTE, ORIGIN, OTHER_KIND, branch, find_root, operation, remote, unpushed,
+                  unpushed_matching)
 
 PUSH_TIMEOUT = 180
 ACCOUNTS_VAR = "CLAUDE_SKILLS_ACCOUNTS"
@@ -28,7 +28,13 @@ def _push_args(name, upstream):
 
 def _accounts_tool():
     value = os.environ.get(ACCOUNTS_VAR)
-    return Path(value) if value else None
+    return Path(value).expanduser() if value else None
+
+
+def _accounts_problems(target, accounts):
+    if target["kind"] != GITHUB_KIND or not accounts or accounts.exists():
+        return []
+    return [f"{ACCOUNTS_VAR} names {accounts.as_posix()}, which does not exist: fix the path or unset the variable"]
 
 
 def _command(root, target, args, accounts=None):
@@ -46,9 +52,9 @@ def _problems(root, name, target):
     problems += [f"a {busy} is in progress"] if busy else []
     if target["kind"] == OTHER_KIND:
         problems.append(f"{target['url']} is neither GitHub nor a local or ssh remote: push it by hand")
-    marked = [commit for commit in unpushed(root) if ATTRIBUTION.search(message(root, commit))]
+    marked = unpushed_matching(root, ATTRIBUTION)
     problems += [f"{len(marked)} unpushed commits carry an attribution: run scrub.py first"] if marked else []
-    return problems
+    return problems + _accounts_problems(target, _accounts_tool())
 
 
 def main():
@@ -64,6 +70,8 @@ def main():
     if not unpushed(root) and upstream:
         print("nothing to push")
         return
+    if target["kind"] == GITHUB_KIND and not _accounts_tool():
+        print(f"{ACCOUNTS_VAR} is not set: plain git push with the user's own credentials, no login window")
     code, out, err = run(_command(root, target, _push_args(name, upstream)), root, PUSH_TIMEOUT)
     output = joined(out, err)
     if code == 0:
@@ -79,4 +87,4 @@ def main():
 
 if __name__ == "__main__":
     guard(main, "push through the tool named by CLAUDE_SKILLS_ACCOUNTS when that variable is set, "
-                "else with the user's own credentials")
+                "else ask the user to push")

@@ -74,16 +74,30 @@ def operation(root):
     return next((name for marker, name in OPERATIONS.items() if (folder / marker).exists()), None)
 
 
+def _strict(root, *args):
+    code, out, err = git(root, *args)
+    if code != 0:
+        raise RuntimeError(f"git {' '.join(args[:2])} failed: {(err or out).strip()}")
+    return out
+
+
+def _has_head(root):
+    return read(root, REV_PARSE, "--verify", "-q", "HEAD") is not None
+
+
 def unpushed(root):
-    output = read(root, "rev-list", *UNPUSHED) or ""
-    return output.split()
+    return _strict(root, "rev-list", *UNPUSHED).split() if _has_head(root) else []
 
 
-def pushed_matching(root, pattern):
-    log = read(root, LOG, "--remotes", f"--format=%h{FIELD}%B{RECORD}") or ""
+def _matching(root, pattern, *revisions):
+    log = _strict(root, LOG, *revisions, f"--format=%h{FIELD}%B{RECORD}")
     records = (record.strip().partition(FIELD) for record in log.split(RECORD))
     return [sha for sha, _, body in records if sha and pattern.search(body)]
 
 
-def message(root, commit):
-    return read(root, LOG, "-1", "--format=%B", commit) or ""
+def pushed_matching(root, pattern):
+    return _matching(root, pattern, "--remotes")
+
+
+def unpushed_matching(root, pattern):
+    return _matching(root, pattern, *UNPUSHED) if _has_head(root) else []

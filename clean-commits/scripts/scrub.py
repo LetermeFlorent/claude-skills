@@ -9,7 +9,7 @@ sys.path.insert(0, str(HERE / "lib"))
 
 from common import FAILED, guard, joined, read_input, refuse, write_output
 from message import ATTRIBUTION
-from repo import UNPUSHED, branch, find_root, git, message, read, unpushed
+from repo import UNPUSHED, branch, find_root, git, read, unpushed_matching
 
 ORIGINAL = "refs/original/refs/heads/"
 
@@ -22,7 +22,7 @@ def _clean(text):
 
 
 def _marked(root):
-    return [commit for commit in unpushed(root) if ATTRIBUTION.search(message(root, commit))]
+    return unpushed_matching(root, ATTRIBUTION)
 
 
 def _rewrite(root, name):

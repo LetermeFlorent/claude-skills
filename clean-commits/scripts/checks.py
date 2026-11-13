@@ -1,8 +1,9 @@
 import argparse
+import re
 import sys
 
 sys.dont_write_bytecode = True
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE / "lib"))
@@ -13,13 +14,24 @@ from tools import detect
 
 CHECK_TIMEOUT = 300
 SHOWN = 15
+MANIFEST = "package.json"
+BEFORE, AFTER = r"(?:^|[\s(\"'])(?:\./)?", r"(?=[:(\s\"',]|$)"
+
+
+def _names(root, paths):
+    names = set()
+    for path in (PurePosixPath(raw.replace("\\", "/")) for raw in paths):
+        names |= {path.as_posix(), (root / path).as_posix()}
+        package = next((parent for parent in path.parents if parent.name and (root / parent / MANIFEST).exists()), None)
+        if package:
+            names.add(path.relative_to(package).as_posix())
+    return names
 
 
 def _mentions(output, root, paths):
-    names = {path.replace("\\", "/") for path in paths}
-    names |= {(root / path).as_posix() for path in names}
+    found = re.compile("|".join(BEFORE + re.escape(name) + AFTER for name in sorted(_names(root, paths))))
     lines = output.replace("\\", "/").splitlines()
-    return [line for line in lines if any(name in line for name in names)]
+    return [line for line in lines if found.search(line)]
 
 
 def _report(name, command, outcome):

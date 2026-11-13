@@ -4,4 +4,4 @@ argument-hint: "[files, folder or intent to commit]"
 allowed-tools: Read,Write,Bash,Grep,Glob,Skill,AskUserQuestion
 ---
 
-Load the `clean-commits` skill and follow its procedure in `/commit` mode. Details: $ARGUMENTS. When not empty, they narrow the files or steer the message, never adding a file from another session without asking. Short final answer in the user's language: each commit (hash, title), the push, the files left out and why.
+Load `clean-commits` skill, follow its procedure in `/commit` mode. Details: $ARGUMENTS. Not empty: they narrow files or steer message, never add file from another session without asking. Short final answer in user's language: each commit (hash, title), push, files left out and why.

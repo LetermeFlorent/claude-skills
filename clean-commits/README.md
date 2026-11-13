@@ -6,11 +6,11 @@ A skill and a command for Claude Code that make clean commits in any repository.
 
 Type `/commit` when the work is ready. Claude only takes the files it created, changed or deleted itself during the session. If other files have changed, it asks a single question: leave them, include them, or pick one by one. It then sorts the changes by intention, one commit each, and pushes the branch. `/commit the cart` limits it to what touches the cart.
 
-The message follows the history: the language of the repository, and the `feat(scope): ...` form only if the repository uses it. With no history, Claude asks for the language. Before each commit, the project's linter and type check run on the files of the commit: an error in those files blocks, an error elsewhere is only reported.
+The message follows the history: the language of the repository, and the `feat(scope): ...` form only if the repository uses it. With no history, Claude asks for the language. Before the commits, the project's lint and type check scripts run once: an error in the files being committed blocks, an error elsewhere is only reported.
 
 ## The push
 
-If the `CLAUDE_SKILLS_ACCOUNTS` variable points to an accounts tool, the GitHub push goes through it. Otherwise it is a plain `git push` with your own credentials, never opening a login window. A refused push is never forced.
+If the `CLAUDE_SKILLS_ACCOUNTS` variable points to an accounts tool, the GitHub push goes through it. If it names a file that does not exist, the push is refused until the path is fixed. Without the variable it is a plain `git push` with your own credentials, never opening a login window. A refused push is never forced.
 
 ## Called by another skill
 
