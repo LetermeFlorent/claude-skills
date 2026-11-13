@@ -4,8 +4,10 @@ from pathlib import Path
 
 sys.dont_write_bytecode = True
 SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
+sys.path.insert(0, str(SCRIPTS))
 sys.path.insert(0, str(SCRIPTS / "lib"))
 
+import check_skill
 from common import CHECK, NOTE, REFUSE
 from companions import check_command_text, check_readme_text
 from frontmatter import split
@@ -106,6 +108,14 @@ class Command(unittest.TestCase):
     def test_missing_skill_tool_and_arguments(self):
         text = COMMAND.replace("Read,Skill", "Read").replace("$ARGUMENTS", "x")
         self.assertEqual(len(check_command_text("csv.md", text)), 2)
+
+
+class Hints(unittest.TestCase):
+    def test_hints_name_real_paths(self):
+        self.assertEqual(Path(check_skill.HINT.split('"')[1]), SCRIPTS / "check_skill.py")
+        scan = Path(check_skill.SCAN.split('"')[1])
+        self.assertEqual(scan, SCRIPTS.parents[1] / "strip-ai-traces" / "scripts" / "scan.py")
+        self.assertTrue(scan.is_file())
 
 
 if __name__ == "__main__":

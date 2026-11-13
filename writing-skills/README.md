@@ -8,7 +8,7 @@ Type `/write-skill` followed by what the skill should teach. Claude first gives 
 
 The argument changes the starting point. `/write-skill clean-commits` edits an existing skill, the first trial runs on the current version. A lesson, or the path of a notes file, gives a new skill. With "Desktop" or "remaster", the result goes in the folder you name (`~/Desktop/SKILLS/<name>/` by default) and the installed version is not touched. After a failure followed by a success, the failure you lived counts as the first trial.
 
-Claude asks you for the name of the skill and the name of the command, with its suggestion first. If you ask to skip the trials, it says in one sentence what an untested skill costs and lets you choose. A skill specific to a project goes in the project's `.claude/skills/`, a skill that applies everywhere in `~/.claude/skills/`. Skills are not committed unless you ask.
+Claude asks you for the name of the skill and the name of the command, with its suggestion first. If you ask to skip the trials, it says in one sentence what an untested skill costs and lets you choose. A skill specific to a project goes in the project's `.claude/skills/`, a skill that applies everywhere in `~/.claude/skills/`. A project skill in `.claude/skills/` stays out of git; a skill of this repository is committed like any other file.
 
 ## What is in the folder
 

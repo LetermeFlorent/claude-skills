@@ -1,8 +1,8 @@
 # Subject brief
 
-The prompt of one test subject: a fresh subagent, never a fork. Fill every `<...>` and send the
-first block as it is. Baseline and green run get the same text and differ by the skill line only; a
-baseline with no skill drops that line.
+Prompt of one test subject: fresh subagent, never a fork. Fill every `<...>`, send the first block as it
+is. Baseline and green run get same text, differ by the skill line only; baseline with no skill drops that
+line.
 
 `````text
 This is a real task, not a quiz. Act; do not describe what you would do.
@@ -32,8 +32,8 @@ QUESTIONS: <each question, its options, the one taken; or none>
 
 ## Follow-up
 
-When a subject read the skill and still did the wrong thing, continue the same agent with SendMessage
-before removing it:
+Subject read the skill and still did the wrong thing: continue the same agent with SendMessage before
+removing it:
 
 `````text
 You read the skill and <what it did>. The expected action was <the right one>.
