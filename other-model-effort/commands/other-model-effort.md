@@ -4,6 +4,6 @@ argument-hint: "<task in a few words>"
 allowed-tools: Read,Skill
 ---
 
-Task: $ARGUMENTS. Empty: give the tiers and the rules of the skill in three lines.
+Task: $ARGUMENTS. Empty: give skill tiers and rules in three lines.
 
-Load the `other-model-effort` skill and follow its `/other-model-effort <task>` part. Short answer in the user's language: minimum, ceiling, why, and whether the model can run several agents when the task needs them.
+Load `other-model-effort` skill, follow its `/other-model-effort <task>` part. Short answer in user's language: minimum, ceiling, why, and whether model can run several agents when task needs them.

@@ -1,68 +1,65 @@
 ---
 name: other-model-effort
-description: Use when the user types /other-model-effort, or when the running model can start and follow subagents (any other model skips this skill) and it is about to start an agent, a subagent or a run on a model that is not Claude, in any tool, and its model or reasoning effort must be picked, when such a run seems to need a stronger or a cheaper model, or when a task with several agents is about to go to a model that is not Claude.
+description: Use when user types /other-model-effort, before starting an agent, subagent or run on a model that is not Claude, in any tool, whose model or reasoning effort must be picked, when such a run seems to need a stronger or cheaper model, or when a task with several agents is about to go to a model that is not Claude.
 ---
 
 # Picking a model and an effort level outside Claude
 
-The /other-model-effort command always gets its answer. The rest of this skill is only for a model that
-can start subagents and follow them. A model that cannot (its tool has no subagent or task feature, or it
-loses track of tool calls over a long run) ignores it and does its own task alone.
+/other-model-effort command always gets its answer. Rest of skill only for a model that can start subagents
+and follow them. Model that cannot (tool has no subagent or task feature, or it loses track of tool calls
+over long run) ignores skill, does own task alone.
 
-The task tables live in one place, the claude-model-effort skill (`../claude-model-effort/SKILL.md`, next to
-this folder). Read the row for the task there, then translate its Claude names into the three tiers below.
-Never pick a model or an effort for these tools from habit or from the tool's default: the row decides.
+Task tables live in one place, claude-model-effort skill (`../claude-model-effort/SKILL.md`, next to this
+folder). Read task row there, translate its Claude names into three tiers below. Never pick model or effort
+for these tools from habit or tool default: row decides.
 
 ## Tiers
 
-Every provider sells a light, an all-round and a top model. Price and speed tell them apart, never a name.
+Every provider sells light, all-round and top model. Price and speed tell them apart, never a name.
 
 | Claude name in the table | Tier | How to spot it in any provider's list |
 |---|---|---|
-| Haiku | light | the cheapest and fastest of the provider's list |
-| Sonnet | all-round | the middle of the provider's price list, even when the tool starts on another model by default |
-| Opus | top | the provider's strongest reasoning model, the most expensive of the list |
+| Haiku | light | cheapest and fastest of provider's list |
+| Sonnet | all-round | middle of provider's price list, even when tool starts on another model by default |
+| Opus | top | provider's strongest reasoning model, most expensive of list |
 
-A provider with two tiers only: a missing light tier becomes all-round, a missing top tier becomes all-round
-one effort step higher. A local model runs as light, whatever its
-name, unless the user says otherwise.
+Provider with two tiers only: missing light tier becomes all-round, missing top tier becomes all-round one
+effort step higher. Local model runs as light, whatever its name, unless user says otherwise.
 
 ## Effort
 
-The table's effort words map onto whatever the tool calls its reasoning setting (effort, thinking level,
-reasoning budget).
+Table effort words map onto whatever tool calls its reasoning setting (effort, thinking level, reasoning
+budget).
 
 | Table | In the tool |
 |---|---|
-| low | the lowest setting that still reasons |
-| medium | the middle setting of the tool's list, whatever its default is |
+| low | lowest setting that still reasons |
+| medium | middle setting of tool's list, whatever its default |
 | high | one step above medium |
-| xhigh | the highest setting below max, unlimited or unbounded |
-| max | the tool's max, unlimited or unbounded setting |
+| xhigh | highest setting below max, unlimited or unbounded |
+| max | tool's max, unlimited or unbounded setting |
 
-Unlike Claude, these models may run at max on any task: their highest setting costs little. The table's effort
-is where a run starts, and any run may go up to max. The tier still stays between the minimum and the
-ceiling. A tool or model with no reasoning setting (often the light tier) takes the tier alone and drops the
-effort.
+Unlike Claude, these models may run at max on any task: highest setting costs little. Table effort is where
+run starts; any run may go up to max. Tier still stays between minimum and ceiling. Tool or model with no
+reasoning setting (often light tier) takes tier alone, drops effort.
 
 ## Several agents
 
-A task that needs several agents at once (a long agentic task, a large feature split across agents, a
-workflow) never goes to a model that cannot run them: it goes to a model that can, or to Claude.
+Task needing several agents at once (long agentic task, large feature split across agents, workflow) never
+goes to a model that cannot run them: goes to a model that can, or to Claude.
 
 ## Rules
 
-Rules 2, 4, 5, 6 and 7 of claude-model-effort hold here: effort sets depth and not quality, the user's choice
-wins, the highest minimum and the highest ceiling win for mixed tasks, two failures move up one step (effort
-one level at a time up to max, then the next tier at the minimum's effort, never past the ceiling's tier), and
-a task with no row takes the closest row, named next to the setting. Rule 1 does not hold: max is allowed.
-Rule 3 becomes: set the model and the effort where the tool takes them (its command-line flags, its config
-file, the agent definition), on the run itself, never as a global default the user did not ask for.
+Rules 2, 4, 5, 6 and 7 of claude-model-effort hold here: effort sets depth not quality, user's choice wins,
+highest minimum and highest ceiling win for mixed tasks, two failures move up one step (effort one level at a
+time up to max, then next tier at minimum's effort, never past ceiling's tier), task with no row takes
+closest row, named next to setting. Rule 1 does not hold: max allowed. Rule 3 becomes: set model and effort
+where tool takes them (command-line flags, config file, agent definition), on run itself, never as global
+default user did not ask for.
 
 ## /other-model-effort <task>
 
-Find the row in claude-model-effort as its `/claude-model-effort <task>` part says, then answer in the
-user's language with the minimum and the ceiling written as tier and effort (`all-round medium`, `top
-high`), and the reason, in two or three lines. Never name a model of any provider: the
-tier is the answer. When the task needs several agents, say whether that model can
-run them.
+Find row in claude-model-effort as its `/claude-model-effort <task>` part says, answer in user's language
+with minimum and ceiling as tier and effort (`all-round medium`, `top high`), and reason, two or three lines.
+Never name a model of any provider: tier is the answer. Task needs several agents: say whether that model
+can run them.
