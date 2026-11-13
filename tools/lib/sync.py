@@ -106,7 +106,7 @@ def place_command(name, source, dest, recorded, lines, kind="command"):
         shutil.copyfile(source, dest)
     except OSError as error:
         lines.append((False, f"{kind} {name}: not copied ({error})"))
-        return None
+        return recorded
     lines.append((True, f"{kind} {name}: copied"))
     return wanted
 
@@ -117,5 +117,9 @@ def drop_command(name, dest, recorded, lines, kind="command"):
     if file_hash(dest) != recorded:
         lines.append((False, f"{kind} {name}: changed by hand, left as is"))
         return
-    dest.unlink()
+    try:
+        dest.unlink()
+    except OSError as error:
+        lines.append((False, f"{kind} {name}: not removed ({error})"))
+        return
     lines.append((True, f"{kind} {name}: removed"))

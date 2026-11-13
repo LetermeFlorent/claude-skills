@@ -38,7 +38,7 @@ class CavemanTest(unittest.TestCase):
         self.assertIn("caveman: updated v4.0.0 to v4.1.0", done.stdout)
         self.assertIn(f"caveman agent {AGENT}: copied", done.stdout)
         self.assertEqual(self.agent.read_text(encoding=ENCODING), "Investigate better.\n")
-        self.assertIn("caveman: up to date (v4.1.0)", self.world.run("update.py").stdout)
+        self.assertNotIn("caveman: ", self.world.run("update.py").stdout)
 
     def test_agent_edited_by_hand_is_left_alone(self):
         self.agent.parent.mkdir(parents=True)

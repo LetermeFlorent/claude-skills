@@ -64,6 +64,8 @@ def install_command():
 
 
 def place_skill(staged, dest):
+    if not (staged / "SKILL.md").is_file():
+        raise FileNotFoundError(f"graphify's installer wrote no {staged / 'SKILL.md'}")
     if dest.exists():
         shutil.rmtree(dest)
     shutil.copytree(staged, dest)

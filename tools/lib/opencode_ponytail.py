@@ -71,12 +71,13 @@ def sync_opencode(checkout, registry, lines):
     if folder is None:
         return
     known, kept = registry.get(COMMANDS_KEY, {}), {}
-    for source in sorted(checkout.joinpath(*SOURCE_COMMANDS).glob(COMMAND_GLOB)):
+    wanted = sorted(checkout.joinpath(*SOURCE_COMMANDS).glob(COMMAND_GLOB))
+    for source in wanted:
         dest = folder / COMMANDS_DIR / source.name
         recorded = place_command(OPENCODE_LABEL + source.name, source, dest, known.get(source.name), lines)
         if recorded:
             kept[source.name] = recorded
-    for name in sorted(set(known) - set(kept)):
+    for name in sorted(set(known) - {source.name for source in wanted}):
         drop_command(OPENCODE_LABEL + name, folder / COMMANDS_DIR / name, known[name], lines)
     registry[COMMANDS_KEY] = kept
     sync_rules(checkout, folder, registry, lines)

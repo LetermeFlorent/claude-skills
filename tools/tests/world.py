@@ -115,7 +115,9 @@ class World:
         git(self.source, "push", "-q", "origin", BRANCH)
         self.release(tag)
 
-    def run(self, script, *args, path=None, tools=None):
+    def run(self, script, *args, path=None, tools=None, fresh=True):
+        if fresh:
+            (self.clone / ".ia" / "update-check.stamp").unlink(missing_ok=True)
         env = {key: value for key, value in os.environ.items() if key != SESSION_VAR}
         env[CONFIG_VAR] = str(self.config)
         env["CLAUDE_SKILLS_OPENCODE_DIR"] = str(self.opencode)

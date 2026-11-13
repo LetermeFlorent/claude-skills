@@ -33,6 +33,16 @@ class RefusalTest(unittest.TestCase):
         self.assertIn("local commits: v1.1.0 not installed", done.stdout)
         self.assertFalse(os.path.lexists(self.world.skill_link("beta")))
 
+    def test_blocked_fast_forward_keeps_the_rest_going(self):
+        (self.world.clone / "beta").mkdir()
+        (self.world.clone / "beta" / "SKILL.md").write_text("mine\n", encoding=ENCODING)
+        (self.world.xdg / "ponytail" / "config.json").write_text('{"defaultMode": "lite"}', encoding=ENCODING)
+        done = self.world.run("update.py")
+        self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
+        self.assertIn("could not install v1.1.0", done.stdout)
+        self.assertIn("ponytail mode ultra: set", done.stdout)
+        self.assertEqual((self.world.clone / "beta" / "SKILL.md").read_text(encoding=ENCODING), "mine\n")
+
     def test_unreachable_remote_keeps_the_copy(self):
         git(self.world.clone, "remote", "set-url", "origin", str(self.world.root / "missing.git"))
         done = self.world.run("update.py")

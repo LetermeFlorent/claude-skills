@@ -42,6 +42,13 @@ class GraphifyTest(unittest.TestCase):
         self.assertTrue(graphify.is_ours(dest))
         self.assertIn("large codebase", (dest / "SKILL.md").read_text(encoding="utf-8"))
 
+    def test_empty_staging_keeps_the_installed_skill(self):
+        dest = graphify.skill_dir(self.config)
+        graphify.place_skill(self.staged, dest)
+        with self.assertRaises(FileNotFoundError):
+            graphify.place_skill(self.root / "missing", dest)
+        self.assertTrue((dest / "SKILL.md").is_file())
+
     def test_foreign_skill_is_left_alone(self):
         dest = graphify.skill_dir(self.config)
         dest.mkdir(parents=True)

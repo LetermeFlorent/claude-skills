@@ -46,13 +46,21 @@ class PonytailTest(unittest.TestCase):
         self.assertIn("ponytail mode ultra: set", done.stdout)
         self.assertNotIn("ponytail mode", self.world.run("update.py").stdout)
 
+    def test_mode_is_put_back_between_network_checks(self):
+        self.world.run("update.py")
+        mode = self.world.xdg / "ponytail" / "config.json"
+        mode.write_text('{"defaultMode": "lite"}', encoding=ENCODING)
+        done = self.world.run("update.py", fresh=False)
+        self.assertIn("ponytail mode ultra: set", done.stdout)
+        self.assertEqual(self.read(mode)["defaultMode"], "ultra")
+
     def test_new_ponytail_release_is_installed(self):
         self.world.run("install.py")
         self.world.ponytail_release("v5.1.0", {"skills/ponytail-gain/SKILL.md": "---\nname: g\n---\n"})
         done = self.world.run("update.py")
         self.assertIn("ponytail: updated v5.0.0 to v5.1.0", done.stdout)
         self.assertIn("skill ponytail-gain: linked", done.stdout)
-        self.assertIn("ponytail: up to date (v5.1.0)", self.world.run("update.py").stdout)
+        self.assertNotIn("ponytail: ", self.world.run("update.py").stdout)
 
     def test_foreign_folder_is_left_alone(self):
         self.checkout.mkdir(parents=True)

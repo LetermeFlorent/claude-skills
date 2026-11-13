@@ -90,9 +90,12 @@ def _apply(config, change, failure, hooks=HOOKS):
 
 def add_hooks(config, repo):
     def failure(hook, error):
+        if not ready(repo, hook):
+            return f"{hook.label}: none"
         return f"{hook.label}: not added, {error}; add a {hook.event} hook running {hook_command(repo, hook)}"
-    hooks = [hook for hook in HOOKS if ready(repo, hook)]
-    return _apply(config, lambda data, hook: _add(data, repo, hook), failure, hooks)
+    def change(data, hook):
+        return _add(data, repo, hook) if ready(repo, hook) else _remove(data, hook)
+    return [line for line in _apply(config, change, failure) if not line[1].endswith(": none")]
 
 
 def remove_hooks(config):
