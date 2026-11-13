@@ -80,7 +80,7 @@ def unzip_to(target, data):
     with zipfile.ZipFile(io.BytesIO(data)) as archive:
         member = next(name for name in archive.namelist() if name.rsplit("/", 1)[-1] == target.name)
         target.parent.mkdir(parents=True, exist_ok=True)
-        partial_file = target.with_name(target.name + ".part")
+        partial_file = target.with_name(f"{target.name}.{os.getpid()}.part")
         partial_file.write_bytes(archive.read(member))
     os.replace(partial_file, target)
 

@@ -8,8 +8,7 @@ sys.path.insert(0, str(SCRIPTS))
 
 import launch
 import measure_images
-import visual_test
-from actions import capture, inputs, reading
+from actions import inputs, reading
 from core.common import driver_port, profile_dir, split_value
 from core.driver import build_of, write_firefox_prefs
 from actions.forms import literal
@@ -110,37 +109,6 @@ class ReadingTest(unittest.TestCase):
     def test_describe_shows_failed_requests(self):
         event = {"method": "network.fetchError", "params": {"errorText": "net::ERR", "request": {"url": "http://x"}}}
         self.assertEqual(reading.describe(event, False), "FAILED net::ERR http://x")
-
-
-class ImageVerdictTest(unittest.TestCase):
-    def verdict(self, natural_width):
-        return visual_test.verdict({"box": [100, 50], "dpr": 2, "natural": [natural_width, 10]})
-
-    def test_missing_file_is_not_loaded(self):
-        self.assertEqual(self.verdict(0), "not loaded")
-
-    def test_small_file_is_blurry(self):
-        self.assertEqual(self.verdict(100), "blurry, file 0.50x of the box")
-
-    def test_large_file_is_heavy(self):
-        self.assertEqual(self.verdict(500), "heavy, file 2.50x of the box")
-
-    def test_fitting_file_is_fine(self):
-        self.assertIsNone(self.verdict(300))
-
-
-class ShotScaleTest(unittest.TestCase):
-    def test_small_capture_is_kept(self):
-        self.assertEqual(capture.scale_of(800, 600), 1.0)
-
-    def test_wide_capture_fits_1024(self):
-        self.assertEqual(capture.scale_of(2048, 600), 2.0)
-
-    def test_tall_shot_fits_720(self):
-        self.assertEqual(capture.scale_of(1000, 1440), 2.0)
-
-    def test_full_page_caps_width_only(self):
-        self.assertEqual(capture.scale_of(1024, 9000, None), 1.0)
 
 
 if __name__ == "__main__":

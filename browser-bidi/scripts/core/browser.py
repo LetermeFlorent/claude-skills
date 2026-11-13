@@ -1,20 +1,17 @@
 import contextlib
-import shutil
 import subprocess
 import sys
 import time
 import urllib.error
-from contextlib import contextmanager
 from typing import NamedTuple
 
 sys.dont_write_bytecode = True
 
-from core.common import (BLANK, BROWSERS, DEFAULT_PROMPT, DEFAULT_SIZE, LOCAL, NAV_TIMEOUT, WORK_DIR, BidiError,
-                    downloads_dir, driver_port, free_port, local_url, state_file)
+from core.common import (BLANK, BROWSERS, DEFAULT_PROMPT, DEFAULT_SIZE, LOCAL, NAV_TIMEOUT, BidiError,
+                    driver_port, local_url, state_file)
 from core.driver import CHROME, ensure_driver, find_firefox, write_prefs
 from core.processes import kill, own_browser, own_driver, wait_gone
 from core.session import create_session, first_context, open_session
-from core.window import pick_desktop, show
 from core.wsclient import WebSocketError
 
 
@@ -131,31 +128,7 @@ def stop(port, session=None):
     forced = kill(wait_gone(port, 5 if closed else 0))
     drivers = kill(own_driver(port))
     state_file(port).unlink(missing_ok=True)
-    return f"browser closed, port {port} released" + (f", forced pids {forced}" if forced else "") + (
-        f", driver pids {drivers} stopped" if drivers else "")
-
-
-def remove_tree(folder):
-    for _ in range(10):
-        shutil.rmtree(folder, ignore_errors=True)
-        if not folder.exists():
-            return
-        time.sleep(0.5)
-
-
-@contextmanager
-def throwaway(size=DEFAULT_SIZE, visible=False, desktop_choice=None, browser=BROWSERS[0]):
-    desktop = pick_desktop(desktop_choice) if visible else None
-    port = free_port()
-    profile = WORK_DIR / f"{browser}-{port}-run"
-    session = None
-    try:
-        pid, _ = start(port, profile, Launch(size=size, headless=not visible, browser=browser))
-        if visible:
-            print(show(pid, desktop))
-        session = open_session(port)
-        yield session
-    finally:
-        print(stop(port, session))
-        remove_tree(profile)
-        remove_tree(downloads_dir(profile))
+    left = [entry["ProcessId"] for entry in own_browser(port) + own_driver(port)]
+    return (f"browser closed, port {port} released" + (f", forced pids {forced}" if forced else "")
+            + (f", driver pids {drivers} stopped" if drivers else "")
+            + (f", pids {left} still running" if left else ", nothing left"))

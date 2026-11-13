@@ -6,4 +6,4 @@ allowed-tools: Read,Bash,Skill
 
 Arguments: $ARGUMENTS. Empty: ask for the address.
 
-Load the `browser-bidi` skill. A url or local folder alone, with optional widths, runs its `/browser-bidi` visual test; anything else is a page task done with its scripts. Pick the window mode yourself. No commit. Answer in the user's language, a few lines: what breaks at which width, images to redo, folder of the captures, or the result of the task.
+Load `browser-bidi` skill. Url or local folder alone, optional widths: run its `/browser-bidi` visual test; anything else: page task done with its scripts. Pick window mode yourself. No commit. Answer in user's language, few lines: what breaks at which width, images to redo, captures folder, or task result.

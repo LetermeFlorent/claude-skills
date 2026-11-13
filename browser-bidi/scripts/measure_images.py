@@ -6,17 +6,18 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from core.browser import throwaway
 from core.common import BROWSERS, LOCALHOST, NAV_TIMEOUT, guard
 from actions.page import checked
 from core.session import first_context
-from core.target import Target
+from core.target import Target, throwaway
 
 DEFAULT_WIDTHS = "390,1440"
 VIEW_HEIGHT = 720
 SELECTOR_DEPTH = 4
 LOAD_WAIT_MS = 5000
 DATA_URL_KEEP = 60
+PHONE_MAX_WIDTH = 480
+PHONE_DPR, DESKTOP_DPR = 3, 2
 MEASURE = r"""async (depth, wait, keep) => {
   const round = value => Math.round(value * 100) / 100;
   const total = (style, names) => names.reduce((sum, name) => sum + (parseFloat(style[name]) || 0), 0);
@@ -90,9 +91,14 @@ def widths_of(text):
     return [int(part) for part in text.split(",") if part.strip()]
 
 
+def dpr_for(width):
+    return PHONE_DPR if width <= PHONE_MAX_WIDTH else DESKTOP_DPR
+
+
 def measure_width(session, context, url, size):
     width, height = size
-    session.call("browsingContext.setViewport", {"context": context, "viewport": {"width": width, "height": height}})
+    session.call("browsingContext.setViewport", {"context": context, "viewport": {"width": width, "height": height},
+                                                 "devicePixelRatio": dpr_for(width)})
     session.call("browsingContext.navigate", {"context": context, "url": url, "wait": "complete"}, NAV_TIMEOUT)
     arguments = [{"type": "number", "value": value} for value in (SELECTOR_DEPTH, LOAD_WAIT_MS, DATA_URL_KEEP)]
     result = session.call("script.callFunction", {"functionDeclaration": MEASURE, "arguments": arguments,

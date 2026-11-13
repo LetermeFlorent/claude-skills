@@ -57,11 +57,21 @@ def create_session(port, prompt=DEFAULT_PROMPT, browser=BROWSERS[0]):
     return Session(port, state["ws"], state["session"])
 
 
-def open_session(port):
+def read_state(port):
     try:
-        state = json.loads(state_file(port).read_text())
+        return json.loads(state_file(port).read_text())
     except (OSError, ValueError):
-        state = {}
+        return {}
+
+
+def remember_tab(port, context):
+    state = read_state(port)
+    if state:
+        state_file(port).write_text(json.dumps({**state, "tab": context}))
+
+
+def open_session(port):
+    state = read_state(port)
     if state.get("ws"):
         session = None
         try:
@@ -72,7 +82,10 @@ def open_session(port):
             if session:
                 session.close()
             state_file(port).unlink(missing_ok=True)
-    return create_session(port, state.get("prompt", DEFAULT_PROMPT), state.get("browser", BROWSERS[0]))
+    fresh = create_session(port, state.get("prompt", DEFAULT_PROMPT), state.get("browser", BROWSERS[0]))
+    if state.get("tab"):
+        remember_tab(port, state["tab"])
+    return fresh
 
 
 def first_context(session):

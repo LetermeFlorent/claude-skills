@@ -1,7 +1,10 @@
 import datetime
+import shutil
 import subprocess
 import sys
 import threading
+import time
+from contextlib import contextmanager
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -9,7 +12,11 @@ from urllib.parse import quote
 
 sys.dont_write_bytecode = True
 
-from core.common import LOCALHOST, WORK_DIR, local_url
+from core.browser import Launch, start, stop
+from core.common import (BROWSERS, DEFAULT_SIZE, LOCALHOST, WORK_DIR, downloads_dir, free_port, local_url,
+                         profile_dir)
+from core.session import open_session
+from core.window import pick_desktop, show
 
 
 def git(folder, *args):
@@ -66,7 +73,7 @@ class Target:
         self.server = QuietServer((LOCALHOST, 0), partial(QuietHandler, directory=str(folder)))
         threading.Thread(target=self.server.serve_forever, daemon=True).start()
         self.url = local_url(self.server.server_port, "/" + ("" if path.is_dir() else quote(path.name)))
-        self.root = git_root(folder) or folder.resolve()
+        self.root = git_root(folder)
 
     def __enter__(self):
         return self
@@ -75,3 +82,29 @@ class Target:
         if self.server:
             self.server.shutdown()
             self.server.server_close()
+
+
+def remove_tree(folder):
+    for _ in range(10):
+        shutil.rmtree(folder, ignore_errors=True)
+        if not folder.exists():
+            return
+        time.sleep(0.5)
+
+
+@contextmanager
+def throwaway(size=DEFAULT_SIZE, visible=False, desktop_choice=None, browser=BROWSERS[0]):
+    desktop = pick_desktop(desktop_choice) if visible else None
+    port = free_port(browser)
+    profile = profile_dir(port, browser)
+    session = None
+    try:
+        pid, _ = start(port, profile, Launch(size=size, headless=not visible, browser=browser))
+        if visible:
+            print(show(pid, desktop))
+        session = open_session(port)
+        yield session
+    finally:
+        print(stop(port, session))
+        remove_tree(profile)
+        remove_tree(downloads_dir(profile))

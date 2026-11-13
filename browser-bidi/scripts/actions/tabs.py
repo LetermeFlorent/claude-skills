@@ -4,9 +4,9 @@ from urllib.parse import urlsplit
 
 sys.dont_write_bytecode = True
 
-from core.browser import stop
 from core.common import BLANK, NAV_TIMEOUT
 from actions.page import index_of, tree, url_of
+from core.session import remember_tab
 
 
 def reusable_tab(page):
@@ -24,6 +24,8 @@ def nav(page):
         context = reusable_tab(page)
         page.call("browsingContext.activate", {"context": context})
     page.call("browsingContext.navigate", {"context": context, "url": page.value, "wait": "complete"}, NAV_TIMEOUT)
+    if page.options.frame is None:
+        remember_tab(page.options.port, context)
     print(f"tab {index_of(tree(page), context)}")
     print(url_of(page, context))
 
@@ -32,6 +34,7 @@ def newtab(page):
     created = page.call("browsingContext.create", {"type": "tab"})["context"]
     if page.value:
         page.call("browsingContext.navigate", {"context": created, "url": page.value, "wait": "none"})
+    remember_tab(page.options.port, created)
     print(f"tab {index_of(tree(page), created)} opened")
 
 
@@ -44,12 +47,12 @@ def closetab(page):
     if len(page.contexts) <= 1:
         raise RuntimeError("last open tab, use the close action to shut the browser")
     page.call("browsingContext.close", {"context": page.context})
-    print(f"tab {page.options.tab or 0} closed, {len(page.contexts) - 1} left")
+    print(f"tab {index_of(page.contexts, page.context)} closed, {len(page.contexts) - 1} left")
 
 
 def activate(page):
     page.call("browsingContext.activate", {"context": page.context})
-    print(f"tab {page.options.tab or 0} in front")
+    print(f"tab {index_of(page.contexts, page.context)} in front")
 
 
 def url(page):
@@ -70,9 +73,5 @@ def reload(page):
     print(url_of(page))
 
 
-def close(page):
-    print(stop(page.options.port, page.session))
-
-
 ACTIONS = {"nav": nav, "newtab": newtab, "tabs": tabs, "closetab": closetab, "activate": activate, "url": url,
-           "back": history(-1), "forward": history(1), "reload": reload, "close": close}
+           "back": history(-1), "forward": history(1), "reload": reload}

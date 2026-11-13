@@ -7,8 +7,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from actions import capture, emulation, forms, inputs, reading, tabs
 from core.common import guard, port_free
-from actions.page import Page, flatten
-from core.session import open_session
+from actions.page import Page, flatten, index_of
+from core.browser import stop
+from core.session import open_session, read_state
 
 ACTIONS = {name: action for module in (tabs, reading, inputs, forms, capture, emulation)
            for name, action in module.ACTIONS.items()}
@@ -21,22 +22,32 @@ def frame_context(top, part):
     return found["context"]
 
 
+def tab_index(contexts, wanted, remembered):
+    if wanted is not None:
+        return wanted
+    return max(index_of(contexts, remembered), 0)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Run one action on the browser started by launch.py.")
-    parser.add_argument("action", choices=sorted(ACTIONS))
+    parser.add_argument("action", choices=sorted([*ACTIONS, "close"]))
     parser.add_argument("value", nargs="*", help="parts separated by | when the action takes two")
     parser.add_argument("--port", type=int, required=True)
-    parser.add_argument("--tab", type=int, help="tab index from the tabs action, 0 when missing")
+    parser.add_argument("--tab", type=int,
+                        help="tab index from the tabs action; when missing, the tab of the last nav, else 0")
     parser.add_argument("--frame", help="part of the url of the iframe to act in")
     parser.add_argument("--timeout", type=float, default=10, help="seconds for wait <selector>")
     options = parser.parse_args()
     options.value = " ".join(options.value)
+    if options.action == "close":
+        print(stop(options.port))
+        return
     if port_free(options.port):
         raise LookupError(f"no browser listens on port {options.port}, start one with launch.py --port {options.port}")
     session = open_session(options.port)
     try:
         contexts = session.call("browsingContext.getTree")["contexts"]
-        index = options.tab or 0
+        index = tab_index(contexts, options.tab, read_state(options.port).get("tab"))
         if index >= len(contexts):
             raise LookupError(f"tab {index} not found, {len(contexts)} open")
         context = frame_context(contexts[index], options.frame) if options.frame else contexts[index]["context"]

@@ -7,11 +7,10 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from core.browser import throwaway
 from actions.capture import save_screenshot
 from core.common import BROWSERS, guard
 from core.session import first_context
-from core.target import Target, run_dir
+from core.target import Target, run_dir, throwaway
 from measure_images import DEFAULT_WIDTHS, VIEW_HEIGHT, measure_width, widths_of
 
 HEAVY_RATIO = 2

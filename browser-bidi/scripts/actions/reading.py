@@ -11,6 +11,13 @@ from actions.page import nodes, plain, shared_id_of, url_of
 LOG_ENTRY, FETCH_ERROR, RESPONSE_COMPLETED = "log.entryAdded", "network.fetchError", "network.responseCompleted"
 CONSOLE_EVENTS = (LOG_ENTRY,)
 NETWORK_EVENTS = (RESPONSE_COMPLETED, FETCH_ERROR)
+DEFAULT_CHARS = 20000
+
+
+def clip(text, hint):
+    if len(text) <= DEFAULT_CHARS:
+        return text
+    return f"{text[:DEFAULT_CHARS]}\n... {len(text) - DEFAULT_CHARS} more chars, {hint}"
 
 
 def wait(page):
@@ -39,14 +46,16 @@ def list_nodes(kind):
 
 def html(page):
     text = page.evaluate("document.documentElement.outerHTML").get("value", "")
-    print(text[:int(page.value)] if page.value.isdigit() else text)
+    print(text[:int(page.value)] if page.value.isdigit() else clip(text, "pass a number"))
 
 
 def text(page):
     if not page.value:
-        print(page.evaluate("document.body ? document.body.innerText : ''").get("value", ""))
+        print(clip(page.evaluate("document.body ? document.body.innerText : ''").get("value", ""),
+                   "pass a selector"))
         return
-    print(page.apply("(element) => element.innerText", shared_id_of(page, page.value)))
+    print(clip(str(page.apply("(element) => element.innerText", shared_id_of(page, page.value))),
+               "pass a narrower selector"))
 
 
 def evaluate(page):

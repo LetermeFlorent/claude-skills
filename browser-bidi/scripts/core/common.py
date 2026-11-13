@@ -71,13 +71,19 @@ def port_free(port):
     return True
 
 
-def free_port():
+def free_port(browser=BROWSERS[0]):
+    WORK_DIR.mkdir(parents=True, exist_ok=True)
     start = random.randrange(600)
     for offset in range(600):
         port = 9300 + (start + offset) % 600
-        used = any(profile_dir(port, browser).exists() for browser in BROWSERS)
-        if not used and port_free(port) and port_free(driver_port(port)):
-            return port
+        used = any(profile_dir(port, other).exists() for other in BROWSERS)
+        if used or not (port_free(port) and port_free(driver_port(port))):
+            continue
+        try:
+            profile_dir(port, browser).mkdir()
+        except FileExistsError:
+            continue
+        return port
     raise RuntimeError("no free port pair between 9300 and 9900")
 
 
