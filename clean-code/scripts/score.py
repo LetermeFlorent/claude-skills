@@ -14,7 +14,6 @@ from store import CANDIDATE, CONFIRMED, REFUTED
 
 TOP = 20
 STEP = 0.5
-HALF = 0.5
 EACH = {2: (0.5, 2), 3: (0.25, 2), 4: (0.25, 1), 5: (0.5, 2), 6: (0.25, 2), 7: (0.25, 1), 8: (0.25, 2), 9: (0.5, 2),
         10: (0.5, 2), 11: (0.5, 1), 12: (1, 2), 13: (0.25, 2), 16: (0.25, 2), 17: (0.25, 2), 19: (0.25, 2)}
 SHARE = {14: ("comment_scanned", 2), 15: ("named_files", 2), 18: ("valued_files", 2)}
@@ -74,7 +73,7 @@ def _previous(root, run):
 
 
 def _rounded(value):
-    return max(0, math.floor(value / STEP + HALF) * STEP)
+    return max(0, math.floor(round(value / STEP, 9)) * STEP)
 
 
 def report(score, confirmed, previous):

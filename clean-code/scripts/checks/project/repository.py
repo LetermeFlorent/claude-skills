@@ -10,6 +10,7 @@ LISTED_BY = "git ls-files"
 SIGNED = AI_SIGNATURE
 RECORD, FIELD = chr(0x1E), chr(0x1F)
 SHOWN = 5
+SHORT_SHA = 12
 BOT = re.compile(rf"{AI_EMAILS}|\(aider\)|\bcursor agent\b|\b(copilot|claude|codex|openai|anthropic|jules|devin"
                  r"|gemini|amazon-q|kiro)[\w-]*\[bot\]", re.IGNORECASE)
 AI_BRANCH = re.compile(r"(^|/)(claude|codex|copilot|cursor|devin|jules|gemini|aider|windsurf|kiro|amazonq|openhands"
@@ -31,7 +32,11 @@ def _commits(root):
         sha, _, rest = record.strip().partition(FIELD)
         people, _, body = rest.partition(FIELD)
         if sha:
-            yield sha[:12], people, body
+            yield sha, people, body
+
+
+def _shas(shas):
+    return ", ".join(sha[:SHORT_SHA] for sha in shas[:SHOWN])
 
 
 def _history(root):
@@ -40,13 +45,14 @@ def _history(root):
     bots = [sha for sha, people, _ in commits if BOT.search(people)]
     findings = []
     if signed:
-        pushed = [sha for sha in signed if (git(root, "branch", "-r", "--contains", sha) or "").strip()]
-        proof = f"{len(pushed)} already pushed" + (f": {', '.join(pushed[:SHOWN])}" if pushed else "")
+        remote = set((git(root, "rev-list", "--remotes") or "").split())
+        pushed = [sha for sha in signed if sha in remote]
+        proof = f"{len(pushed)} already pushed" + (f": {_shas(pushed)}" if pushed else "")
         findings.append({"rule": RULE, "file": ".git", "line": 0, "cap": ATTRIBUTION, "proof": proof,
-                         "what": f"{len(signed)} commits carry an AI tool attribution: {', '.join(signed[:SHOWN])}"})
+                         "what": f"{len(signed)} commits carry an AI tool attribution: {_shas(signed)}"})
     if bots:
         findings.append({"rule": RULE, "file": ".git", "line": 0, "proof": "author and committer, never rewritten",
-                         "what": f"{len(bots)} commits made by an AI bot identity: {', '.join(bots[:SHOWN])}"})
+                         "what": f"{len(bots)} commits made by an AI bot identity: {_shas(bots)}"})
     refs = (git(root, "for-each-ref", "--format=%(refname:short)", "refs/heads", "refs/remotes") or "").split()
     named = [ref for ref in refs if AI_BRANCH.search(ref)]
     if named:

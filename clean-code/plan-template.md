@@ -1,21 +1,21 @@
 # Shape of plan.md
 
-Written in English at `<run>/plan.md`, parsed by `scripts/plan_check.py`. Keep the first line, the
-`## Step <n>: ...` and `## Left as is` headings and the field names exactly. The checker
-refuses any `<...>` left in the file.
+English, at `<run>/plan.md`, parsed by `scripts/plan_check.py`. Keep first line, `## Step <n>: ...`
+and `## Left as is` headings, field names and `Suite:` line exactly. Checker refuses any `<...>` left
+in file outside backticks: write code such as `<picture>` or `Promise<void>` between backticks.
 
-Every confirmed id appears once: on the `Findings:` line of one step, or under `## Left as
-is` with its reason. Refuted ids appear nowhere. A step holds findings of a single phase (the
-Apply table of SKILL.md, a secret is phase 6) and steps follow phase order.
+Every confirmed id appears once: on `Findings:` line of one step, or under `## Left as is` with its
+reason. Refuted ids appear nowhere. Step holds findings of single phase (Apply table of SKILL.md,
+secret is phase 6), steps follow phase order.
 
-`Safe: yes` only when the step cannot change behaviour: a comment removed, a typo or emoji in
-prose, an unused import without side effect, a constant named without moving its value. Renames,
-moves, splits, deletions and error handling are `Safe: no`.
+`Safe: yes` only when step cannot change behaviour: comment removed, typo or emoji in prose, unused
+import without side effect, constant named without moving its value. Renames, moves, splits,
+deletions and error handling are `Safe: no`.
 
-`Files:` lists every path the step writes (created, edited, deleted, a moved file under both
-names), never `.ia/`, `.claude/` or `CLAUDE.md`. With no test suite, `Suite:` reads `none` and
-each `Check:` names a command that runs the changed code, with the output it must give. A
-split that would push a folder past its file limit moves the group into a new subfolder.
+`Files:` lists every path step writes (created, edited, deleted, moved file under both names), never
+`.ia/`, `.claude/` or `CLAUDE.md`. No test suite: `Suite:` reads `none`, each `Check:` names command
+that runs changed code, with output it must give. Split that would push folder past its file limit
+moves group into new subfolder.
 
 `````markdown
 <!-- clean-code plan v1 -->
@@ -39,4 +39,4 @@ Commit: <commit message, no attribution>
 - <id>: <reason>
 `````
 
-Nothing left as is: keep the heading and write `none` under it.
+Nothing left as is: keep heading, write `none` under it.

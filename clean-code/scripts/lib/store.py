@@ -13,7 +13,7 @@ LOCK = "findings.lock"
 SCRATCH = "findings.tmp"
 LISTS = ("unmeasured", "checked")
 LOCK_WAIT = 20
-LOCK_STALE = 60
+LOCK_STALE = 10
 POLL = 0.1
 
 

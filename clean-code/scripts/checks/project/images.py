@@ -89,7 +89,8 @@ def _tag_problems(suffix, refs):
 
 def check(files, root, config):
     images = [item for item in files if item.get("image") and not item["data"]]
-    refs, live = _references(files, {item["path"].name for item in images}), _boxes(config)
+    refs = _references(config.get("project_files", files), {item["path"].name for item in images})
+    live = _boxes(config)
     findings = []
     for item in images:
         name, natural = item["path"].name, dimensions(item["path"])

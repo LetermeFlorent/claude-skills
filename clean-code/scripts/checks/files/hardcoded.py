@@ -1,7 +1,7 @@
 import re
 from collections import defaultdict
 
-from common import compact
+from common import SECRET, SECRET_FIELD, compact, mask
 from lexer import EMPTY_STRING, balance
 
 RULE = 18
@@ -44,7 +44,7 @@ def _keyed(code):
 
 
 def _scan(item):
-    kinds, seen, depth = defaultdict(list), defaultdict(list), 0
+    kinds, seen, hidden, depth = defaultdict(list), defaultdict(list), set(), 0
     for number, (row, line) in enumerate(zip(item["rows"], item["lines"]), 1):
         code = row["code"]
         declared = depth > 0 or bool(CONSTANT.match(code))
@@ -57,6 +57,8 @@ def _scan(item):
                 kinds["environment values"].append(number)
             elif len(text.strip()) >= SHORTEST and not declared and position not in keyed and not FLAG.match(text):
                 seen[text].append(number)
+                if SECRET.search(text) or SECRET_FIELD.search(line):
+                    hidden.add(text)
         if declared:
             continue
         if any(match.group(0) not in NEUTRAL for match in NUMBER.finditer(code)):
@@ -65,7 +67,7 @@ def _scan(item):
             kinds["literal comparisons"].append(number)
     for text, numbers in seen.items():
         if len(numbers) > 1:
-            kinds[f"repeated {text!r}"].extend(numbers)
+            kinds[f"repeated {mask(text) if text in hidden else repr(text)}"].extend(numbers)
     return kinds
 
 

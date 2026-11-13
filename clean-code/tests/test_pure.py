@@ -14,6 +14,8 @@ import lexer
 import runs
 import words
 
+TRAILER = "Co-Authored-By: Claude <noreply@" + "anthropic.com>"
+
 
 class CompactTest(unittest.TestCase):
     def test_neighbours_join_into_spans(self):
@@ -43,7 +45,7 @@ class WordsTest(unittest.TestCase):
         self.assertFalse(words.french_text("panier"))
 
     def test_ai_trailer_found(self):
-        self.assertTrue(words.AI_SIGNATURE.search("Fix\n\nCo-Authored-By: Claude <noreply@anthropic.com>"))
+        self.assertTrue(words.AI_SIGNATURE.search("Fix\n\n" + TRAILER))
 
     def test_human_trailer_passes(self):
         self.assertIsNone(words.AI_SIGNATURE.search("Fix\n\nCo-Authored-By: Jane <jane@example.com>"))
@@ -69,12 +71,10 @@ class RunsTest(unittest.TestCase):
     def tearDown(self):
         self.temp.cleanup()
 
-    def test_out_folder_holds_the_run(self):
-        out = self.root / "elsewhere"
-        run = runs.new_run(self.root, str(out))
-        self.assertEqual(run.parent, out.resolve())
-        self.assertEqual(runs.runs(self.root, str(out)), [run])
-        self.assertFalse((self.root / ".ia").exists())
+    def test_run_lives_under_the_tool_folder(self):
+        run = runs.new_run(self.root)
+        self.assertEqual(run.parent, self.root.joinpath(*runs.TOOL_PARTS))
+        self.assertEqual(runs.runs(self.root), [run])
 
     def test_no_audit_yet_lists_nothing(self):
         self.assertEqual(runs.runs(self.root), [])
@@ -93,18 +93,29 @@ class RunsTest(unittest.TestCase):
 
 
 class MeasureTest(unittest.TestCase):
+    def measure(self, root, *scopes):
+        return subprocess.run([sys.executable, "-I", str(SCRIPTS / "measure.py"), *map(str, scopes)],
+                              capture_output=True, cwd=root)
+
     def test_several_scopes_are_measured_together(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             for name in ("a", "b", "c"):
                 (root / name).mkdir()
                 (root / name / "mod.py").write_text("VALUE = 1\n", encoding="utf-8")
-            out = root / "runs"
-            subprocess.run([sys.executable, "-I", str(SCRIPTS / "measure.py"), str(root / "a" / "mod.py"),
-                            str(root / "b"), "--out", str(out)], check=True, capture_output=True)
-            report = json.loads((runs.runs(root, str(out))[0] / runs.MEASURE).read_text(encoding="utf-8"))
+            self.assertEqual(self.measure(root, root / "a" / "mod.py", root / "b").returncode, 0)
+            report = json.loads((runs.runs(root)[0] / runs.MEASURE).read_text(encoding="utf-8"))
             self.assertEqual(report["stats"]["code_files"], 2)
             self.assertEqual(report["scope"], "a/mod.py, b")
+
+    def test_arrow_in_a_piped_summary_does_not_crash(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            text = 'def a():\n    g("\u2192 next")\n\ndef b():\n    g("\u2192 next")\n'
+            (root / "mod.py").write_text(text, encoding="utf-8")
+            done = self.measure(root, root)
+            self.assertEqual(done.returncode, 0, done.stdout)
+            self.assertIn("\u2192 next", done.stdout.decode("utf-8"))
 
 
 class StoreTest(unittest.TestCase):

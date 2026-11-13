@@ -75,7 +75,6 @@ def main():
     parser.add_argument("scope", nargs="*", default=["."], help="folders or files, several allowed")
     parser.add_argument("--boxes", action="append", default=[],
                         help="JSON of browser-bidi measure_images.py, repeatable")
-    parser.add_argument("--out", help="folder for the run, instead of .ia/clean-code at the project root")
     args = parser.parse_args()
     scopes = [Path(item).resolve() for item in args.scope]
     missing = [str(scope) for scope in scopes if not scope.exists()]
@@ -86,9 +85,11 @@ def main():
     config["boxes"] = [box for path in args.boxes for box in read_json(Path(path))]
     paths = dict.fromkeys(path for scope in scopes for path in walk(scope, root, config))
     files = [describe(path, root) for path in paths if wanted(path)]
-    findings, stats = run_checks(files, root, config)
-    previous = runs(root, args.out)
-    run = new_run(root, args.out)
+    outside = [] if root in scopes else [path for path in walk(root, root, config) if path not in paths]
+    project = files + [describe(path, root) for path in outside if wanted(path)]
+    findings, stats = run_checks(files, root, {**config, "project_files": project})
+    previous = runs(root)
+    run = new_run(root)
     report = {"scope": ", ".join(relative(scope, root) or "." for scope in scopes), "root": str(root),
               "run": run.name, "previous": previous[-1].name if previous else None, "config": config,
               "stats": stats}

@@ -4,6 +4,7 @@ import re
 from pathlib import Path
 
 from common import DECODE_ERRORS, ENCODING
+from runs import git
 
 MAX_BYTES = 2_000_000
 SKIP_DIRS = {"node_modules", "build", "dist", "out", "target", "run", ".git", ".gradle", "generated", ".next",
@@ -20,6 +21,7 @@ LANG_CODE = re.compile(r"^[a-z]{2}([_-][a-zA-Z]{2})?$")
 MINIFIED = (".min.js", ".min.css", ".map")
 SNAPSHOT = ".snap"
 GETTEXT = ".po"
+NUL = "\0"
 
 
 def relative(path, root):
@@ -31,9 +33,21 @@ def excluded(rel, config):
                for pattern in config["exclude"])
 
 
+def _skipped(path, scope, root, config):
+    folders = path.relative_to(scope).parts[:-1]
+    inside = [item for item in (path, *path.parents) if scope in item.parents]
+    return (any(name in SKIP_DIRS or name.startswith(".") for name in folders) or path.name.endswith(MINIFIED)
+            or any(excluded(relative(item, root), config) for item in inside))
+
+
 def walk(scope, root, config):
     if scope.is_file():
         yield scope
+        return
+    listed = git(root, "ls-files", "-z", "--cached", "--others", "--exclude-standard", "--", str(scope))
+    if listed:
+        paths = sorted({root / rel for rel in listed.split(NUL) if rel})
+        yield from (path for path in paths if path.is_file() and not _skipped(path, scope, root, config))
         return
     for folder, dirs, names in os.walk(scope):
         dirs[:] = sorted(d for d in dirs if d not in SKIP_DIRS and not d.startswith(".")

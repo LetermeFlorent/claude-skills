@@ -25,6 +25,8 @@ STEP = re.compile(r"^## Step (\d+): (.+)$", re.MULTILINE)
 KEPT = re.compile(r"^## Left as is\s*$", re.MULTILINE)
 KEPT_LINE = re.compile(r"^- ([MR]\d+): (.*)$", re.MULTILINE)
 PLACEHOLDER = re.compile(r"<[^<>\n]{2,120}>")
+CODE_SPAN = re.compile(r"`[^`\n]*`")
+SUITE = re.compile(r"^Suite: \S", re.MULTILINE)
 FORBIDDEN_PATHS = re.compile(r"(^|/)(\.ia|\.claude)(/|$)|(^|/)CLAUDE\.md$")
 BAD_CHARS = {chr(0x2014): "em dash", chr(0x201C): "curly quote", chr(0x201D): "curly quote",
              chr(0x2019): "curly apostrophe", chr(0xA0): "no-break space", chr(0x202F): "narrow no-break space"}
@@ -73,10 +75,12 @@ def _step(number, fields, findings, state):
 
 def check(text, findings):
     problems = [] if text.startswith(MARKER) else [f"first line must be {MARKER}"]
-    holes = sorted(set(PLACEHOLDER.findall(text)))
+    holes = sorted(set(PLACEHOLDER.findall(CODE_SPAN.sub("", text))))
     problems += [f"template placeholder left: {hole}" for hole in holes if hole[1] != "!"]
     problems += [f"{name} at line {_line(text, text.index(char))}" for char, name in BAD_CHARS.items() if char in text]
     problems += [f"AI tool attribution at line {_line(text, hit.start())}" for hit in SIGNED.finditer(text)]
+    if not SUITE.search(text):
+        problems.append("the Suite: line is missing")
     kept_at = KEPT.search(text)
     if not kept_at:
         problems.append("the ## Left as is section is missing")

@@ -1,7 +1,7 @@
 # Verifier brief
 
-Prompt of one fresh agent once every candidate is in findings.json. Fill every `<...>` and send the
-block as is.
+Prompt of one fresh agent once every candidate is in findings.json. Fill every `<...>`, send block
+as is.
 
 `````text
 You verify the candidates of a clean-code audit. Read-only: edit no project file and run nothing

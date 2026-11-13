@@ -11,6 +11,7 @@ KEYWORDS = {"if", "for", "while", "switch", "catch", "else", "do", "try", "with"
 PYTHON_DEF = re.compile(r"^(?P<indent>\s*)(async\s+)?def\s+(?P<name>\w+)\s*\(")
 BRACE_SUFFIXES = {".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".java", ".kt", ".kts", ".scala", ".groovy", ".rs",
                   ".go", ".c", ".cc", ".cpp", ".h", ".hpp", ".cs", ".swift", ".dart", ".php"}
+NO_SEMICOLON = {".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".kt", ".kts", ".scala", ".groovy", ".go", ".swift"}
 SIGNATURE_LINES = 8
 PAIRS = {"(": ")", "[": "]", "{": "}", "<": ">"}
 RECEIVERS = {"self", "cls"}
@@ -44,7 +45,7 @@ def _signature(codes, start, column):
     return None, start, ""
 
 
-def _braced(codes):
+def _braced(codes, lookahead):
     found = []
     for number, code in enumerate(codes):
         match = START.search(code)
@@ -52,7 +53,7 @@ def _braced(codes):
         if not match or name in KEYWORDS:
             continue
         params, close, rest = _signature(codes, number, match.end() - 1)
-        tail = rest + " " + " ".join(codes[close + 1:close + 2])
+        tail = rest + " " + " ".join(codes[close + 1:close + 1 + lookahead])
         if params is None or "{" not in tail or ";" in tail.split("{")[0]:
             continue
         depth, deepest, end, opened = 0, 0, close, False
@@ -99,7 +100,7 @@ def check(files, root, config):
         if not item["code"] or item["data"] or (suffix != PYTHON_SUFFIX and suffix not in BRACE_SUFFIXES):
             continue
         codes = [row["code"] for row in item["rows"]]
-        found = _python(codes, item["lines"]) if suffix == PYTHON_SUFFIX else _braced(codes)
+        found = _python(codes, item["lines"]) if suffix == PYTHON_SUFFIX else _braced(codes, suffix not in NO_SEMICOLON)
         for name, line, *sizes in found:
             over = [f"{key} {size} > {limit}" for (key, limit), size in zip(limits.items(), sizes) if size > limit]
             if over:

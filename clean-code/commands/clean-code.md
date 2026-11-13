@@ -6,4 +6,4 @@ allowed-tools: Read,Write,Edit,Bash,Grep,Glob,Skill,Agent,AskUserQuestion
 
 Scope: $ARGUMENTS. Empty: ask for it with `AskUserQuestion`.
 
-Load the `clean-code` skill and follow Audit then Apply, then give the final answer its Report section describes.
+Load `clean-code` skill, follow Audit then Apply, then give final answer its Report section describes.

@@ -15,7 +15,7 @@ PLAN = "plan.md"
 REV_PARSE = "rev-parse"
 DEFAULTS = {"max_lines": 150, "max_files": 8, "max_params": 4, "max_nesting": 3, "max_function_lines": 40,
             "max_image_kb": 200, "max_bytes_per_pixel": 0.5, "webp_quality": 80, "exclude": [], "public_api": [],
-            "reader_threshold": 150, "readers": 4}
+            "reader_threshold": 30, "readers": 4}
 CONFIG_NAME = "config.json"
 
 
@@ -36,9 +36,9 @@ def project_root(scope):
 def tool_dir(root):
     folder = root.joinpath(*TOOL_PARTS)
     folder.mkdir(parents=True, exist_ok=True)
-    git_dir = git(root, REV_PARSE, "--absolute-git-dir")
-    if git_dir:
-        exclude = Path(git_dir.strip()) / "info" / "exclude"
+    listed = git(root, REV_PARSE, "--git-path", "info/exclude")
+    if listed:
+        exclude = root / listed.strip()
         exclude.parent.mkdir(parents=True, exist_ok=True)
         text = exclude.read_text(encoding=ENCODING, errors=DECODE_ERRORS) if exclude.exists() else ""
         missing = [pattern for pattern in IGNORED if pattern not in text.split()]
@@ -48,15 +48,14 @@ def tool_dir(root):
     return folder
 
 
-def new_run(root, out=None):
-    parent = Path(out).resolve() if out else tool_dir(root)
-    run = parent / datetime.datetime.now().strftime(RUN_FORMAT)
+def new_run(root):
+    run = tool_dir(root) / datetime.datetime.now().strftime(RUN_FORMAT)
     run.mkdir(parents=True, exist_ok=True)
     return run
 
 
-def runs(root, out=None):
-    folder = Path(out).resolve() if out else root.joinpath(*TOOL_PARTS)
+def runs(root):
+    folder = root.joinpath(*TOOL_PARTS)
     return sorted(p for p in folder.iterdir() if p.is_dir()) if folder.is_dir() else []
 
 

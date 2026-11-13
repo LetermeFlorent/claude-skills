@@ -1,4 +1,5 @@
 import json
+import re
 import sys
 
 ENCODING = "utf-8"
@@ -6,9 +7,20 @@ DECODE_ERRORS = "replace"
 INDENT = 2
 INTERRUPTED = 130
 FAILED = 1
+SECRET = re.compile(r"\b(sk_live_[0-9A-Za-z]{10,}|sk-[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{30,}|"
+                    r"github_pat_[A-Za-z0-9_]{30,}|xox[abprs]-[A-Za-z0-9-]{10,}|AIza[0-9A-Za-z_-]{35})|"
+                    r"-----BEGIN [A-Z ]*PRIVATE KEY-----")
+SECRET_FIELD = re.compile(r"(?P<field>password|passwd|secret|api[_-]?key|token|auth)[\"']?\s*[:=]\s*[\"']"
+                          r"(?P<value>[^\"'\s$]{6,})[\"']", re.IGNORECASE)
+SHOWN = 4
+
+
+def mask(value):
+    return f"{value[:SHOWN]}... ({len(value)} chars)"
 
 
 def guard(main, hint):
+    sys.stdout.reconfigure(encoding=ENCODING, errors=DECODE_ERRORS)
     try:
         main()
     except KeyboardInterrupt:

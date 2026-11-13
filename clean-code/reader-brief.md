@@ -1,8 +1,7 @@
 # Reader brief
 
-Prompt of one reader agent when the scope holds more than `reader_threshold` code files.
-`measure.py` prints the batches as `reader <n>: ...` lines. Fill every `<...>` and send the block
-as is.
+Prompt of one reader agent when scope holds more than `reader_threshold` code files. `measure.py`
+prints batches as `reader <n>: ...` lines. Fill every `<...>`, send block as is.
 
 `````text
 You are reader <n> of a clean-code audit. Read-only: edit, rename, move, install and build nothing,

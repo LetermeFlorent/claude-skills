@@ -1,14 +1,13 @@
 # Rules 7 and 15: names
 
-An identifier is a variable, function, class, constant, file, folder, CSS class, config key or
-translation key. Text shown to the user is content and keeps its language.
-`checks/files/names.py` and `checks/project/locales.py` find French segments; reading finds the
-rest.
+Identifier = variable, function, class, constant, file, folder, CSS class, config key or
+translation key. Text shown to user is content, keeps its language. `checks/files/names.py` and
+`checks/project/locales.py` find French segments; reading finds rest.
 
-A casing deviation applied everywhere is the house convention: note it, leave it. `data`, `info`,
-`tmp`, `flag`, `value`, `manager`, `helper` say nothing, and one concept has one word (`user`,
-`account`, `member` for the same row is drift). Names that lie about type or unit matter most: a
-tick counter called `seconds`, a squared distance called `distance`, a `getUser` that writes.
+Casing deviation applied everywhere = house convention: note it, leave it. `data`, `info`, `tmp`,
+`flag`, `value`, `manager`, `helper` say nothing; one concept, one word (`user`, `account`, `member`
+for same row is drift). Names that lie about type or unit matter most: tick counter called
+`seconds`, squared distance called `distance`, `getUser` that writes.
 
 ## Classify before renaming
 
@@ -19,17 +18,17 @@ tick counter called `seconds`, a squared distance called `distance`, a `getUser`
 | breaking | written on someone's disk or in other code (config keys, localStorage keys, database columns, public API, env variables, CLI flags) | only behind a legacy alias |
 | name-derived | feeds the logic (routing by substring, convention over configuration, regex over identifiers) | reread the logic, then rename |
 
-A rename correct on every reference can still change behaviour: `if (name.includes("admin"))` sends
-a page elsewhere once `adminPanel` becomes `controlPanel`. Grep the new name against every filter on
+Rename correct on every reference can still change behaviour: `if (name.includes("admin"))` sends
+page elsewhere once `adminPanel` becomes `controlPanel`. Grep new name against every filter on
 names. Boundaries hide: reflection and serializer fields, `"prefix." + name` building translation
 keys, payload fields as strings, `data-*` attributes, cookies, URL paths, slugs.
 
 ## Glossary and order
 
-Start from the English the project already ships (its English locale file outranks any word you
-invent); settle contradictions in the same commit. The glossary goes in the plan. Safe renames
-first, then the suite; boundary renames next, both sides per commit; breaking ones stop at the plan
-with a migration and alias, or are left as is when no alias is possible in a project with users.
+Start from English project already ships (its English locale file outranks any word you invent);
+settle contradictions in same commit. Glossary goes in plan. Safe renames first, then suite;
+boundary renames next, both sides per commit; breaking ones stop at plan with migration and alias,
+or left as is when no alias possible in project with users.
 
-Never touched: locale values and user-facing prose, names imposed by a framework or outside API
+Never touched: locale values and user-facing prose, names imposed by framework or outside API
 (overrides, decorator targets, keys a library reads by name).

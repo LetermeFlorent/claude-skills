@@ -1,6 +1,6 @@
 import re
 
-from common import compact
+from common import SECRET, SECRET_FIELD, compact, mask
 from lexer import PYTHON_SUFFIX, is_directive
 from store import SWALLOWED, TEST_IN_PROD
 
@@ -15,19 +15,9 @@ DEBUG = re.compile(r"\bconsole\.(log|debug|trace|dir)\(|\bdebugger\s*;|\bbreakpo
                    r"\bvar_dump\(|\bSystem\.out\.print")
 DEV_IMPORT = re.compile(r"(import|require|from)\b.*[\"'/.](seed|seeds|fixtures?|mocks?|fakes?|stubs?|__tests__|testing)"
                         r"([\"'/.]|$)")
-SECRET = re.compile(r"\b(sk_live_[0-9A-Za-z]{10,}|sk-[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{30,}|"
-                    r"github_pat_[A-Za-z0-9_]{30,}|xox[abprs]-[A-Za-z0-9-]{10,}|AIza[0-9A-Za-z_-]{35})|"
-                    r"-----BEGIN [A-Z ]*PRIVATE KEY-----")
-SECRET_FIELD = re.compile(r"(?P<field>password|passwd|secret|api[_-]?key|token|auth)[\"']?\s*[:=]\s*[\"']"
-                          r"(?P<value>[^\"'\s$]{6,})[\"']", re.IGNORECASE)
-SHOWN = 4
 CLOSING = "}"
 KINDS = ((8, "loose types or silenced checks", None), (8, "swallowed errors", SWALLOWED), (10, "debug outputs", None),
          (10, "dev or test imports in shipped code", TEST_IN_PROD))
-
-
-def _mask(value):
-    return f"{value[:SHOWN]}... ({len(value)} chars)"
 
 
 def _self_named(match):
@@ -39,7 +29,7 @@ def _secrets(item):
     for number, line in enumerate(item["lines"], 1):
         match = SECRET.search(line) or SECRET_FIELD.search(line)
         if match and not _self_named(match):
-            found.append((number, _mask(match.group(match.lastindex or 0))))
+            found.append((number, mask(match.group(match.lastindex or 0))))
     return found
 
 

@@ -88,11 +88,14 @@ def _add(findings, item, pairs, what):
 
 
 def check(files, root, config):
-    index = {item["rel"]: item for item in files}
-    public, scripts = public_files(files, config), commands(files)
-    referenced, clauses = _references(files, index)
-    words = {item["rel"]: _words(item) for item in files}
-    everywhere = sum(words.values(), Counter())
+    project = config.get("project_files", files)
+    index = {item["rel"]: item for item in project}
+    public, scripts = public_files(project, config), commands(project)
+    referenced, clauses = _references(project, index)
+    words = {item["rel"]: _words(item) for item in project}
+    everywhere = Counter()
+    for counts in words.values():
+        everywhere.update(counts)
     findings = []
     for item in files:
         if not item["code"] or item["data"]:
@@ -104,7 +107,7 @@ def check(files, root, config):
         if item["rel"] not in referenced and not entry:
             findings.append({"rule": RULE, "file": item["rel"], "line": 1, "what": "file never imported",
                              "proof": "no import resolves to it and it is no entry point"})
-        elif not entry or item["path"].suffix == PYTHON_SUFFIX:
+        elif not item["test"] and (not entry or item["path"].suffix == PYTHON_SUFFIX):
             _add(findings, item, _unused_symbols(item, words[item["rel"]], everywhere), "symbols used nowhere")
         _add(findings, item, _unused_imports(item, words[item["rel"]], clauses.get(item["rel"], [])),
              "unused imports")
