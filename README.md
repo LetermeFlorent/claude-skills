@@ -6,7 +6,9 @@ Fourteen skills for Claude Code and OpenCode, and the commands that start them. 
 
 Ask your AI to follow `INSTALL.md`. It copies the repository into the Claude Code configuration folder, links the skills and copies the commands, without overwriting anything that already has the same name on your machine.
 
-The installation also adds a small check when Claude Code starts. Each time it opens, it looks at the latest version published on GitHub, and those of Ponytail and graphify, and installs whatever is newer: new skills linked, commands updated, removed skills taken out. A copy you have modified and a command you have edited by hand are never overwritten.
+The installation also adds a small check when Claude Code starts. At most once every six hours, it looks at the latest version published on GitHub, and those of Ponytail, caveman and graphify, and installs whatever is newer: new skills linked, commands updated, removed skills taken out. A copy you have modified and a command you have edited by hand are never overwritten. It says nothing when everything is up to date.
+
+It also starts the progress-board page, a small local server at http://127.0.0.1:8790, and sets it to start at every login (on Windows, through the `Run` key of your user account).
 
 It also adds a guard before each heavy command (build, tests, docker, node, python...): if memory is too low or the processor or the disk is saturated, the command waits until room frees up, five minutes at most.
 
@@ -26,6 +28,7 @@ Each line gives the command that starts the skill and what it does.
 | claude-model-effort | `/claude-model-effort` | picks the Claude model and effort level for each agent, never the max effort |
 | other-model-effort | `/other-model-effort` | the same choice for models that are not Claude, in light, all-round and top tiers |
 | resource-guard | `/resource-guard` | checks memory, processor and disk before a heavy command, and waits if there is too little |
+| progress-board | none, started by `/drive` | a local page at http://127.0.0.1:8790 that charts each run's percentage, started at every login |
 | stop-resume-agents | `/stop-all`, `/resume-all` | stops everything, subagents included, and resumes later where each one was |
 | using-git-worktrees | `/isolate` | isolates a piece of work in a separate working copy |
 | writing-skills | `/write-skill` | writes or fixes a skill, and tests it on subagents |
