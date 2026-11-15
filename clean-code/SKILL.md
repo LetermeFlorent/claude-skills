@@ -87,7 +87,7 @@ Caps hold note down, lowest wins: `secret` 5, `build` 8, `swallowed`, `test-in-p
 
 ## Writing code
 
-Rules 14 to 19, size limits and the six quality bullets below bind every line this skill writes. Paste this into prompt of every
+Rules 14 to 19, size limits and the seven quality bullets below bind every line this skill writes. Paste this into prompt of every
 subagent that writes code, `<skill>` replaced by absolute base directory, 150 and 8 by run's
 `max_lines` and `max_files`:
 
@@ -107,6 +107,9 @@ Code rules for this task:
 - Typecheck, lint and tests run through the project's package manager, never npx.
 - Defects in code you did not touch are reported, not fixed.
 - No `shortcut:` or other note comment either: name the shortcut in your reply.
+- Secure by default: treat all input as hostile (validate, escape, parameterise queries, no shell or
+  eval on user data), least privilege, no secret in code or logs, safe defaults, vetted crypto and
+  libraries only; block every attack path you can see.
 - Never code from memory: first read and understand the code, docs and installed version of what you
   use (signatures, behaviour, errors), then write.
 - Search before writing: grep the project for an existing function, component, helper, constant or
