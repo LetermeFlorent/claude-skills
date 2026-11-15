@@ -47,6 +47,11 @@ Read path.
   <project>/.ia/skills/.
 - Ponytail sets how small each change is, never which part of task, test or proof gets skipped: task and
   levels above are the request.
+- Every command shaped to print the least: quiet or summary flag (`-q`, `--quiet`, `--short`,
+  `--porcelain`, `--stat`, `--silent`), output cut to what proves or explains the result (`| tail -n 20`,
+  `| head`, `rg -c`, `rg -l`, `--maxfail=1`), progress bars and colour off, full log redirected to a
+  file and read only on failure, failing lines only. Never dump a whole file, log, diff or listing when
+  a count or a few lines answers. Pasted proof = the trimmed output, with the pass or fail line kept.
 - Box that writes code follows these rules from <repo>/clean-code/SKILL.md (Writing code):
   - No comment in code, except lines a tool reads (linter directives, shebang, licence header) and doc
     comments of public API. What a comment would explain goes into a name.

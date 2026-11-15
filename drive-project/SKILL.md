@@ -77,6 +77,11 @@ lead only hands out tasks, reads reports, ticks boxes.
 5. "A subagent would cost more than doing it", "three small edits", "it is one line", "I already have the
    context", "just this once to save time": each = excuse this rule exists for. Box goes to worker at
    setting reflection level gives (step 4).
+6. Every text lead sends to a subagent (brief, SendMessage, resend) = strict minimum, caveman style, like
+   the caveman skill: drop articles, filler, pleasantries, hedging; short words, fragments fine ("Fix b7.
+   Check failed. Paste command + output."). Only what worker cannot find itself: box line, paths, command,
+   failing lines. Block `worker-brief.md` fills stays as is; lead adds nothing around it. Code, commands,
+   paths, error text quoted exact, never compressed.
 
 ## Speaking
 
