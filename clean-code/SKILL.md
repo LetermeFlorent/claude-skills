@@ -87,7 +87,7 @@ Caps hold note down, lowest wins: `secret` 5, `build` 8, `swallowed`, `test-in-p
 
 ## Writing code
 
-Rules 14 to 19, size limits and the four quality bullets below bind every line this skill writes. Paste this into prompt of every
+Rules 14 to 19, size limits and the five quality bullets below bind every line this skill writes. Paste this into prompt of every
 subagent that writes code, `<skill>` replaced by absolute base directory, 150 and 8 by run's
 `max_lines` and `max_files`:
 
@@ -107,6 +107,8 @@ Code rules for this task:
 - Typecheck, lint and tests run through the project's package manager, never npx.
 - Defects in code you did not touch are reported, not fixed.
 - No `shortcut:` or other note comment either: name the shortcut in your reply.
+- Search before writing: grep the project for an existing function, component, helper, constant or
+  dependency that does the job and reuse it; write new code only when the search finds nothing.
 - Best readability possible: small functions, one job each, early returns, no clever trick.
 - Solid code: handle every exception that can occur at each boundary (input, I/O, network, parsing,
   null, empty, out of range, concurrency); fail loudly with a typed, specific error, never swallow.
