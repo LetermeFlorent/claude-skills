@@ -1,6 +1,6 @@
 # Final optimisation
 
-Last work box of drive-project. Goal: run uses least resource possible (CPU, memory, disk, network,
+Box of drive-project between "Done means" and commit box. Goal: run uses least resource possible (CPU, memory, disk, network,
 energy), nothing degraded. Paths: only the `files:` of your box. Defects elsewhere reported, not fixed.
 
 Rules:

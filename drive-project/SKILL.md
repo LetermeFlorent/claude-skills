@@ -56,7 +56,7 @@ lead only hands out tasks, reads reports, ticks boxes.
    and output, or giving failing lines. Failed again or still nothing pasted: fresh worker one step up
    (claude-model-effort rule 6), `Earlier attempt:` = failed WORKER REPORT. Still failing at row's ceiling,
    or blocked on what no worker can fix (push rejected or refused, missing credential, refusal needing
-   user): not sent again; lead writes failing lines under box in plan, one worker does step 8 cleanup
+   user): not sent again; lead writes failing lines under box in plan, one worker does step 7 cleanup
    without commit or push, run ends on last percentage + five words naming it.
    Not failed checks (out again at same setting, count toward neither claude-model-effort rule 6 nor
    ceiling): report failed only on file of its `Running beside:` line, or on heavy lock refusal: out again
@@ -119,7 +119,7 @@ user's language.
    clean-code hands back takes those five words (`Secret leaked, rotate it.`).
 6. User message during run obeyed. Question: one-line answer in user's language, only exception to rule
    3; any other message: only percentage. New information becomes boxes or updates start answers in plan.
-   Stop request, any wording: no new box out; once running workers reported, one worker does step 8
+   Stop request, any wording: no new box out; once running workers reported, one worker does step 7
    cleanup, nothing committed or pushed, last message = last percentage + at most five words saying it
    stopped. Run cut by /stop-all restarts through /drive from its plan file, never /resume-all.
 
@@ -141,8 +141,8 @@ Each at its moment, run by worker whose box needs it unless row says otherwise, 
 | Web page or its layout must be seen | browser-bidi |
 | Failure then fix that worked, or step next agent would work out again | project skill (Project skills), never through writing-skills |
 | Work done, checks pass | clean-code on files run changed, same box runs strip-ai-traces scan (step 6) |
-| Before closing box | final optimisation, `<repo>/drive-project/optimise-brief.md` (step 7) |
-| Last | clean-commits twice: commit box before clean-code, closing box after (step 8) |
+| After "Done means" box | final optimisation, `<repo>/drive-project/optimise-brief.md` (step 4 box) |
+| Last | clean-commits twice: commit box before clean-code, closing box after (step 7) |
 
 ## Procedure
 
@@ -168,7 +168,7 @@ One pass, in order.
    `<project>/.ia/drive/<YYYY-MM-DD>-<goal-slug>.run-kit.md`, named like plan to come. That file = proof.
    No box out before its report.
 3. Ask per Speaking rule 1, then never again.
-   Two boxes for step 7, always asked: technologies and tools it must use or avoid (language, framework,
+   Two boxes for the optimisation box (step 4), always asked: technologies and tools it must use or avoid (language, framework,
    library, platform; Other open; recommended `none given, AI picks`); graphics card (recommended `use it
    only when measured gain`, or `never`). Answers go into plan.
    New project (goal asks for one, or `Branch:` says `no repository`): also ask folder (mapping worker's,
@@ -227,10 +227,14 @@ One pass, in order.
      box before full check box, which goes out again after them.
    - "Done means" box: proves start answer on what done means, end to end; ticked only when that proof
      passes. May go to full check box's worker right after.
+   - Optimisation box, after "Done means" box, before commit box so clean-code audits optimised code: one
+     worker runs `<repo>/drive-project/optimise-brief.md` on files run changed (lowest CPU, memory, disk,
+     network and energy use, nothing degraded). Proof: before and after measures and full check output,
+     pasted. Its files join commit box's `files:`.
    - Commit box: clean-commits as caller, `files:` = union of every report's `files changed`,
      every path `commit.py` treats as tooling (`.ia/`, `.claude/`, `.cursor/`, `.aider*`, `CLAUDE.md`,
      `CLAUDE.local.md`, any depth) left out (`commit.py` refuses whole commit for one), no push.
-   - Clean-code box (step 6), optimisation box (step 7), then closing box (step 8).
+   - Clean-code box (step 6), then closing box (step 7).
    - Their proofs: box that commits pastes `git log -1` and `git status -sb`, once pushed branch line shows
      no `ahead` or `push.py` printed `no remote: the commits stay local`; box that cleans up pastes
      `stopped <name> pid <n>` of each process stopped, browser-bidi's `browser closed, port <P> released`
@@ -272,11 +276,7 @@ One pass, in order.
    right after: clean-code's verifier, prompted with `<repo>/clean-code/verify-brief.md` in place of
    `worker-brief.md`, proof = count line of `findings.py list` with no candidate left; then fresh
    clean-code worker going on from Audit step 7 on that run folder, applying plan, running scan above.
-7. One optimisation worker, last work box, runs `<repo>/drive-project/optimise-brief.md` on files run
-   changed (`files:` = commit box's list): lowest CPU, memory, disk, network and energy use, nothing
-   degraded. Proof: before and after measures, last full check output, all pasted. No commit, step 8
-   commits its paths.
-8. One closing worker runs clean-commits as caller on run's paths still uncommitted (`files:` = union of
+7. One closing worker runs clean-commits as caller on run's paths still uncommitted (`files:` = union of
    every report's `files changed`, every path `commit.py` treats as tooling (`.ia/`, `.claude/`,
    `.cursor/`, `.aider*`, `CLAUDE.md`, `CLAUDE.local.md`, any depth) left out), messages under
    strip-ai-traces' writing rules (`commit.py` and `push.py` check rest), pushes through `push.py`; no
