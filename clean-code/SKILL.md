@@ -107,20 +107,17 @@ Code rules for this task:
 - Typecheck, lint and tests run through the project's package manager, never npx.
 - Defects in code you did not touch are reported, not fixed.
 - No `shortcut:` or other note comment either: name the shortcut in your reply.
-- Secure by default: treat all input as hostile (validate, escape, parameterise queries, no shell or
-  eval on user data), least privilege, no secret in code or logs, safe defaults, vetted crypto and
-  libraries only; block every attack path you can see.
-- Never code from memory: first read and understand the code, docs and installed version of what you
-  use (signatures, behaviour, errors), then write.
-- Search before writing: grep the project for an existing function, component, helper, constant or
-  dependency that does the job and reuse it; write new code only when the search finds nothing.
-- Best readability possible: small functions, one job each, early returns, no clever trick.
-- Solid code: handle every exception that can occur at each boundary (input, I/O, network, parsing,
-  null, empty, out of range, concurrency); fail loudly with a typed, specific error, never swallow.
-- Follow the language's and framework's best practices; never work around a rule, a type, a linter
-  or a test: fix the cause.
-- Built to be maintained: low coupling, explicit dependencies, no hidden state, a change in one
-  place touches one place.
+- Secure by default: input hostile (validate, escape, parameterise queries, no shell or eval on user
+  data), least privilege, no secret in code or logs, vetted crypto and libraries only, block every
+  attack path seen.
+- Never code from memory: read code, docs and installed version of what you use first, then write.
+- Search before writing: grep project for existing function, helper, constant or dependency, reuse it;
+  new code only when nothing found.
+- Best readability: small functions, one job each, early returns, no clever trick.
+- Solid code: every exception handled at each boundary (input, I/O, network, parsing, null, empty,
+  out of range, concurrency); typed specific error, never swallowed.
+- Best practices of language and framework; never work around rule, type, linter or test, fix cause.
+- Easy to maintain: low coupling, explicit dependencies, no hidden state, one change touches one place.
 `````
 
 Comment your change makes false leaves with code it described. Other existing comments wait for
