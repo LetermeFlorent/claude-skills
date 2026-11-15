@@ -87,7 +87,7 @@ Caps hold note down, lowest wins: `secret` 5, `build` 8, `swallowed`, `test-in-p
 
 ## Writing code
 
-Rules 14 to 19, size limits and the seven quality bullets below bind every line this skill writes. Paste this into prompt of every
+Rules 14 to 19, size limits and the eight quality bullets below bind every line this skill writes. Paste this into prompt of every
 subagent that writes code, `<skill>` replaced by absolute base directory, 150 and 8 by run's
 `max_lines` and `max_files`:
 
@@ -110,6 +110,8 @@ Code rules for this task:
 - Secure by default: input hostile (validate, escape, parameterise queries, no shell or eval on user
   data), least privilege, no secret in code or logs, vetted crypto and libraries only, block every
   attack path seen.
+- Dependencies and tools always at latest stable release, version read from the registry, not memory;
+  read changelog before bumping, tests green after.
 - Never code from memory: read code, docs and installed version of what you use first, then write.
 - Search before writing: grep project for existing function, helper, constant or dependency, reuse it;
   new code only when nothing found.
