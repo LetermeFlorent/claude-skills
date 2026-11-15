@@ -36,12 +36,12 @@ lead only hands out tasks, reads reports, ticks boxes.
    server, watcher or container running or launches Chrome, at most one commits or rewrites git history.
    Heavy command = build, test run, install, typecheck, dev server, docker, Chrome launch, or proof script
    doing one; one-shot ones (build, test run, install, typecheck) take turns through run's heavy lock
-   `<run tag>-heavy` (`worker-brief.md`). Max two workers working at once across whole tree; worker
-   waiting on own sub-workers not counted. These rules replace CLAUDE.md rule keeping builds in main
-   session: workers build and test themselves.
-   Lead starts each worker with `run_in_background: true`, keeps both slots full: worker reports, tick or
-   resend its box, then at once start first ready box in plan order (every `after:` box ticked) and, while
-   another box still at work, one naming it in `with:` and named in its `with:`. Tool refuses background
+   `<run tag>-heavy` (`worker-brief.md`). No fixed cap on workers working at once: resource-guard
+   decides, its hook holds each heavy command until PC has room. These rules replace CLAUDE.md rule keeping
+   builds in main session: workers build and test themselves.
+   Lead starts each worker with `run_in_background: true`, keeps every ready box running: worker reports,
+   tick or resend its box, then at once start every ready box (every `after:` box ticked) not blocked by
+   a box at work, i.e. each one naming it in `with:` and named in its `with:`. Tool refuses background
    agent: foreground.
    Only Depth 1 worker with `with: none` may hand parts to sub-workers, two at once max; sub-worker never
    splits. Any other box too big for one worker returns `done: no` with one `split: <task>` line per part:
@@ -212,6 +212,10 @@ One pass, in order.
    `with:` boxes it may run beside, `none` = runs alone. Ids never renumbered: added box takes next free
    one. Brief's `Box:` = this line, character for character. Ticking turns `- [ ] b<n> |` into
    `- [x] b<n> |`; box resent at new setting gets it written into `row:` first.
+   Goal with several features (parts sharing no file, neither needing other's result): each feature = own
+   chain of boxes, first boxes of chains named in each other's `with:`, so several agents work at once, like
+   ultracode. Lead starts them in one message, one Agent call each. Shared file or result: `after:` instead.
+   No cap: resource-guard holds heavy commands when PC is short.
    Check = narrowest command proving box: test file or test id it adds or touches, or typecheck of own
    package; whole suite or production build only when box changes build or test setup. Box with test:
    worker writes test, pastes it failing, makes change, pastes it passing, then looks. Proof box stands
