@@ -37,9 +37,9 @@ def unsync(repo, config, registry):
     return {}, lines
 
 
-def sync_skills(repo, config, known, lines, wanted=None):
+def sync_skills(repo, config, known, lines):
     kept = []
-    wanted = skill_names(repo) if wanted is None else wanted
+    wanted = skill_names(repo)
     for name in wanted:
         link, target = config / SKILLS_DIR / name, repo / name
         if is_link(link) and same_path(link, target):

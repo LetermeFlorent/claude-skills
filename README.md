@@ -1,12 +1,16 @@
 # claude-skills
 
-Fourteen skills for Claude Code and OpenCode, and the commands that start them. Each folder holds the `SKILL.md` the AI reads, a `README.md` for you, and its scripts and tests when it has any. The scripts are plain Python with no dependency, so another AI (Codex, Gemini, Qwen) can use them too: just point it to the `SKILL.md` in its instructions file.
+Seventeen skills for Claude Code and OpenCode, and the commands that start them. Each folder holds the `SKILL.md` the AI reads, a `README.md` for you, and its scripts and tests when it has any. The scripts are plain Python with no dependency, so another AI (Codex, Gemini, Qwen) can use them too: just point it to the `SKILL.md` in its instructions file.
 
 ## Install
 
 Ask your AI to follow `INSTALL.md`. It copies the repository into the Claude Code configuration folder, links the skills and copies the commands, without overwriting anything that already has the same name on your machine.
 
-The installation also adds a small check when Claude Code starts. At most once every six hours, it looks at the latest version published on GitHub, and those of Ponytail, caveman and graphify, and installs whatever is newer: new skills linked, commands updated, removed skills taken out. A copy you have modified and a command you have edited by hand are never overwritten. It says nothing when everything is up to date.
+The installation also adds a small check when Claude Code starts. At most once every six hours, it looks at the latest version published on GitHub and installs it if it is newer: new skills linked, commands updated, removed skills taken out. A copy you have modified and a command you have edited by hand are never overwritten. It says nothing when everything is up to date.
+
+Two more hooks give every session, and every subagent a session starts, the rules of the terse-speech and least-code skills at the very beginning, so they are followed without anyone asking. If a skill file is missing, it is skipped and nothing breaks.
+
+Earlier versions also installed three outside tools: Ponytail, caveman and graphify. They are gone from the installer, and the next update removes what they left on your machine: their links, copied agents and commands, downloaded copies, hooks and the graphify package. Anything you changed by hand is left in place and reported.
 
 It also starts the progress-board page, a small local server at http://127.0.0.1:8790, and sets it to start at every login (on Windows, through the `Run` key of your user account).
 
@@ -32,16 +36,9 @@ Each line gives the command that starts the skill and what it does.
 | stop-resume-agents | `/stop-all`, `/resume-all` | stops everything, subagents included, and resumes later where each one was |
 | using-git-worktrees | `/isolate` | isolates a piece of work in a separate working copy |
 | writing-skills | `/write-skill` | writes or fixes a skill, and tests it on subagents |
-
-## Tools that come with it
-
-Three outside tools are installed and kept at their latest release with the skills, without any plugin.
-
-| Tool | Command | Role |
-|---|---|---|
-| [Ponytail](https://github.com/DietrichGebert/ponytail) | `/ponytail`, `/ponytail-review`, `/ponytail-audit` | makes the agent write the smallest change that fully works, always on at its highest level (ultra) |
-| [graphify](https://github.com/Graphify-Labs/graphify) | `/graphify` | turns a large codebase into a knowledge graph to query, used on large projects only |
-| [caveman](https://github.com/JuliusBrussee/caveman) | none, the agents are picked by the AI | its cavecrew agents and caveman-explore find, edit and review code and answer in very short reports, used on small projects |
+| terse-speech | none, loaded at every session and subagent start | keeps every reply and every report between agents short and plain |
+| least-code | none, loaded at every session and subagent start | makes the agent write the smallest change that fully works, and stop searching once it has the answer |
+| code-map | none | maps a project's code: where things are defined and used, what calls what, dead code and import cycles |
 
 ## License
 

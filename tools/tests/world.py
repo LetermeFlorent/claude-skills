@@ -22,16 +22,6 @@ SKILL_TEXT = "---\nname: {0}\ndescription: Use when testing {0}.\n---\n\n# {0}\n
 COMMAND_TEXT = "Read the {0} skill.\n"
 IGNORED = ".ia/\n__pycache__/\n"
 BRANCH = "main"
-PONYTAIL_FILES = {"skills/ponytail/SKILL.md": SKILL_TEXT.format("ponytail"),
-                  "skills/ponytail-review/SKILL.md": SKILL_TEXT.format("ponytail-review"),
-                  "hooks/ponytail-activate.js": "", "hooks/ponytail-subagent.js": "",
-                  "hooks/ponytail-mode-tracker.js": "",
-                  "hooks/ponytail-instructions.js": "exports.getPonytailInstructions = m => 'RULES ' + m;\n",
-                  ".opencode/command/ponytail-review.md": "Review.\n"}
-CAVEMAN_FILES = {"skills/cavecrew/SKILL.md": SKILL_TEXT.format("cavecrew"),
-                 "skills/caveman-explore/SKILL.md": SKILL_TEXT.format("caveman-explore"),
-                 "skills/caveman/SKILL.md": SKILL_TEXT.format("caveman"),
-                 "agents/cavecrew-investigator.md": "Investigate.\n", "agents/agents.json": "{}\n"}
 
 
 def git(folder, *args):
@@ -40,17 +30,6 @@ def git(folder, *args):
     if done.returncode != 0:
         raise AssertionError(f"git {args[0]}: {done.stderr}")
     return done.stdout.strip()
-
-
-def tagged_release(folder, tag, files):
-    for name, text in files.items():
-        (folder / name).parent.mkdir(parents=True, exist_ok=True)
-        (folder / name).write_text(text, encoding=ENCODING)
-    if not (folder / ".git").is_dir():
-        git(folder, "init", "-q")
-    git(folder, "add", "-A")
-    git(folder, "commit", "-q", "-m", tag)
-    git(folder, "tag", "-a", tag, "-m", tag)
 
 
 def _force(function, path, _):
@@ -75,17 +54,6 @@ class World:
         git(self.root, "clone", "-q", "--bare", str(self.source), str(self.origin))
         git(self.source, "remote", "add", "origin", str(self.origin))
         git(self.root, "clone", "-q", str(self.origin), str(self.clone))
-        self.ponytail = self.root / "ponytail-source"
-        self.xdg = self.root / "xdg"
-        self.caveman = self.root / "caveman-source"
-        self.ponytail_release("v5.0.0", PONYTAIL_FILES)
-        self.caveman_release("v4.0.0", CAVEMAN_FILES)
-
-    def ponytail_release(self, tag, files):
-        tagged_release(self.ponytail, tag, files)
-
-    def caveman_release(self, tag, files):
-        tagged_release(self.caveman, tag, files)
 
     def write_skill(self, name, command=None):
         folder = self.source / name / "commands"
@@ -121,10 +89,6 @@ class World:
         env = {key: value for key, value in os.environ.items() if key != SESSION_VAR}
         env[CONFIG_VAR] = str(self.config)
         env["CLAUDE_SKILLS_OPENCODE_DIR"] = str(self.opencode)
-        env["CLAUDE_SKILLS_PONYTAIL_URL"] = self.ponytail.as_uri()
-        env["CLAUDE_SKILLS_CAVEMAN_URL"] = self.caveman.as_uri()
-        env["XDG_CONFIG_HOME"] = str(self.xdg)
-        env["CLAUDE_SKILLS_GRAPHIFY_INDEX"] = (self.root / "no-index.json").as_uri()
         if path is not None:
             env["PATH"] = str(path)
         folder = tools or self.clone / "tools"

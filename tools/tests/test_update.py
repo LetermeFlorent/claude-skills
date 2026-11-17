@@ -7,6 +7,7 @@ sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
 
 from links import same_path
+from registry import write_json
 from world import World, git
 
 
@@ -65,6 +66,17 @@ class UpdateTest(unittest.TestCase):
         done = self.world.run("update.py")
         self.assertIn("to v1.10.0", done.stdout)
         self.assertFalse(os.path.lexists(self.world.skill_link("gamma")))
+
+    def test_old_outside_tools_are_cleaned_on_every_run(self):
+        write_json(self.world.clone / ".ia" / "ponytail.json", {"skills": []})
+        checkout = self.world.config / "ponytail" / ".git"
+        checkout.mkdir(parents=True)
+        done = self.world.run("update.py")
+        self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
+        self.assertIn("claude-skills: ponytail: removed", done.stdout)
+        self.assertFalse(checkout.exists())
+        self.assertFalse((self.world.clone / ".ia" / "ponytail.json").exists())
+        self.assertNotIn("ponytail", self.world.run("update.py").stdout)
 
     def test_second_run_finds_nothing(self):
         self.world.write_skill("beta")

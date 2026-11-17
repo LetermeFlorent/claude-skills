@@ -100,12 +100,17 @@ class InstallTest(unittest.TestCase):
         entries = data["hooks"]["SessionStart"]
         self.assertEqual(len(entries), 2)
         self.assertIn("claude-skills/tools/update.py", entries[0]["hooks"][0]["command"])
-        self.assertIn("ponytail start hook: already there", done.stdout)
+        self.assertIn("speech and code start hook: already there", done.stdout)
         guard = data["hooks"]["PreToolUse"]
         self.assertEqual(len(guard), 1)
         self.assertEqual(guard[0]["matcher"], "Bash")
         self.assertTrue(guard[0]["hooks"][0]["command"].endswith('resource-guard/scripts/guard.py" hook'))
         self.assertIn("resource hook: already there", done.stdout)
+        subagent = data["hooks"]["SubagentStart"]
+        self.assertEqual(len(subagent), 1)
+        self.assertNotIn("matcher", subagent[0])
+        self.assertTrue(subagent[0]["hooks"][0]["command"].endswith('tools/inject.py" SubagentStart'))
+        self.assertEqual(entries[1]["matcher"], "startup|resume|clear|compact")
 
     def test_uninstall_removes_only_our_hooks(self):
         self.world.run("install.py")

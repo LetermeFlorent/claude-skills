@@ -1,35 +1,27 @@
 import json
-import shutil
 import sys
 from collections import namedtuple
 from pathlib import Path
 
 SETTINGS = "settings.json"
 ENCODING = "utf-8"
-NODE = "node"
 Hook = namedtuple("Hook", "label event matcher script argument timeout")
-PONYTAIL_START = "startup|resume|clear|compact"
+SHORT_TIMEOUT = 15
+START_EVENTS = "startup|resume|clear|compact"
+INJECT = "claude-skills/tools/inject.py"
 HOOKS = (Hook("update hook", "SessionStart", "startup", "claude-skills/tools/update.py", "", 30),
          Hook("resource hook", "PreToolUse", "Bash", "claude-skills/resource-guard/scripts/guard.py", " hook", 330),
-         Hook("ponytail start hook", "SessionStart", PONYTAIL_START, "ponytail/hooks/ponytail-activate.js", "", 15),
-         Hook("ponytail subagent hook", "SubagentStart", "", "ponytail/hooks/ponytail-subagent.js", "", 15),
-         Hook("ponytail mode hook", "UserPromptSubmit", "", "ponytail/hooks/ponytail-mode-tracker.js", "", 15))
+         Hook("speech and code start hook", "SessionStart", START_EVENTS, INJECT, " SessionStart", SHORT_TIMEOUT),
+         Hook("speech and code subagent hook", "SubagentStart", "", INJECT, " SubagentStart", SHORT_TIMEOUT))
 
 
 def hook_command(repo, hook):
     script = (Path(repo).parent / hook.script).as_posix()
-    if script.endswith(".js"):
-        node = Path(shutil.which(NODE) or NODE).as_posix()
-        return f'"{node}" "{script}"{hook.argument}'
     return f'"{Path(sys.executable).as_posix()}" -I "{script}"{hook.argument}'
 
 
 def is_ours(entry, hook):
     return any(hook.script in str(item.get("command", "")) for item in entry.get("hooks", []) if isinstance(item, dict))
-
-
-def ready(repo, hook):
-    return not hook.script.endswith(".js") or (Path(repo).parent / hook.script).is_file()
 
 
 def read_settings(path):
@@ -90,12 +82,8 @@ def _apply(config, change, failure, hooks=HOOKS):
 
 def add_hooks(config, repo):
     def failure(hook, error):
-        if not ready(repo, hook):
-            return f"{hook.label}: none"
         return f"{hook.label}: not added, {error}; add a {hook.event} hook running {hook_command(repo, hook)}"
-    def change(data, hook):
-        return _add(data, repo, hook) if ready(repo, hook) else _remove(data, hook)
-    return [line for line in _apply(config, change, failure) if not line[1].endswith(": none")]
+    return _apply(config, lambda data, hook: _add(data, repo, hook), failure)
 
 
 def remove_hooks(config):

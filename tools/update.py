@@ -10,12 +10,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent / "lib"))
 from gitcalls import (GitFailed, GitMissing, changed_paths, current_release, fast_forward, fetch_tag, head,
                       is_ancestor, is_dirty, latest_release)
 from board import sync_board
-from caveman import sync_caveman
-from graphify import start_background
 from guard import run_guarded
 from hook import add_hooks
-from paths import CAVEMAN_FILE, GRAPHIFY_FILE, INSTALLED_FILE, PONYTAIL_FILE, config_dir, repo_dir, skill_names, state_file
-from ponytail import LABEL, checkout_dir, force_mode, mode_file, sync_ponytail
+from legacy import clean
+from paths import INSTALLED_FILE, config_dir, repo_dir, skill_names, state_file
 from registry import read_json, write_json
 from sync import sync
 
@@ -86,21 +84,15 @@ def checked(repo):
 
 
 def online(repo):
-    lines = checked(repo)
-    found = sync_ponytail(repo.parent, state_file(repo, PONYTAIL_FILE))
-    found += sync_caveman(repo.parent, state_file(repo, CAVEMAN_FILE)) + sync_board(repo)
-    return lines + [text for _, text in found]
+    return checked(repo) + [text for _, text in sync_board(repo)]
 
 
 def main():
-    repo = repo_dir()
+    repo, config = repo_dir(), config_dir()
     due = network_due(state_file(repo, CHECK_FILE))
     lines = online(repo) if due else []
-    lines += resync(repo) + [text for _, text in add_hooks(config_dir(), repo)]
-    if checkout_dir(repo.parent).is_dir():
-        lines.append(f"{LABEL} {force_mode(mode_file())}")
-    if due:
-        lines.append(start_background(repo, state_file(repo, GRAPHIFY_FILE)))
+    lines += [text for _, text in clean(repo, config)]
+    lines += resync(repo) + [text for _, text in add_hooks(config, repo)]
     for line in lines:
         if not QUIET.fullmatch(line):
             print(f"{PREFIX}: {line}")
