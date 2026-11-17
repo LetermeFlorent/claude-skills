@@ -13,7 +13,8 @@ from store import CANDIDATE, CAPS, CONFIRMED, LISTS, NO_CAP, REFUTED, SECRET, op
 
 RULES = range(20)
 STATUS = {"confirm": CONFIRMED, "refute": REFUTED}
-MAX_POINTS = 3
+MIN_POINTS = 2.5
+MAX_POINTS = 15
 
 
 def show(payload, args):
@@ -32,7 +33,7 @@ def show(payload, args):
 
 def add(payload, args):
     if args.rule == 0 and args.points is None and args.cap != SECRET:
-        raise ValueError("rule 0 needs --points between 0.5 and 3, or --cap secret")
+        raise ValueError(f"rule 0 needs --points between {MIN_POINTS:g} and {MAX_POINTS}, or --cap secret")
     for finding in payload["findings"]:
         if (finding["rule"], finding["file"], finding["line"]) == (args.rule, args.file, args.line):
             print(f"already there as {finding['id']}: {finding['what']}, not added")

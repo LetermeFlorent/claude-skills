@@ -34,7 +34,7 @@ Check caps hardest and keep one only when it holds: secret (live value in a trac
 swallowed (error lost on a path that matters: payment, save, auth, data write), test-in-prod (test
 or seed code reaches the production build), attribution (trailer or workflow really there), build
 (command really fails, with output). Otherwise confirm with --cap none: a failed cap never refutes
-the defect under it. Rule 0 confirmations get --points 0.5 to 3.
+the defect under it. Rule 0 confirmations get --points 2.5 to 15.
 
 Finish with this block and nothing after it:
 VERIFIER REPORT

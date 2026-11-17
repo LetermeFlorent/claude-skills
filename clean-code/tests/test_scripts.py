@@ -24,7 +24,7 @@ PLAN = """<!-- clean-code plan v1 -->
 # Plan clean-code
 
 Scope: src
-Run: 2026-01-01-000000, note 19/20
+Run: 2026-01-01-000000, note 99/100
 {suite}
 ## Step 1: Serve hero.png through a `<picture>` element typed as `Promise<void>`
 
@@ -51,18 +51,29 @@ def commit(root, message):
 
 
 class ScoreTest(unittest.TestCase):
-    def test_any_deduction_keeps_the_note_under_twenty(self):
-        self.assertEqual(score._rounded(score.TOP - 0.25), 19.5)
-        self.assertEqual(score._rounded(score.TOP - 0.01), 19.5)
+    def test_any_deduction_keeps_the_note_under_a_hundred(self):
+        self.assertEqual(score._rounded(score.TOP - 0.25), 99)
+        self.assertEqual(score._rounded(score.TOP - 0.01), 99)
         taken = score.deductions([{"rule": 14, "file": "a.py"}], {"comment_scanned": 1000})
-        self.assertEqual(score._rounded(score.TOP - sum(taken.values())), 19.5)
+        self.assertEqual(score._rounded(score.TOP - sum(taken.values())), 99)
 
     def test_exact_steps_stay(self):
-        self.assertEqual(score._rounded(score.TOP), 20)
-        self.assertEqual(score._rounded(score.TOP - 1.5), 18.5)
+        self.assertEqual(score._rounded(score.TOP), 100)
+        self.assertEqual(score._rounded(score.TOP - 15), 85)
+
+    def test_note_has_no_floor(self):
+        found = [{"rule": 12, "file": f"f{index}.py"} for index in range(50)]
+        taken = score.deductions(found, {})
+        self.assertEqual(taken, {12: 250})
+        self.assertEqual(score._rounded(score.TOP - sum(taken.values())), -150)
+        self.assertEqual(score._rounded(-150.5), -151)
+
+    def test_long_files_keep_costing_past_forty_percent(self):
+        self.assertEqual(score._curve(0.4), 15)
+        self.assertAlmostEqual(score._curve(1), 40)
 
     def test_one_comment_finding_is_a_small_share(self):
-        self.assertEqual(score.deductions([{"rule": 14, "file": "a.py"}], {"comment_scanned": 200}), {14: 0.01})
+        self.assertEqual(score.deductions([{"rule": 14, "file": "a.py"}], {"comment_scanned": 200}), {14: 0.05})
 
 
 class PlanCheckTest(unittest.TestCase):

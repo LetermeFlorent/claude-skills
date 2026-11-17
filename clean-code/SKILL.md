@@ -6,7 +6,7 @@ description: Use when the user types /clean-code, asks to audit or tidy a projec
 # Clean code
 
 Audit measures scope against rules 0 to 19, keeps findings a fresh agent confirmed, turns them into
-note out of 20. Below 20: write plan, `plan_check.py` approves it, apply whole plan without asking,
+note out of 100, no floor: many findings take it below 0. Below 100: write plan, `plan_check.py` approves it, apply whole plan without asking,
 one commit per step.
 
 `<skill>` = this skill's base directory. Scripts by absolute path with `python -I`, from project
@@ -24,8 +24,8 @@ nothing you did not create.
 Hold in every mode, whatever user asks.
 
 1. Read-only until `plan_check.py` prints `plan ok`: nothing written in project apart from `.ia/`.
-2. Scope first: `/clean-code` argument, else one question. In doubt, narrowest. Outside scope,
-   findings reported, never fixed.
+2. Scope and passes first: `/clean-code` argument, else one question. In doubt, narrowest. Outside
+   scope, findings reported, never fixed.
 3. Finding needs `file:line` and proof. Verdicts come from fresh agent that never saw measuring,
    never from you.
 4. Repository shared with other sessions: commit only your own paths, never `git add .`, never on
@@ -38,7 +38,7 @@ Hold in every mode, whatever user asks.
 
 Threshold defaults in brackets. "Script" = module under `scripts/checks/`.
 
-0. Bad practice outside grid, weighed 0.5 to 3 points. Secret in tracked file = rule 0 with `secret`
+0. Bad practice outside grid, weighed 2.5 to 15 points. Secret in tracked file = rule 0 with `secret`
    cap, lifted only by verifier for placeholder or sample value.
 1. At most `max_lines` [150] lines per file, tests included, test data excepted. Script.
 2. One file, one job.
@@ -69,21 +69,19 @@ Threshold defaults in brackets. "Script" = module under `scripts/checks/`.
 19. Every image WebP, cropped to its box, at 1x and 2x; SVG stays SVG: `reference/images.md`.
     Script, live boxes through `browser-bidi`.
 
-`score.py` starts from 20, deducts only for confirmed findings:
+`score.py` starts from 100, deducts only for confirmed findings, no limit per rule and no floor:
 
 | Rule | Deduction |
 |---|---|
-| 0 | the points of each finding |
-| 1 | share of code files over the limit: 0.5 under 10 %, 3 over 40 %, linear between |
-| 14, 15, 18 | 2 times the share of files carrying the defect |
-| 12 | 1 per finding, 2 at most |
-| 2, 5, 9, 10 | 0.5 per finding, 2 at most |
-| 11 | 0.5 per finding, 1 at most |
-| 3, 6, 8, 13, 16, 17, 19 | 0.25 per finding, 2 at most |
-| 4, 7 | 0.25 per finding, 1 at most |
+| 0 | the points of each finding, 2.5 to 15 |
+| 1 | share of code files over the limit: 2.5 up to 10 %, then 12.5 more per 30 % (15 at 40 %, 40 at 100 %) |
+| 14, 15, 18 | 10 times the share of files carrying the defect |
+| 12 | 5 per finding |
+| 2, 5, 9, 10, 11 | 2.5 per finding |
+| 3, 4, 6, 7, 8, 13, 16, 17, 19 | 1 per finding |
 
-Caps hold note down, lowest wins: `secret` 5, `build` 8, `swallowed`, `test-in-prod` and
-`attribution` 10. Note rounded down to half point, so any deduction keeps it under 20.
+Caps hold note down, lowest wins: `secret` 25, `build` 40, `swallowed`, `test-in-prod` and
+`attribution` 50. Note rounded down to whole point, so any deduction keeps it under 100.
 
 ## Writing code
 
@@ -109,7 +107,8 @@ Code rules for this task:
 - No `shortcut:` or other note comment either: name the shortcut in your reply.
 - Secure by default: input hostile (validate, escape, parameterise queries, no shell or eval on user
   data), least privilege, no secret in code or logs, vetted crypto and libraries only, block every
-  attack path seen.
+  attack path seen. Code that must pass security scanners, or a security finding to fix: secure-code-loop
+  skill runs scan, fix, rescan.
 - Dependencies and tools always at latest stable release, version read from the registry, not memory;
   read changelog before bumping, tests green after.
 - Never code from memory: read code, docs and installed version of what you use first, then write.
@@ -129,8 +128,10 @@ clean-code pass: diff never mixes fix and comment sweep.
 
 In this order, each step ending before next.
 
-1. Scope: `/clean-code` argument, else `AskUserQuestion` with narrowest app or top folder first
-   (recommended), wider ones next, whole project last.
+1. Scope and passes: from `/clean-code` argument, else one `AskUserQuestion` holding both questions.
+   Scope: narrowest app or top folder first (recommended), wider ones next, whole project last.
+   Passes: `Until over 90/100` (recommended), `1 pass`, `2 passes`, `3 passes`; any other count or
+   target note the user types is taken as given. Caller that forbids questions and names none: 1 pass.
 2. Measure: `python -I "<skill>/scripts/measure.py" <scope>`, scope of several folders or files as
    several arguments. Prints run folder, candidates by rule and, past `reader_threshold` [30] code
    files, reader batches. Imports and image references count from whole project, findings only in
@@ -148,21 +149,20 @@ In this order, each step ending before next.
    `findings.py unmeasured --rule 12 --why "<each command and its reason>"`: second call replaces
    first.
 5. Read. Up to `reader_threshold` files, read them yourself. Past that, one agent per batch,
-   `readers` at most [4], prompt from `reader-brief.md`, all in one message. Past 150 code files,
-   map scope first when `graphify` on PATH, with
-   `GRAPHIFY_OUT="<absolute project root>/.ia/graphify-out" graphify update <scope>`: no model call,
-   never its skill. Graph goes to `.ia/graphify-out/`, never into scope; `.ia/`, git-ignored since
-   step 2, stays out of scan and measure. Relative `GRAPHIFY_OUT` would land under `<scope>`. Every
+   `readers` at most [4], prompt from `reader-brief.md`, all in one message. Before reading,
+   map scope with `python -I "<skill>/../code-map/scripts/code_map.py" build --root "<absolute project
+   root>" --scope <scope>`: no model call. Map goes to `.ia/code-map/`; `.ia/`, git-ignored since
+   step 2, stays out of scan and measure. Every
    reading rule (2, 5, 7, 9, 11, 16) ends with findings,
    `findings.py checked --rule <n> --why "..."` or `findings.py unmeasured --rule <n> --why "..."`.
 6. Verify, only when `python -I "<skill>/scripts/findings.py" list --status candidate` prints
    `| candidate |` row: one fresh Agent call (never fork), prompt from `verify-brief.md` with its
    `<...>` filled. Disagree with verdict only by sending it back with proof it missed.
 7. Score: `python -I "<skill>/scripts/score.py"`. Refuses while candidate has no verdict or reading
-   rule uncovered. At 20, stop: no plan, no question.
+   rule uncovered. At 100, stop: no plan, no question.
 8. Plan: write `<run>/plan.md` from `plan-template.md`, in English, then run
    `python -I "<skill>/scripts/plan_check.py"` until it prints `plan ok`.
-9. Print note alone as heading, `# 12/20`, no word around it, then apply whole plan without asking.
+9. Print note alone as heading, `# 62/100` (or `# -40/100`), no word around it, then apply whole plan without asking.
 
 ## Apply
 
@@ -202,12 +202,15 @@ list them under `Left as is`, hand back to caller. UI step ends with before and 
 phone and desktop widths.
 
 After last step, run audit steps 2 to 7 again on same scope, reading limited to files plan changed.
+That ends one pass. Next pass (audit steps 8 and 9 on this new score, then Apply) while count chosen
+is not reached, or note not over target chosen. Stop also at 100, or when a pass leaves note no
+higher than pass before; say why it stopped.
 
 ## Report
 
-Note after alone as heading, `# 17/20`, then in user's language each step with its commit hash, raw
-output of last full suite, what is left with its reason. Question only for what user alone decides,
-such as rotating leaked secret.
+Note after alone as heading, `# 85/100`, then in user's language note after each pass, each step
+with its commit hash, raw output of last full suite, what is left with its reason. Question only for
+what user alone decides, such as rotating leaked secret.
 
 ## Files
 

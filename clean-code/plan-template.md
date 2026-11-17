@@ -22,7 +22,7 @@ moves group into new subfolder.
 # Plan clean-code
 
 Scope: <measured scope>
-Run: <name of the run folder>, note <note>/20
+Run: <name of the run folder>, note <note>/100
 Suite: <command that runs the test suite>, green at the start: <yes, or no and each failing test or error>
 
 ## Step 1: <what the step changes, in plain words>

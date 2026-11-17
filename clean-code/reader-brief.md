@@ -11,19 +11,17 @@ Project root: <absolute project root>
 Run folder: <absolute path of .ia/clean-code/<run>>
 Your folders, and only these: <folders from the reader line>
 Rules: <skill>/SKILL.md, section "The rules". Read it first.
-Code map: <absolute project root>/.ia/graphify-out/ when it exists. Start from GRAPH_REPORT.md: god
-nodes, communities and import cycles. Then `graphify query "<question>"`, `graphify explain
-"<symbol>"` and `graphify path "<a>" "<b>"`, each with
-`--graph "<absolute project root>/.ia/graphify-out/graph.json"`, point at symbols nobody calls (rule
-3) and look-alike code in one community (rule 5). The map only points: confirm every finding by
-reading the file.
+Code map: `python -I "<skill>/../code-map/scripts/code_map.py" <command> --root "<absolute project
+root>"`. Start from `report` (hubs, import cycles, unused symbols), then `find <words>`, `explain
+<name>` and `path <a> <b>` point at symbols nobody calls (rule 3) and look-alike code (rule 5). The map
+only points: confirm every finding by reading the file.
 
 Script candidates for your folders: python -I "<skill>/scripts/findings.py" --run "<run folder>" list
 Do not judge them, a verifier does. Read every code file of your folders, tests included, for what
 a script cannot see: rule 2 (name each job and its line range), 5 (both locations), 6 (badly split
 job), 7 (names that lie or synonyms), 8 (shared state mutated, error turned into a default), 9
 (public behaviour with no test), 11 (dev-only code shipped), 16 (variable removable, inlinable or
-narrowable), 0 (bad practice outside the grid, with --points 0.5 to 3).
+narrowable), 0 (bad practice outside the grid, with --points 2.5 to 15).
 
 Add each finding once:
 python -I "<skill>/scripts/findings.py" --run "<run folder>" add --rule <n> --file <path from root>
