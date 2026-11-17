@@ -42,7 +42,8 @@ Hold for both commands, whatever the hurry.
    over, every agent still running is stopped, no extension.
 10. Report forced too, one per agent, yours included. Reply without AGENT REPORT template gets
     `report-request.md` again, once; still none, its section rebuilt from its digest and marked
-    `Answer at stop: no, rebuilt from its log`. No section left empty or `pending`.
+    `Answer at stop: no, rebuilt from its log`. No section left empty or `pending`. Force mode (step 2)
+    asks no report: every section rebuilt from its digest the same way.
 
 ## /stop-all
 
@@ -55,6 +56,10 @@ In this order, none skipped.
    port you opened; `git status`, `git diff --stat`, `git log -1` in each repo touched. Empty session id
    makes digest refuse: rerun with `--latest`, check ids match your agents. `NO_AGENT` is not an id. Agent
    list is ListAgents plus digest (ListAgents forgets finished agents within minutes).
+   Then close mode. Argument `force` or `wait` decides it. Otherwise, ListAgents shows a running subagent:
+   one AskUserQuestion, `Wait for their reports (Recommended)` (steps 6 and 7, then step 8) or `Force close
+   now` (no report asked, wait delay ignored: skip steps 6 and 7, go to step 8). No running subagent: wait
+   mode, no question.
 3. Earlier stop of same session (newest `find` result with your session id, `State: STOPPED`): nothing runs
    in ListAgents and no work since: answer "deja arrete" with its path, end. Otherwise carry on; agents with
    no activity since keep old section (copy it in step 5, no message in step 6).
@@ -84,8 +89,9 @@ In this order, none skipped.
    Paste each AGENT REPORT into its section as its notification lands and set `Answer at stop: yes, at
    HH:MM`. Wait ends on `all answered` or monitor expiry. Never foreground `sleep` (Bash blocks it);
    `ScheduleWakeup` only works inside /loop.
-8. ListAgents again. Each agent still running: copy `Pending at end` block of its `--agent <id>` digest into
-   its section, TaskStop it, set `Answer at stop: no, rebuilt from its log`, fill section from digest.
+8. ListAgents again. Each agent still running: TaskStop it. Each agent still `pending`, running or finished:
+   copy `Pending at end` block of its `--agent <id>` digest into its section, set `Answer at stop: no,
+   rebuilt from its log`, fill section from digest.
 9. Processes outliving their agent: every `[background]` command in digest and every server or watcher in a
    report. Find each by command line (`Get-CimInstance Win32_Process`); note matches with PID and command
    line, list others as not found. Non-matching process is not yours.
@@ -102,7 +108,7 @@ In this order, none skipped.
 12. `resume_check.py "<path>" --agent <id>` for every depth 1 id until it prints OK; ListAgents must show no
     running subagent. After three failed attempts write what is wrong under `## Open questions`, tell user.
     Delete scratch folder.
-13. Answer in three or four lines in user's language: what was stopped, path, who did not answer. Then wait:
+13. Answer in three or four lines in user's language: what was stopped, close mode, path, who did not answer. Then wait:
     nothing restarts before user speaks.
 
 ## /resume-all
