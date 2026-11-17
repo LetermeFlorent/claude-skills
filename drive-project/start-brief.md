@@ -9,22 +9,19 @@ Mapping worker gets block with `Box: map: <the goal> | lessons: <the lessons nam
 or none>`, and `none` in Answers, Reflection level, Earlier attempt, Run kit, Graph and Running beside.
 Reads project for goal, changes nothing.
 
-1. Count tracked source files and lines. At about 300 files, 50,000 lines, a monorepo or existing
-   `graphify-out/` or `.ia/graphify-out/`: build or refresh code graph before reading files one by one;
-   on smaller project, never. Do not load graphify skill: its command line needs no model call. From
-   project root, keep `.ia/` out of git so scan skips it, then build:
+1. Any project size: build code map before reading files one by one, then find goal's code with its
+   `find`, `explain` and `report` commands (code-map skill, Commands). From project root, keep `.ia/` out
+   of git first:
 
    ```bash
    git check-ignore -q .ia/x; [ $? -eq 1 ] && echo ".ia/" >> "$(git rev-parse --path-format=absolute --git-common-dir)/info/exclude"
-   GRAPHIFY_OUT="$PWD/.ia/graphify-out" graphify update .
+   python -I "<repo>/code-map/scripts/code_map.py" build --root "$PWD"
    ```
 
-   Graph lands in `.ia/graphify-out/`, never at project root; `GRAPHIFY_OUT` stays absolute, since a
-   relative one lands under scanned folder. No `graphify` on PATH: skip it, say so under `Edges:`.
-2. Smaller project: up to two `cavecrew-investigator` scouts may search at once, each call at minimum of
-   claude-model-effort's File or folder search row.
-3. New project with nothing to build on yet: name under `Files:` folder it would go in, no build or test.
-4. Check and proof are one: search commands you ran, each with result count. Run kit worker runs build and
+   Map lands in `.ia/code-map/`, never committed. Build fails: say so under `Edges:`, search files as
+   usual.
+2. New project with nothing to build on yet: name under `Files:` folder it would go in, no build or test.
+3. Check and proof are one: search commands you ran, each with result count. Run kit worker runs build and
    tests.
 
 Findings field holds these headings, each on own line, in this order:
@@ -32,7 +29,7 @@ Findings field holds these headings, each on own line, in this order:
 - `Files:` files goal touches.
 - `Build:` build command, or none.
 - `Test:` test command, or none.
-- `Graph:` absolute path of `.ia/graphify-out/graph.json` when graph was built, or none.
+- `Graph:` absolute project root when code map was built, or none.
 - `Edges:` edge cases worth a start question, and each sign-in only a human can type that goal or its
   proof needs.
 - `Mechanics:` mechanics around goal that connect to it.

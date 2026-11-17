@@ -15,7 +15,7 @@ Answers: <the start answers that bear on this box, or none>
 Reflection level: <peu | moyen | beaucoup | max | custom, or none>: how deep to work and check this box, within its files
 Earlier attempt: <the failed WORKER REPORT of this box, or none>: what already failed here, not to be repeated
 Run kit: <the run kit file's path, or none for the mapping and run kit workers>
-Graph: <none, or the graph.json path the mapping worker reported>
+Graph: <none, or the project root the mapping worker built the code map in>
 Running beside: <the files of every box named in this box's with:, or none>
 Effort skill: <repo>/claude-model-effort/SKILL.md, or <repo>/other-model-effort/SKILL.md for a sub-worker on a model that is not Claude
 First Read <repo>/drive-project/worker-brief.md and follow its Rules; when Box starts with `map:` or
@@ -45,7 +45,7 @@ Read path.
 
 - Work smallest change that fully does task; touch nothing outside it but project skills of
   <project>/.ia/skills/.
-- Ponytail sets how small each change is, never which part of task, test or proof gets skipped: task and
+- least-code sets how small each change is, never which part of task, test or proof gets skipped: task and
   levels above are the request.
 - Every command shaped to print the least: quiet or summary flag (`-q`, `--quiet`, `--short`,
   `--porcelain`, `--stat`, `--silent`), output cut to what proves or explains the result (`| tail -n 20`,
@@ -123,9 +123,9 @@ Read path.
   even when a tool says to branch first.
 - First read code and result task touches until you can say what it does. Then test, then look at real
   outcome (output read, page seen, app run), whatever the levels. Precision first.
-- Graph not none: find code with `graphify query "<question>" --graph <Graph> --budget 1500` before
-  opening files one by one; do not load graphify skill: graph already built. Exit 4 (no node matches):
-  search files as usual. File `git status` shows changed read directly, since graph predates change.
+- Graph not none: find code with `python -I "<repo>/code-map/scripts/code_map.py" find <words> --root
+  <Graph>` (or `explain <name>`) before opening files one by one; map refreshes changed files itself.
+  `no match:` line: search files as usual.
 - Box adds a test: write it before change: run it, paste it failing, make change, run it, paste it
   passing.
 - Run box's check yourself, as written, nothing wider (no whole suite or production build box does not
@@ -145,8 +145,8 @@ Read path.
   built folder, read each screenshot it prints. Then run leftover check of browser-bidi's SKILL.md,
   Procedure step 5 only, with port from its `browser closed, port ... released` line. launch.py and
   bidi.py only when proof must click, type, wait for a selector or sign in.
-- `cavecrew-reviewer` box: your finding lines, emoji dropped, one per line under `findings:`; `No issues.`
-  there when none. Still end with full WORKER REPORT.
+- Review box: one finding per line under `findings:` as `path:line: <bug | risk | question>: <problem>.
+  <fix>.`; `No issues.` there when none. Still end with full WORKER REPORT.
 - Task holds several boxes whose visual proof needs same running app: do each box's change and script
   proof with app down, then start app once through limited-run in background mode, wait for its ready
   line with Monitor and an until-loop on that background command's output file, take each box's visual
@@ -154,7 +154,7 @@ Read path.
 - Script step checked by eye or skipped as too small = skipped step.
 - For this run you build and test yourself, lessons go to <project>/.ia/skills/ only: replaces CLAUDE.md
   rules keeping builds in main session and picking lesson folder.
-- Stay silent: no text outside final block. Ponytail's closing lines go into `skipped:` line, never after
+- Stay silent: no text outside final block. least-code's closing line goes into `skipped:` line, never after
   block.
 - Never call progress board: in a /drive run only lead reports.
 - Report's free-text fields hold facts only: no greeting, hedging or recap, each fact once. Commands,

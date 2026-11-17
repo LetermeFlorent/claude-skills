@@ -77,10 +77,9 @@ lead only hands out tasks, reads reports, ticks boxes.
 5. "A subagent would cost more than doing it", "three small edits", "it is one line", "I already have the
    context", "just this once to save time": each = excuse this rule exists for. Box goes to worker at
    setting reflection level gives (step 4).
-6. Every text lead sends to a subagent (brief, SendMessage, resend) = strict minimum, caveman style, like
-   the caveman skill: drop articles, filler, pleasantries, hedging; short words, fragments fine ("Fix b7.
-   Check failed. Paste command + output."). Only what worker cannot find itself: box line, paths, command,
-   failing lines. Block `worker-brief.md` fills stays as is; lead adds nothing around it. Code, commands,
+6. Every text lead sends to a subagent (brief, SendMessage, resend) = strict minimum, per terse-speech
+   skill, Agent to agent ("Fix b7. Check failed. Paste command + output."). Only what worker cannot find
+   itself: box line, paths, command, failing lines. Block `worker-brief.md` fills stays as is; lead adds nothing around it. Code, commands,
    paths, error text quoted exact, never compressed.
 
 ## Speaking
@@ -109,8 +108,8 @@ user's language.
    recommended option of any box a called skill would open, with none, the one changing least. Doubt
    found while working = missed start question: take recommended reading, go on.
 3. Every text message during run: one line, whole number + `%` (`35%`), nothing else: no word, file name,
-   list, heading. Tool reminder to update user: answered with percentage. Ponytail's closing lines,
-   clean-code's `# 12/20` note, any skill's report stay unsaid. Workers and sub-workers write no text
+   list, heading. Tool reminder to update user: answered with percentage. least-code's closing line,
+   clean-code's `# 62/100` note, any skill's report stay unsaid. Workers and sub-workers write no text
    outside final report block.
 4. Percentage = share of ticked boxes in plan file, posted once after each ticked task. Box added on the
    way lowers share: post nothing until share passes last number posted. `100%` only as first line of last
@@ -135,11 +134,10 @@ Each at its moment, run by worker whose box needs it unless row says otherwise, 
 
 | When | Skill |
 |---|---|
-| Whole run | Ponytail, at level its hook set |
+| Whole run | terse-speech and least-code, loaded by their hooks into lead and every worker |
 | Each percentage, `0` to `100` | progress-board, sent by lead (Speaking rule 4) |
-| Project of about 300 code files or more, 50,000 lines, monorepo, or holding `graphify-out/` | graphify's command line, never its skill, by mapping worker (`start-brief.md`) |
-| Any smaller project | cavecrew: mapping worker's `cavecrew-investigator` scouts |
-| Review box (step 4) | cavecrew: `cavecrew-reviewer`. Edit box never to `cavecrew-builder`: no shell, re-read as proof, ends unclear work on a question, so report never passes lead rule 3 |
+| Finding code, any project size | code-map's script, by mapping worker (`start-brief.md`), then every worker through `Graph:` |
+| Review box (step 4) | worker from `worker-brief.md`, at claude-model-effort's Code review row |
 | Before any heavy command | resource-guard: PreToolUse hook in Claude Code, `guard.py wait` by hand in any other tool |
 | Every build, test run, install, typecheck, dev server, watcher, container | limited-run, memory cap, per `worker-brief.md` |
 | Each worker's model and effort (lead in plan, worker for its sub-workers) | claude-model-effort; other-model-effort for model not Claude |
@@ -163,8 +161,8 @@ One pass, in order.
    resume. Other goal: own plan, old one left as is.
 2. Mapping worker: general-purpose agent at minimum of claude-model-effort's Understanding an unknown
    codebase row, set on call, `worker-brief.md` block filled per Mapping part of `start-brief.md`. It
-   decides graphify and scouts itself. Report, under Mapping headings: files goal touches, build and test,
-   graph path when graphify ran, edge cases, task count per completion level, connected mechanics
+   builds code map itself. Report, under Mapping headings: files goal touches, build and test,
+   project root when code map built, edge cases, task count per completion level, connected mechanics
    (completion candidates), branch, uncommitted files.
    With that report, before asking, lead starts one run kit worker, `run_in_background: true` (foreground
    when refused), at minimum of claude-model-effort's "Running tests, reading the failure, fixing" row,
@@ -221,12 +219,11 @@ One pass, in order.
    worker writes test, pastes it failing, makes change, pastes it passing, then looks. Proof box stands
    alone only when covering several boxes (whole feature seen running).
    Review boxes from reflection level only: none at *peu* and *moyen* (each box's own proof is the check);
-   *beaucoup*: one `cavecrew-reviewer` box after last code box, on every code box's files; *max*: one after
-   each code box, on its files. Call sets claude-model-effort's Code review row, above agent file's
-   `model: haiku`. Reads `git diff HEAD -- <files>` + each new file whole (diff leaves new files out);
+   *beaucoup*: one review box after last code box, on every code box's files; *max*: one after
+   each code box, on its files. Call sets claude-model-effort's Code review row. Reads `git diff HEAD -- <files>` + each new file whole (diff leaves new files out);
    proof = `git diff --stat HEAD -- <files>` output + finding lines. No commit yet
    (`git rev-parse -q --verify HEAD` fails): reads each file whole, proof = `git status --short -- <files>`
-   output + finding lines. Finding lines, emoji dropped, one per line under `findings:` of its WORKER
+   output + finding lines. Finding lines, one per line under `findings:` of its WORKER
    REPORT; `No issues.` there ticks it. Each bug or risk line becomes new box, plain words, before handed
    out; question line takes safest reading.
    After last code box and its review, fixed boxes, in order:
