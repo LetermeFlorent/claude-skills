@@ -38,7 +38,8 @@ Each line gives the command that starts the skill and what it does.
 | writing-skills | `/write-skill` | writes or fixes a skill, and tests it on subagents |
 | terse-speech | none, loaded at every session and subagent start | keeps every reply and every report between agents short and plain |
 | least-code | none, loaded at every session and subagent start | makes the agent write the smallest change that fully works, and stop searching once it has the answer |
-| code-map | none | maps a project's code: where things are defined and used, what calls what, dead code and import cycles |
+| code-map | none | maps a project's code and keeps notes on it from one session to the next: where things are defined and used, what calls what, dead code, import cycles, why the code is the way it is |
+| secure-code-loop | `/secure-code-loop` | runs the security scanners found on the PC, fixes what they report and scans again until nothing serious is left |
 
 ## License
 

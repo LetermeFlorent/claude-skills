@@ -5,7 +5,7 @@ output, and tell the user what happened.
 
 ## What gets installed
 
-The repository holds 17 skills, one folder each with a `SKILL.md`, and the slash commands that start
+The repository holds 18 skills, one folder each with a `SKILL.md`, and the slash commands that start
 them, in each skill's `commands/` folder. Installing clones the repository into the Claude Code
 configuration folder, links every skill folder into its `skills/` folder and copies every command
 into its `commands/` folder. When OpenCode is installed (`~/.config/opencode` exists), the commands are
@@ -65,7 +65,7 @@ Five steps, in this order.
 
 ## Check
 
-`ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills"` lists the 17 skill folders and
+`ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills"` lists the 18 skill folders and
 `ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/commands"` the 14 command files, next to whatever the user
 had before. Then run the update check once:
 
@@ -95,6 +95,7 @@ Each command starts one skill.
 | `/other-model-effort` | other-model-effort |
 | `/resource-guard` | resource-guard |
 | `/write-skill` | writing-skills |
+| `/secure-code-loop` | secure-code-loop |
 
 `/commit` and `/drive` push to GitHub through `clean-commits/scripts/push.py`. Set `CLAUDE_SKILLS_ACCOUNTS`
 to the full path of an accounts tool, in the `env` block of `<config>/settings.json`, and the push takes its
