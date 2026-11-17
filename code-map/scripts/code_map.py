@@ -11,6 +11,7 @@ sys.path.insert(0, str(HERE))
 
 import queries
 import report
+from knowledge import commands, recall
 from common import TOOL, guard
 from store import find_root, refresh
 from graph import Graph
@@ -35,6 +36,11 @@ def parser():
     way.add_argument("source")
     way.add_argument("target")
     add("unused", "dead code candidates")
+    remember = add("note", "save a fact learned on the project, or drop one")
+    remember.add_argument("fact", nargs="?")
+    remember.add_argument("--about", nargs="+", default=[], help="symbols or files the fact concerns")
+    remember.add_argument("--drop", type=int, help="id of the note to delete")
+    add("notes", "list saved notes").add_argument("--stale", action="store_true", help="only notes whose files changed")
     return top.parse_args()
 
 
@@ -57,11 +63,15 @@ def main():
     elif args.command == "report":
         lines = report.report(graph, root)
     elif args.command == "find":
-        lines = queries.find(graph, args.words, args.budget)
+        lines = recall.find_all(graph, root, args.words, args.budget)
     elif args.command == "explain":
-        lines = queries.explain(graph, args.name)
+        lines = recall.explain_all(graph, root, args.name)
     elif args.command == "path":
         lines = queries.path_between(graph, args.source, args.target)
+    elif args.command == "note":
+        lines = commands.note(graph, root, args)
+    elif args.command == "notes":
+        lines = commands.listing(root, args.stale)
     else:
         lines = queries.unused(graph)
     print("\n".join(lines))

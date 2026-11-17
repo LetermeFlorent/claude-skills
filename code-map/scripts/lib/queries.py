@@ -3,6 +3,7 @@ import re
 
 from algo import closest, score, shortest_path, words
 from extract import MIN_NAME
+from knowledge.docs import HEADING_KIND, MARKDOWN
 
 DEFAULT_BUDGET = 6000
 SHOWN_REFS = 3
@@ -13,6 +14,7 @@ ENTRY_NAMES = frozenset({"main", "setup", "teardown", "setUp", "tearDown", "run"
 DUNDER = re.compile(r"^__\w+__$")
 TEST_PATH = re.compile(r"(^|/)(tests?|__tests__|spec)/|(^|/)test_[^/]*$|[._](test|spec)\.[^/]*$")
 INDEX_FILES = frozenset({"__init__", "index", "mod"})
+NO_MATCH = "no match"
 
 
 def names_of(places, limit=SHOWN_REFS):
@@ -40,7 +42,7 @@ def find(graph, query, budget):
     if not scored:
         pool = sorted(set(graph.defs) | {os.path.basename(p) for p in graph.files})
         near = [c for q in query for c in closest(q, pool, CLOSE_COUNT)]
-        return [f"no match: {' '.join(query)}", "closest: " + (", ".join(dict.fromkeys(near)) or "none")]
+        return [f"{NO_MATCH}: {' '.join(query)}", "closest: " + (", ".join(dict.fromkeys(near)) or "none")]
     lines, used = [], 0
     for _, _, path, line, kind, name, who in scored:
         text = f"{path}:{line} {kind} {name}" + (f"  <- {names_of(who)}" if who else "")
@@ -75,7 +77,7 @@ def explain(graph, name):
         if paths:
             return [line for path in paths for line in explain_file(graph, path)]
         pool = sorted(graph.defs)
-        return [f"no match: {name}", "closest: " + (", ".join(closest(name, pool, CLOSE_COUNT)) or "none")]
+        return [f"{NO_MATCH}: {name}", "closest: " + (", ".join(closest(name, pool, CLOSE_COUNT)) or "none")]
     lines = []
     for path, line, kind in places:
         lines.append(f"defined {path}:{line} {kind} {name}")
@@ -108,7 +110,7 @@ def path_between(graph, source, target):
     starts, goals = nodes_for(graph, source), nodes_for(graph, target)
     if not starts or not goals:
         missing = source if not starts else target
-        return [f"no match: {missing}"]
+        return [f"{NO_MATCH}: {missing}"]
     adj = graph.adjacency()
     chain, note = shortest_path(adj, starts, set(goals)), ""
     if chain is None:
@@ -124,12 +126,16 @@ def is_exempt(path, name):
     return bool(exempt or TEST_PATH.search(path) or stem in INDEX_FILES or name.startswith("test"))
 
 
+def used_in_code(graph, name):
+    return any(graph.files[path]["lang"] != MARKDOWN for path in graph.mentions.get(name, ()))
+
+
 def unused(graph):
     found = []
     for name, places in graph.defs.items():
-        if len(name) < MIN_NAME or graph.mentions.get(name):
+        if len(name) < MIN_NAME or used_in_code(graph, name):
             continue
-        found.extend((p, l, k, name) for p, l, k in places if not is_exempt(p, name))
+        found.extend((p, l, k, name) for p, l, k in places if k != HEADING_KIND and not is_exempt(p, name))
     found.sort()
     lines = [f"{p}:{l} {k} {n}" for p, l, k, n in found[:MAX_UNUSED]]
     return lines + [f"{len(found)} dead code candidates ({len(lines)} shown)"]

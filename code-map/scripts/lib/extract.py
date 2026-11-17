@@ -1,6 +1,7 @@
 import ast
 import re
 
+from knowledge.docs import MARKDOWN, is_markdown, markdown_facts
 from langs import KEYWORDS, OTHER, lang_of, rules_for
 
 IDENT = re.compile(r"[A-Za-z_]\w*")
@@ -71,7 +72,15 @@ def tokens_of(text, defs):
     return sorted(found)
 
 
+def markdown_entry(text):
+    defs, tokens = markdown_facts(text)
+    found = sorted(t for t in tokens if len(t) >= MIN_NAME)
+    return {"lang": MARKDOWN, "lines": text.count("\n") + 1, "defs": defs, "imports": [], "tokens": found}
+
+
 def extract(path, text):
+    if is_markdown(path):
+        return markdown_entry(text)
     lang = lang_of(path)
     entry = {"lang": lang or OTHER, "lines": text.count("\n") + 1, "defs": [], "imports": [], "tokens": []}
     if lang is None:

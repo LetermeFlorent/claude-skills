@@ -4,6 +4,7 @@ import re
 from collections import defaultdict
 
 from extract import MIN_NAME
+from knowledge.docs import HEADING_KIND
 from langs import COMMON, EXT_LANG
 
 MAX_DEF_FILES = 4
@@ -36,8 +37,9 @@ def mention_index(files, defs):
 
 def reference_map(defs, mentions):
     refs = {}
-    for name, places in defs.items():
-        if linkable(name, places):
+    for name, every in defs.items():
+        places = [place for place in every if place[2] != HEADING_KIND]
+        if places and linkable(name, places):
             who = sorted(mentions.get(name, set()) - {p for p, _, _ in places})
             if who:
                 refs[name] = who

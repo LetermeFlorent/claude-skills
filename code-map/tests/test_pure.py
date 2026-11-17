@@ -62,7 +62,7 @@ class ExtractTest(unittest.TestCase):
         self.assertIn(["build", "function", 9], found["defs"])
 
     def test_unknown_extension_is_a_file_node(self):
-        found = extract("notes.md", "def foo(): pass\n")
+        found = extract("notes.txt", "def foo(): pass\n")
         self.assertEqual((found["lang"], found["defs"], found["tokens"]), ("other", [], []))
 
     def test_broken_python_keeps_tokens(self):
