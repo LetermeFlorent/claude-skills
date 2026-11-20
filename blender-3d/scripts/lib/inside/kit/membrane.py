@@ -23,6 +23,8 @@ def membrane(name, chains):
     for a, b in zip(grid, grid[1:]):
         for r in range(rows - 1):
             bm.faces.new((a[r], b[r], b[r + 1], a[r + 1]))
+    bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=1e-5)
+    bmesh.ops.dissolve_degenerate(bm, edges=bm.edges, dist=1e-6)
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
     obj = finish(name, bm, lambda v: 0.0)
     obj.modifiers.new("Solidify", "SOLIDIFY").thickness = 0.006

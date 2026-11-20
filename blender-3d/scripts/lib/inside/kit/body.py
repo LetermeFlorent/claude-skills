@@ -1,3 +1,4 @@
+import bmesh
 import bpy
 from mathutils import Vector
 
@@ -35,21 +36,33 @@ def body(name, chains, head):
     return obj
 
 
+def select(objects, active):
+    for obj in bpy.context.view_layer.objects:
+        obj.select_set(obj in objects)
+    bpy.context.view_layer.objects.active = active
+
+
 def rig(body_obj, others=()):
     bpy.context.view_layer.update()
-    for obj in bpy.context.view_layer.objects:
-        obj.select_set(obj == body_obj)
-    bpy.context.view_layer.objects.active = body_obj
+    select([body_obj], body_obj)
     skin = next(m for m in body_obj.modifiers if m.type == "SKIN")
     bpy.ops.object.skin_armature_create(modifier=skin.name)
     armature = next(m.object for m in body_obj.modifiers if m.type == "ARMATURE")
-    for obj in others:
-        for other in bpy.context.view_layer.objects:
-            other.select_set(other in (obj, armature))
-        bpy.context.view_layer.objects.active = armature
+    body_obj.modifiers.remove(next(m for m in body_obj.modifiers if m.type == "ARMATURE"))
+    body_obj.vertex_groups.clear()
+    select([body_obj], body_obj)
+    for modifier in [m.name for m in body_obj.modifiers]:
+        bpy.ops.object.modifier_apply(modifier=modifier)
+    bm = bmesh.new()
+    bm.from_mesh(body_obj.data)
+    bmesh.ops.delete(bm, geom=[v for v in bm.verts if not v.link_faces], context="VERTS")
+    bm.to_mesh(body_obj.data)
+    bm.free()
+    for obj in (body_obj, *others):
+        select([obj, armature], armature)
         bpy.ops.object.parent_set(type="ARMATURE_AUTO")
-    for obj in bpy.context.view_layer.objects:
-        obj.select_set(False)
-    body_obj.parent = armature
-    body_obj.matrix_parent_inverse = armature.matrix_world.inverted()
+        obj.data.validate()
+    select([], None)
+    print(f"rig: {len(armature.data.bones)} bones; {body_obj.name} is now a real mesh of "
+          f"{len(body_obj.data.polygons)} faces, ready for UVs and bake")
     return armature
