@@ -85,19 +85,9 @@ Skin modifier (radii per vertex through `bm.verts.layers.skin.verify()`), Subdiv
 Displace for muscles and folds; thin parts like wing membranes are their own mesh along their bones.
 No part floats: every horn, plate, spike, tooth, claw or wing touches or sinks into what it hangs on.
 `info.py` lists each `floating` piece with its gap; refuse to go on, move it until the list is empty.
-Scripts run by `run.py` or `live.py` can `from kit import give, horn, line, material, membrane, smooth, stud`
-parts for creatures (`scripts/lib/inside/kit/`), tested; use them, and write in the report why when one is not used:
-
-| Call | Makes |
-|---|---|
-| `body(name, {"head": [(point, radius), ...], "neck": [...], ...}, "head")` | the whole creature as one skinned mesh: chains share joints where they meet, the first point is the root; prints each chain length and width in head lengths, to compare with the design sheet |
-| `rig(body, [other meshes])` | one bone per chain segment; applies Skin and Subdivision so the body becomes a real mesh, then parents it and every other mesh with automatic weights; call it after every part is placed |
-| `bake([meshes], W + "/textures")` | UVs where missing, colour, roughness and normal baked per mesh at 2048, materials rewired to the images, and `sheet.png` showing every map at once: open that sheet |
-| `smooth(obj, 2)` | Subdivision level 2 or more and smooth shading: never a faceted body |
-| `stud(name, body, "plate" or "spike", line(start, end, count, (size_from, size_to)))` | plates or spikes snapped onto the evaluated body, sunk in, sizes and spacing varied |
-| `horn(name, body, [base, middle, tip], radius)` | horn, claw, tooth or tail blade along its points: tapered, ring loops, base sunk into the body |
-| `membrane(name, [body_edge, finger_1, finger_2, ...])` | wing skin between bone chains (point lists from root to tip), 16 rows, scalloped edge, slack, thickness |
-| `material(name, "hide", "plate", "membrane" or "keratin", cell=0.06)` then `give(obj, mat)` | real pattern with crevices, zone contrast (belly lighter, horn base dark), relief; `cell` = pattern size in metres, about a twelfth of the torso width for hide, so cells read from far away |
+Before building a creature, read `reference/creature.md`: body from joint chains, parts placed on the
+surface, horns, wing membranes, rig order, one material recipe per surface, bake. Write your own scripts
+from those methods, sized from the design sheet.
 Anything that moves gets its rig in the same work: a skeleton vertex at every joint (shoulder, elbow,
 wrist, knee, each neck and tail segment, jaw, wing fingers) so loops sit where it bends; mark one root
 (`bm.verts.ensure_lookup_table()` first: adding the skin layer frees the old vertex references), then

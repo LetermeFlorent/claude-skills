@@ -24,6 +24,9 @@ Runs made while writing the skill, from the reports and captures they left:
   small model (Haiku, high effort) and a mid model (Sonnet, low effort).
 - With this skill, the small model wrote a complete design sheet: references, silhouette, proportions,
   joints and surfaces. Its build stayed weak: boxy faceted body, wings made of a few flat triangles, one
-  wavy pattern on every part, few blob-like plates, flat horns. The minimums in the rules section and
-  the creature kit of blender-3d were added from that run.
-- A run with the minimums and the kit is under way; its result is not in this section yet.
+  wavy pattern on every part, few blob-like plates, flat horns. The minimums in the rules section come
+  from that run.
+- Three more small-model runs used ready-made blender-3d functions that built the body, parts, rig and
+  bake: smooth bodies and readable textures, one convincing heavy wyvern out of three, but the model only
+  filled in arguments. Those functions became `reference/creature.md` in blender-3d, methods the model
+  writes its own code from; that version has not been run yet.

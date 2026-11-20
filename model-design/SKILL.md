@@ -57,8 +57,8 @@ These hold in every pass.
   a horn as a flat or straight cone (taper, curve and ring loops); back plates narrower than a quarter of
   the torso width, or a wingspan shorter than the body from snout to tail tip (wings that are also forelegs
   count it with the fingers spread).
-- Blockout ratios come from the chain lengths and widths the blender-3d kit `body()` prints, never from
-  the overall box of the mesh; a leg is measured from the hip or shoulder joint, pelvis
-  and shoulder blade left out.
+- Blockout ratios come from each joint chain's length and widest radius divided by the head chain
+  length (blender-3d `reference/creature.md`), never from the overall box of the mesh; a leg is
+  measured from the hip or shoulder joint, pelvis and shoulder blade left out.
 - Report names the design sheet, each ratio measured against its target, and every checklist line kept
   or missed.
