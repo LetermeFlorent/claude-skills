@@ -11,6 +11,7 @@ sys.path.insert(0, str(SCRIPTS))
 
 import blender
 import docsite
+import gate_rules
 import livequeue
 import run
 
@@ -108,6 +109,23 @@ class RunChecks(unittest.TestCase):
 
     def test_accepts_empty_scene(self):
         self.assertEqual(run.check(run.parse(["-", __file__]))[0], "-")
+
+
+class GateRules(unittest.TestCase):
+    def test_rows(self):
+        self.assertEqual(gate_rules.parse_rows(["Back:Plates:12"]), ({"Back:Plates": 12}, None))
+        self.assertIsNotNone(gate_rules.parse_rows(["Plates"])[1])
+
+    def test_measure_line(self):
+        self.assertEqual(gate_rules.parse_measure("measure belly Body 1.2"), ("belly", "Body", 1.2))
+        self.assertIsNone(gate_rules.parse_measure("imported with x"))
+
+    def test_verdicts(self):
+        measures = [("belly", "Body", 1.0), ("body_bend", "Body", 2.0), ("count", "Plates", 9), ("other", "x", 0)]
+        refused, kept = gate_rules.verdicts(measures, {"Plates": 12})
+        self.assertEqual(kept, 1)
+        self.assertEqual(len(refused), 2)
+        self.assertIn("design sheet says 12", refused[1])
 
 
 if __name__ == "__main__":

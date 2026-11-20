@@ -19,10 +19,11 @@ what matters. Exit 2 = refused (reason printed), exit 1 = Blender or the script 
 |---|---|
 | `run.py <file or -> <script.py> [--save new.blend]` | runs any bpy script on a `.blend`, on any file an importer reads (`.glb`, `.fbx`, `.obj`, `.usd`...), or on an empty scene (`-`); `--save` refuses the source path |
 | `api.py <query>` | from the installed Blender: `bpy.ops.mesh.bevel` (parameters, types, defaults, enum values), `BevelModifier` or any `bpy.types` name, a node such as `ShaderNodeBsdfPrincipled` (its sockets), any Python path such as `bmesh.ops.extrude_face_region` or `mathutils.Vector` (signature, docs, members), or a word to search every operator and type |
-| `shots.py <file> <out_dir> [--engine workbench/eevee/cycles] [--views ...] [--prefix 03-]` | renders captures framing every object, adds a light and world only when missing, never saves the file; views `front back left right side top bottom three_quarter` or `elevation:azimuth` |
+| `shots.py <file> <out_dir> [--engine workbench/eevee/cycles] [--views ...] [--prefix 03-]` | renders captures framing every object, adds a light and world only when missing, never saves the file; views comma separated (`front,side,45:120`): `front back left right side top bottom three_quarter` or `elevation:azimuth` |
 | `docs.py search <words> [--docs api]` | searches the manual (or API) index of the installed version, prints the best page URLs |
 | `docs.py page <url or path> [--find word]` | prints only the page's text, without menus; `--find` keeps the lines around a word |
 | `live.py start [file.blend]`, `run <script.py>`, `shots <out_dir> [shots options]`, `status`, `stop` | visible mode: opens a Blender window the user watches, runs each script inside it (3D view context set), captures from a copy, closes it without saving |
+| `gate.py <exported> --body NAME [--wings ...] [--plates NAME:COUNT ...] [--spikes NAME:COUNT ...] [--horns ...] [--show]` | creature minimums of model-design measured on the export: smooth body, membrane triangles, wingspan, plate count, size spread and width, lighter belly, hide saturation, normal map relief, horn curve; exit 2 with one `refused:` line each |
 | `info.py <file>` | version, objects, transforms and sizes, vertices, faces, triangles, non-manifold edges, loose parts, floating parts (a piece touching nothing, with its gap), UV layers, materials, images (missing ones flagged), procedural textures to bake, modifiers, bones, actions |
 
 Nothing is hard-coded to a Blender version: `run.py` runs any API, `docs.py` reads the docs of the
@@ -191,4 +192,7 @@ Done only after these ran this session:
 3. Final captures from every view opened, each checklist item matched (section 6, step 4).
 4. Export: `info.py <exported file>` (it imports the file into an empty scene itself) shows the same objects,
    triangles, materials and images, and `shots.py` on it shows the textures came through.
-5. Report: version, pages read, tools chosen and why, counts, file paths.
+5. Creature: `gate.py` on the export ends with `deliverable`. Exit 2 = not done: each `refused:` line
+   goes back to its pass, then export and `gate.py` again. Counts come from the design sheet, never
+   lowered to pass.
+6. Report: version, pages read, tools chosen and why, counts, file paths.

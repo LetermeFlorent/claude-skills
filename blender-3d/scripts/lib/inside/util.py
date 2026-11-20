@@ -2,6 +2,7 @@ import os
 import sys
 
 import bpy
+import numpy as np
 
 MARK = "@@ "
 
@@ -60,3 +61,28 @@ def load(path):
         fail(f"no importer in this Blender for .{ext_of(path)}")
     say(f"imported with bpy.ops.{idname}")
     op(filepath=os.path.abspath(path))
+
+
+def image_on(ob, kind):
+    for slot in ob.material_slots:
+        tree = slot.material.node_tree if slot.material and slot.material.node_tree else None
+        for node in tree.nodes if tree else []:
+            target = "Base Color" if kind == "colour" else "Color"
+            wanted = node.type == ("BSDF_PRINCIPLED" if kind == "colour" else "NORMAL_MAP")
+            link = node.inputs[target].links[0] if wanted and node.inputs[target].links else None
+            if link and link.from_node.type == "TEX_IMAGE" and link.from_node.image:
+                image = link.from_node.image
+                pixels = np.array(image.pixels[:]).reshape(image.size[1], image.size[0], image.channels)
+                return pixels
+    return None
+
+
+def samples(bm, pixels):
+    uv = bm.loops.layers.uv.active
+    height, width = pixels.shape[:2]
+    out = []
+    for face in bm.faces:
+        u, v = np.mean([loop[uv].uv[:] for loop in face.loops], 0) if uv else (0.5, 0.5)
+        x, y = int(u % 1 * (width - 1)), int(v % 1 * (height - 1))
+        out.append((face.normal.z, pixels[y, x, :3]))
+    return out

@@ -60,7 +60,8 @@ These hold in every pass.
 - Blockout ratios come from each joint chain's length and widest radius divided by the head chain
   length (blender-3d `reference/creature.md`), never from the overall box of the mesh; a leg is
   measured from the hip or shoulder joint, pelvis and shoulder blade left out.
-- Delivery waits until every checklist line and minimum is kept on the final captures. A line seen
+- Delivery waits until blender-3d `gate.py` on the export prints `deliverable`, with the design sheet's
+  counts, and every checklist line and minimum is kept on the final captures. A line seen
   missed, or a defect written in the "three worst" list, goes back to its pass and is fixed; it is
   never delivered with "low risk" or "kept that version". The last capture's three-worst list is empty
   or holds only defects no script can fix, each with what is missing.
