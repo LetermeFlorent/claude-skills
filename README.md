@@ -43,6 +43,7 @@ Each line gives the command that starts the skill and what it does.
 | fabric-modding | none | writes and fixes Minecraft Java mods on Fabric: exact versions first, the docs of that version read before any code, names checked in the game sources, a build to prove it |
 | neoforge-modding | none | the same for NeoForge mods |
 | forge-modding | none | the same for Forge mods, including the event bus rewrite of Forge 1.21.6 |
+| blender-3d | none | works in Blender: picks the tool among every option the manual lists, reads the docs page of the installed version before each action, proves the result with counts and a preview |
 
 ## License
 

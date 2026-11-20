@@ -5,7 +5,7 @@ output, and tell the user what happened.
 
 ## What gets installed
 
-The repository holds 21 skills, one folder each with a `SKILL.md`, and the slash commands that start
+The repository holds 22 skills, one folder each with a `SKILL.md`, and the slash commands that start
 them, in each skill's `commands/` folder. Installing clones the repository into the Claude Code
 configuration folder, links every skill folder into its `skills/` folder and copies every command
 into its `commands/` folder. When OpenCode is installed (`~/.config/opencode` exists), the commands are
@@ -65,7 +65,7 @@ Five steps, in this order.
 
 ## Check
 
-`ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills"` lists the 21 skill folders and
+`ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills"` lists the 22 skill folders and
 `ls "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/commands"` the 14 command files, next to whatever the user
 had before. Then run the update check once:
 
