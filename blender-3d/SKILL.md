@@ -1,6 +1,6 @@
 ---
 name: blender-3d
-description: Use when working in Blender or on a .blend file, writing or running a bpy script, modeling, sculpting, UV unwrapping, texturing, shading, rigging, animating, rendering, using modifiers or geometry nodes, cleaning a mesh, or importing and exporting .glb, .gltf, .fbx, .obj or .stl for a game, or when a bpy call fails with "context is incorrect", "poll() failed", an unknown keyword or a missing attribute, or when a model must match a request or a reference image.
+description: Use when working in Blender or on a .blend file, writing or running a bpy script, modeling, sculpting, UV unwrapping, texturing (realistic PBR or stylised), baking, shading, rigging, animating, rendering, using modifiers or geometry nodes, cleaning a mesh, or importing and exporting .glb, .gltf, .fbx, .obj or .stl for a game, or when a bpy call fails with "context is incorrect", "poll() failed", an unknown keyword or a missing attribute, or when a model must match a request or a reference image.
 ---
 
 # Blender 3D
@@ -58,7 +58,26 @@ Every script runs headless, from a copy of the file.
 - Scripts prefer `bpy.data` and `bmesh` to `bpy.ops`: operators depend on the active object, mode and area.
   An operator that must run gets its context with `bpy.context.temp_override(...)` and the right mode.
 
-## 5. Look after every action
+## 5. Textures
+
+The request sets the style; its words go on the checklist. No style word and no reference image: ask the
+user realistic or stylised before texturing, never pick one silently.
+
+| Request | Textures |
+|---|---|
+| Realistic, photo, real object | full PBR set: base colour, roughness, metallic, normal, ambient occlusion, height when the surface has relief; 2K to 4K; real-world scale on the UVs, even texel density; wear, dirt and variation where the real object has them; judged in Cycles under an HDRI |
+| Stylised, cartoon, low poly, pixel, toon | flat colours, hand-painted or palette textures, small sizes (pixel art: nearest filtering, exact pixel grid); judged in Eevee or Workbench |
+
+1. Read the manual pages of the method chosen: `sculpt_paint/texture_paint/`, `render/shader_nodes/`,
+   `modeling/meshes/uv/`, and for baking `render/cycles/baking.html`.
+2. UVs first: unwrapped, no overlap where textures differ, seams where they hide.
+3. Model for a game or any export: bake procedural nodes, lighting and high-poly detail to image textures,
+   plugged into Principled BSDF, no UDIM, before export: the glTF exporter keeps only those (its page:
+   `addons/scene_gltf2.html`). Re-imported file captured to check the textures came through.
+4. Captures of section 6 show the textures close up and from a distance; the checklist item for the style
+   is compared like the others.
+
+## 6. Look after every action
 
 The work needs a model that sees images. An agent without image input stops before any change and tells
 the user a model with vision is needed: numbers alone never say a model looks right.
@@ -77,7 +96,7 @@ the user a model with vision is needed: numbers alone never say a model looks ri
 Never say it looks right, close or done without having opened the captures of that step: the closest
 result to the request is the goal, not a model that only runs.
 
-## 6. Traps
+## 7. Traps
 
 | Seen | Rule |
 |---|---|
@@ -87,7 +106,7 @@ result to the request is the goal, not a model that only runs.
 | Mesh for 3D printing or games | check non-manifold edges, flipped normals, loose parts with `bmesh` before export |
 | Edits in a loop | `bmesh` on the data, written back once, instead of an operator per element |
 
-## 7. Proof
+## 8. Proof
 
 Done only after these ran this session:
 
