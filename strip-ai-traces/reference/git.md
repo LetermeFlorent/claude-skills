@@ -48,4 +48,4 @@ Second layer only; defaults can return with an update.
 | Copilot CLI | `"includeCoAuthoredBy": false` in `~/.copilot/settings.json`. Subagents and ACP mode ignore it |
 | VS Code | `"git.addAICoAuthor": "off"`; `chat.agentHost.copilot.includeCoAuthoredBy` proposed, not confirmed merged |
 | Aider | `--no-attribute-author`, `--no-attribute-committer`, leave `--attribute-co-authored-by` off |
-| Codex | `commit_attribution` reported removed in May 2026 (unverified) |
+| Codex | `commit_attribution` removed: codex-cli 0.170.0 warns it is ignored, and `codex_git_commit` shows as removed |
