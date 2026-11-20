@@ -3,7 +3,7 @@ import bpy
 PALETTES = {
     "hide": ((0.10, 0.08, 0.06), (0.30, 0.24, 0.17), (0.62, 0.55, 0.42)),
     "plate": ((0.03, 0.03, 0.03), (0.16, 0.13, 0.10), (0.45, 0.40, 0.33)),
-    "membrane": ((0.12, 0.03, 0.02), (0.38, 0.12, 0.08), (0.55, 0.30, 0.22)),
+    "membrane": ((0.06, 0.015, 0.01), (0.24, 0.08, 0.05), (0.45, 0.22, 0.14)),
     "keratin": ((0.04, 0.03, 0.03), (0.18, 0.14, 0.10), (0.70, 0.64, 0.52)),
 }
 
@@ -101,8 +101,8 @@ def membrane(tree, vector):
     warp.inputs[1].default_value = (0.3,) * 3
     tree.links.new(vector, warp.inputs[2])
     warped = warp.outputs["Vector"]
-    lines = tree.math("MAXIMUM", tree.ridged(warped, 0.9, 0.012),
-                      tree.math("MULTIPLY", tree.ridged(warped, 3.5, 0.01), 0.5))
+    lines = tree.math("MAXIMUM", tree.ridged(warped, 0.9, 0.03),
+                      tree.math("MULTIPLY", tree.ridged(warped, 3.5, 0.015), 0.5))
     wrinkle = tree.math("MULTIPLY", tree.noise(tree.scaled(vector, 3.0), 6.0, 4.0), 0.25)
     return lines, tree.math("ADD", lines, wrinkle), tree.noise(vector, 0.6, 2.0)
 

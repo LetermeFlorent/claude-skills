@@ -97,9 +97,19 @@ def contact_lines(deps):
     yield f"floating parts {len(loose)}"
 
 
+def drop_bone_shapes(source):
+    if source.lower().endswith(".blend"):
+        return
+    shapes = {b.custom_shape for o in bpy.data.objects if o.pose for b in o.pose.bones if b.custom_shape}
+    for shape in shapes:
+        say(f"skipped {shape.name}: bone display shape added by the importer, not in the file")
+        bpy.data.objects.remove(shape)
+
+
 def main():
     source = args()[0]
     load(source)
+    drop_bone_shapes(source)
     scene = bpy.context.scene
     deps = bpy.context.evaluated_depsgraph_get()
     say(f"blender {bpy.app.version_string} file {source}")

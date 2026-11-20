@@ -96,7 +96,7 @@ parts for creatures (`scripts/lib/inside/kit/`), tested; use them, and write in 
 | `stud(name, body, "plate" or "spike", line(start, end, count, (size_from, size_to)))` | plates or spikes snapped onto the evaluated body, sunk in, sizes and spacing varied |
 | `horn(name, body, [base, middle, tip], radius)` | horn, claw, tooth or tail blade along its points: tapered, ring loops, base sunk into the body |
 | `membrane(name, [body_edge, finger_1, finger_2, ...])` | wing skin between bone chains (point lists from root to tip), 16 rows, scalloped edge, slack, thickness |
-| `material(name, "hide", "plate", "membrane" or "keratin", cell=0.06)` then `give(obj, mat)` | real pattern with crevices, zone contrast (belly lighter, horn base dark), relief; `cell` = pattern size in metres |
+| `material(name, "hide", "plate", "membrane" or "keratin", cell=0.06)` then `give(obj, mat)` | real pattern with crevices, zone contrast (belly lighter, horn base dark), relief; `cell` = pattern size in metres, about a twelfth of the torso width for hide, so cells read from far away |
 Anything that moves gets its rig in the same work: a skeleton vertex at every joint (shoulder, elbow,
 wrist, knee, each neck and tail segment, jaw, wing fingers) so loops sit where it bends; mark one root
 (`bm.verts.ensure_lookup_table()` first: adding the skin layer frees the old vertex references), then
