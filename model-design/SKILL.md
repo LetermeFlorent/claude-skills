@@ -55,8 +55,10 @@ These hold in every pass.
   fingers); one pattern on every part, or Wave stripes on hide; plates or spikes fewer than the count the
   design sheet gives per row, or all the same size; body colour without a lighter belly and darker back;
   a horn as a flat or straight cone (taper, curve and ring loops); back plates narrower than a quarter of
-  the torso width, or a wingspan shorter than the body from snout to tail tip.
+  the torso width, or a wingspan shorter than the body from snout to tail tip (wings that are also forelegs
+  count it with the fingers spread).
 - Blockout ratios come from the chain lengths and widths the blender-3d kit `body()` prints, never from
-  the overall box of the mesh.
+  the overall box of the mesh; a leg is measured from the hip or shoulder joint, pelvis
+  and shoulder blade left out.
 - Report names the design sheet, each ratio measured against its target, and every checklist line kept
   or missed.
