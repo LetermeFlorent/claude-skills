@@ -90,6 +90,8 @@ parts for creatures (`scripts/lib/inside/kit/`), tested; use them, and write in 
 
 | Call | Makes |
 |---|---|
+| `body(name, {"head": [(point, radius), ...], "neck": [...], ...}, "head")` | the whole creature as one skinned mesh: chains share joints where they meet, the first point is the root; prints each chain length and width in head lengths, to compare with the design sheet |
+| `rig(body, [other meshes])` | one bone per chain segment, weights, every other mesh parented with automatic weights |
 | `smooth(obj, 2)` | Subdivision level 2 or more and smooth shading: never a faceted body |
 | `stud(name, body, "plate" or "spike", line(start, end, count, (size_from, size_to)))` | plates or spikes snapped onto the evaluated body, sunk in, sizes and spacing varied |
 | `horn(name, body, [base, middle, tip], radius)` | horn, claw, tooth or tail blade along its points: tapered, ring loops, base sunk into the body |
