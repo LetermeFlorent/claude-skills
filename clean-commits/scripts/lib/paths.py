@@ -12,7 +12,9 @@ SECRET_NAME = re.compile(r"(^|/)(\.env(\.(?!(example|sample|template|dist)$)[^/]
 SECRET_TEXT = re.compile(r"\b(sk_live_[0-9A-Za-z]{10,}|sk-ant-[A-Za-z0-9_-]{20,}|sk-[A-Za-z0-9_-]{20,}"
                          r"|AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,}"
                          r"|xox[abprs]-[A-Za-z0-9-]{10,}|AIza[0-9A-Za-z_-]{35})|-----BEGIN [A-Z ]*PRIVATE KEY-----")
-ARTIFACT = re.compile(r"(^|/)(node_modules|dist|build|out|target|coverage|__pycache__|\.next|\.nuxt|\.turbo"
+SOURCE_DIRS = ("src/", "tests/", "examples/", "benches/")
+BUILD_DIRS = re.compile(r"(^|/)(dist|build|out|target)(/|$)")
+ARTIFACT = re.compile(r"(^|/)(node_modules|coverage|__pycache__|\.next|\.nuxt|\.turbo"
                       r"|\.cache|\.gradle|\.venv|venv|\.pytest_cache|\.mypy_cache)(/|$)"
                       r"|\.(pyc|pyo|log|tmp|swp)$|(^|/)(\.DS_Store|Thumbs\.db|desktop\.ini)$")
 KINDS = ("tooling", "secret", "artifact", "large", "ok")
@@ -45,7 +47,8 @@ def classify(root, entry):
     leaked = _secret_in(file) if file.is_file() and size < LARGE_BYTES else None
     if leaked:
         return SECRET_KIND, leaked
-    if entry["new"] and ARTIFACT.search(path):
+    is_artifact = ARTIFACT.search(path) or (BUILD_DIRS.search(path) and not path.startswith(SOURCE_DIRS))
+    if entry["new"] and is_artifact:
         return ARTIFACT_KIND, "generated file, belongs in .gitignore"
     if entry["new"] and size >= LARGE_BYTES:
         return LARGE_KIND, f"{size // MEGABYTE} MB new file"
