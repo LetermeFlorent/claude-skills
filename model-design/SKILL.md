@@ -52,7 +52,7 @@ These hold in every pass.
 - After every capture, write the three worst defects seen, then fix the worst before any new part.
 - Minimums, each refused when a capture shows it: a flat facet or box edge on the body (Subdivision 2
   or more, smooth shading); a wing membrane of a few big triangles (12 rows or more, sagging between the
-  fingers); one pattern on every part, or Wave stripes on hide; plates or spikes fewer than the count the
+  fingers, never a flat panel); one pattern on every part, or Wave stripes on hide; plates or spikes fewer than the count the
   design sheet gives per row, or all the same size; body colour without a lighter belly and darker back;
   a horn as a flat or straight cone (taper, curve and ring loops); back plates narrower than a quarter of
   the torso width, or a wingspan shorter than the body from snout to tail tip (wings that are also forelegs
@@ -60,5 +60,9 @@ These hold in every pass.
 - Blockout ratios come from each joint chain's length and widest radius divided by the head chain
   length (blender-3d `reference/creature.md`), never from the overall box of the mesh; a leg is
   measured from the hip or shoulder joint, pelvis and shoulder blade left out.
-- Report names the design sheet, each ratio measured against its target, and every checklist line kept
-  or missed.
+- Delivery waits until every checklist line and minimum is kept on the final captures. A line seen
+  missed, or a defect written in the "three worst" list, goes back to its pass and is fixed; it is
+  never delivered with "low risk" or "kept that version". The last capture's three-worst list is empty
+  or holds only defects no script can fix, each with what is missing.
+- Report names the design sheet, each ratio measured against its target, and every checklist line with
+  the capture that shows it kept.

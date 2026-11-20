@@ -40,6 +40,8 @@ for poly in body.data.polygons:
 - Measure each chain: its length and widest radius divided by the head chain length give the ratios to
   compare with the design sheet. The overall box of the mesh says nothing about proportions.
 - Subdivision level 1 leaves the box edges of the Skin modifier visible: always 2.
+- Subdivision 2 shrinks the Skin hull by about a quarter: give each joint about 1.3 times the radius the
+  design sheet wants, then measure the evaluated body.
 
 ## Parts placed on the surface
 
@@ -81,13 +83,15 @@ Bridge each ring to the next with quads, cap the tip, sink the base into the bod
 
 Chains = body edge, then each finger, root to tip. Resample each chain to 16 points, then fill a grid
 between neighbour chains: 8 columns per gap. Pull the trailing edge inward between fingers (scallop) and
-let the middle sag along the normal (slack). Weld vertices that coincide at the root and dissolve
+let the middle sag along the normal (slack). A membrane read as a flat panel is a defect: bend each
+finger chain at its middle joint, fan the fingers at different angles so they never lie in one plane,
+and keep slack at 0.08 to 0.12 of the gap width. Weld vertices that coincide at the root and dissolve
 degenerate faces, or the glTF exporter calls the mesh invalid after rigging. Add a Solidify of a few
 millimetres.
 
 ```python
 inward = (left[0].lerp(right[0], u) - point) * 0.25 * sin(pi * u) * t ** 2
-slack = 0.04 * sin(pi * u) * sin(pi * t) * (left[r] - right[r]).length
+slack = 0.1 * sin(pi * u) * sin(pi * t) * (left[r] - right[r]).length
 bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=1e-5)
 bmesh.ops.dissolve_degenerate(bm, edges=bm.edges, dist=1e-6)
 ```
@@ -101,10 +105,16 @@ The body must stay a Skin mesh until the bones exist, and become a real mesh bef
    edge.
 3. Remove the Armature modifier it added and clear the body's vertex groups, then apply Skin and
    Subdivision: the body becomes a real mesh with faces, needed for UVs and baking.
-4. Delete vertices with no face left (`not v.link_faces`): they count as extra parts.
-5. Parent the body and every other mesh to the armature with `ARMATURE_AUTO`, then `mesh.validate()` on
-   each.
-6. Pose neck, tail, a leg and a wing, capture, check nothing tears, reset the pose.
+4. Delete vertices with no face left (`not v.link_faces`) and weld with `remove_doubles`: loose bits and
+   split pieces of the Skin hull count as extra parts in `info.py`; Body must show 1 part.
+5. Parent the body to the armature with `ARMATURE_AUTO`. Pieces joined into one mesh (teeth, plates,
+   spikes, claws) get each piece weighted 1.0 to its nearest bone instead: automatic weights tear them.
+   Membrane vertices get the two finger bones of their gap, weighted by their position across it
+   (`1 - u` and `u`): automatic weights leave the wing rigid. Then `mesh.validate()` on each.
+6. Pose neck, tail, a leg and a wing, capture, check nothing tears and the membrane folds, reset the
+   pose.
+7. Last step before export, after the bake: weld and `mesh.validate()` again on Body and membranes, or
+   the exporter calls them invalid.
 
 ## Materials: one real pattern per surface
 
@@ -122,6 +132,10 @@ Bump node, strength 0.8, distance `cell * 0.15`) and zone (light colour mix).
 Colour = mix(crevice, mix(zone, mid colour varied by large noise, light colour), dark colour). Roughness
 from crevice, 0.45 to 0.85 (keratin from 0.3). Wave texture stripes are wood, never hide.
 
+Judge colour from the baked colour image (mean of its pixels against the design sheet colour), not from a
+capture: the capture lighting makes it look paler or greyer. A dull grey hide is a defect: raise
+saturation in the mid and dark colours until the baked mean matches.
+
 ## Bake
 
 For each mesh: copy its material (two meshes sharing one material overwrite each other's bake), smart UV
@@ -129,4 +143,5 @@ project (66 degrees, margin 0.02) where it has no UVs, then bake `DIFFUSE` with 
 `ROUGHNESS` and `NORMAL` into new 2048 images (colour sRGB, the other two Non-Color), the image node
 selected and active in the material each time. Save every image, then rebuild the material from the
 three images (normal through a Normal Map node). To look at many maps at once, scale copies to 256 pixels
-and tile them into one sheet image with numpy, then open the sheet.
+and tile them into one sheet image with numpy, then open the sheet. A normal map of flat even blue
+shows no relief: raise the Bump distance until the cells show on the sheet, then bake again.

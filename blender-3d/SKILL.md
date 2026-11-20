@@ -162,8 +162,10 @@ the user a model with vision is needed: numbers alone never say a model looks ri
    extra `--views` (`back`, `45:120`) for parts hidden in the four.
 3. Open every capture `shots.py` printed with the image-reading tool, all views, not one or two. Write
    what is seen, then compare it item by item with the checklist and the reference.
-4. A gap: fix it, render again, look again. Stop only when every item matches, or the gap left is named
-   to the user with its reason.
+4. A gap: fix it, render again, look again. Stop only when every item matches. A gap may be left and
+   named to the user only when no script can fix it (needs a file, software or decision the user has).
+   "Low risk", "reads well from far away", "kept that version" and lack of time are not reasons: a
+   defect seen on a capture is fixed, never moved to the report's not-done list.
 
 Never say it looks right, close or done without having opened the captures of that step: the closest
 result to the request is the goal, not a model that only runs.
@@ -186,7 +188,7 @@ Done only after these ran this session:
 1. The script exits 0 with `--python-exit-code 1`.
 2. `info.py` on the result: objects, vertices, faces, materials, non-manifold edges, missing images,
    `floating parts 0`.
-3. Final captures from every view opened, each checklist item matched or its gap named.
+3. Final captures from every view opened, each checklist item matched (section 6, step 4).
 4. Export: `info.py <exported file>` (it imports the file into an empty scene itself) shows the same objects,
    triangles, materials and images, and `shots.py` on it shows the textures came through.
 5. Report: version, pages read, tools chosen and why, counts, file paths.
