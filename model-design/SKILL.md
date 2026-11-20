@@ -54,6 +54,9 @@ These hold in every pass.
   or more, smooth shading); a wing membrane of a few big triangles (12 rows or more, sagging between the
   fingers); one pattern on every part, or Wave stripes on hide; plates or spikes fewer than the count the
   design sheet gives per row, or all the same size; body colour without a lighter belly and darker back;
-  a horn as a flat or straight cone (taper, curve and ring loops).
+  a horn as a flat or straight cone (taper, curve and ring loops); back plates narrower than a quarter of
+  the torso width, or a wingspan shorter than the body from snout to tail tip.
+- Blockout ratios come from the chain lengths and widths the blender-3d kit `body()` prints, never from
+  the overall box of the mesh.
 - Report names the design sheet, each ratio measured against its target, and every checklist line kept
   or missed.
