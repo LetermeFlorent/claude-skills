@@ -6,6 +6,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import bmesh
 import bpy
+from contact import floating
+from mathutils import Vector
 from util import args, load, say
 
 WELD = 1e-5
@@ -83,6 +85,18 @@ def material_lines(material):
         yield "  procedural " + ", ".join(procedural) + " (bake to images before export)"
 
 
+def contact_lines(deps):
+    meshes = [o for o in bpy.data.objects if o.type == "MESH" and not o.hide_render]
+    corners = [o.matrix_world @ Vector(c) for o in meshes for c in o.bound_box]
+    if not corners:
+        return
+    size = max(max(c[i] for c in corners) - min(c[i] for c in corners) for i in range(3))
+    loose = floating(meshes, deps, size)
+    for label, distance in loose:
+        yield f"floating {label} gap {distance:.3g}: move it until it touches the part it hangs on"
+    yield f"floating parts {len(loose)}"
+
+
 def main():
     source = args()[0]
     load(source)
@@ -94,6 +108,8 @@ def main():
     for ob in sorted(bpy.data.objects, key=lambda o: o.name):
         for line in object_lines(ob, deps):
             say(line)
+    for line in contact_lines(deps):
+        say(line)
     for material in bpy.data.materials:
         for line in material_lines(material):
             say(line)

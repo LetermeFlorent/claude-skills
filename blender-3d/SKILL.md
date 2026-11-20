@@ -23,7 +23,7 @@ what matters. Exit 2 = refused (reason printed), exit 1 = Blender or the script 
 | `docs.py search <words> [--docs api]` | searches the manual (or API) index of the installed version, prints the best page URLs |
 | `docs.py page <url or path> [--find word]` | prints only the page's text, without menus; `--find` keeps the lines around a word |
 | `live.py start [file.blend]`, `run <script.py>`, `shots <out_dir> [shots options]`, `status`, `stop` | visible mode: opens a Blender window the user watches, runs each script inside it (3D view context set), captures from a copy, closes it without saving |
-| `info.py <file>` | version, objects, transforms and sizes, vertices, faces, triangles, non-manifold edges, loose parts, UV layers, materials, images (missing ones flagged), procedural textures to bake, modifiers, bones, actions |
+| `info.py <file>` | version, objects, transforms and sizes, vertices, faces, triangles, non-manifold edges, loose parts, floating parts (a piece touching nothing, with its gap), UV layers, materials, images (missing ones flagged), procedural textures to bake, modifiers, bones, actions |
 
 Nothing is hard-coded to a Blender version: `run.py` runs any API, `docs.py` reads the docs of the
 installed version, `api.py` reads names from the running
@@ -82,6 +82,8 @@ Take the tool that does the step with the least destructive change (a modifier b
 A creature or any organic body is one mesh, never primitives stuck together: an edge skeleton with the
 Skin modifier (radii per vertex through `bm.verts.layers.skin.verify()`), Subdivision, then sculpt or
 Displace for muscles and folds; thin parts like wing membranes are their own mesh along their bones.
+No part floats: every horn, plate, spike, tooth, claw or wing touches or sinks into what it hangs on.
+`info.py` lists each `floating` piece with its gap; refuse to go on, move it until the list is empty.
 Anything that moves gets its rig in the same work: a skeleton vertex at every joint (shoulder, elbow,
 wrist, knee, each neck and tail segment, jaw, wing fingers) so loops sit where it bends; mark one root
 (`bm.verts.ensure_lookup_table()` first: adding the skin layer frees the old vertex references), then
@@ -178,7 +180,8 @@ result to the request is the goal, not a model that only runs.
 Done only after these ran this session:
 
 1. The script exits 0 with `--python-exit-code 1`.
-2. `info.py` on the result: objects, vertices, faces, materials, non-manifold edges, missing images.
+2. `info.py` on the result: objects, vertices, faces, materials, non-manifold edges, missing images,
+   `floating parts 0`.
 3. Final captures from every view opened, each checklist item matched or its gap named.
 4. Export: `info.py <exported file>` (it imports the file into an empty scene itself) shows the same objects,
    triangles, materials and images, and `shots.py` on it shows the textures came through.
