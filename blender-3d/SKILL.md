@@ -82,6 +82,12 @@ Take the tool that does the step with the least destructive change (a modifier b
 A creature or any organic body is one mesh, never primitives stuck together: an edge skeleton with the
 Skin modifier (radii per vertex through `bm.verts.layers.skin.verify()`), Subdivision, then sculpt or
 Displace for muscles and folds; thin parts like wing membranes are their own mesh along their bones.
+Anything that moves gets its rig in the same work: a skeleton vertex at every joint (shoulder, elbow,
+wrist, knee, each neck and tail segment, jaw, wing fingers) so loops sit where it bends; mark one root
+(`bm.verts.ensure_lookup_table()` first: adding the skin layer frees the old vertex references), then
+`bpy.ops.object.skin_armature_create(modifier=<skin>)` makes one bone per edge with weights; other meshes
+get `parent_set(type="ARMATURE_AUTO")`. Every mesh is parented to the armature. Proof: pose neck, tail,
+a leg and a wing, capture, check nothing tears or stays behind, then reset the pose.
 
 ## 3. Before every action, read its page
 
