@@ -11,6 +11,7 @@ from util import args, fail, load, say
 
 VIEWS = {"front": (0, -90), "back": (0, 90), "left": (0, 180), "right": (0, 0), "side": (0, 0),
          "top": (89.9, -90), "bottom": (-89.9, -90), "three_quarter": (30, -45)}
+ZOOM = float(args()[6])
 SHAPES = {"MESH", "CURVE", "SURFACE", "META", "FONT", "CURVES", "POINTCLOUD", "VOLUME", "GREASEPENCIL"}
 
 
@@ -82,7 +83,7 @@ def camera(scene):
 def shoot(scene, cam, view, path):
     center, radius = bounds()
     facing = direction(view)
-    distance = radius / math.sin(cam.data.angle / 2) * 1.1
+    distance = radius / math.sin(cam.data.angle / 2) * 1.1 / ZOOM
     cam.location = center + facing * distance
     cam.rotation_euler = (-facing).to_track_quat("-Z", "Y").to_euler()
     cam.data.clip_start = max(distance - radius * 2, distance / 1000)

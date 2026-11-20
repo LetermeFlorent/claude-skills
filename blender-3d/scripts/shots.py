@@ -19,6 +19,7 @@ def parse(argv):
     parser.add_argument("--views", default=VIEWS, help="comma list: front back left right side top bottom "
                         "three_quarter, or elevation:azimuth in degrees")
     parser.add_argument("--size", type=int, default=768)
+    parser.add_argument("--zoom", type=float, default=1.0, help="closer camera for texture detail, e.g. 4")
     parser.add_argument("--prefix", default="", help="file name start, e.g. 03-")
     parser.add_argument("--timeout", type=int, default=900)
     return parser.parse_args(argv)
@@ -30,10 +31,12 @@ def main():
     source = existing(options.source, problems, "source")
     if not 16 <= options.size <= 8192:
         problems.append(f"--size out of 16..8192: {options.size}")
+    if not 1 <= options.zoom <= 50:
+        problems.append(f"--zoom out of 1..50: {options.zoom}")
     if problems or source == "-":
         refuse(problems or ["give a file to capture"])
     out_dir = str(Path(options.out_dir).resolve())
-    rest = [source, out_dir, options.engine, options.views, options.size, options.prefix]
+    rest = [source, out_dir, options.engine, options.views, options.size, options.prefix, options.zoom]
     report(*launch(source, "shots_bl.py", rest, options.timeout))
     print("next: open every PNG above with the image tool and compare it with the checklist")
 

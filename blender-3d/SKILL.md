@@ -121,8 +121,13 @@ user realistic or stylised before texturing, never pick one silently.
    plugged into Principled BSDF, before export: the glTF exporter keeps only those (its page:
    `addons/scene_gltf2.html`; it splits UDIM tiles into separate images, all on one UV map). Re-imported
    file captured to check the textures came through.
-4. Captures of section 6 show the textures close up and from a distance; the checklist item for the style
-   is compared like the others.
+4. Realistic means the real surface pattern, not a tint: scales, pores, plates, grain or weave built from
+   Voronoi, Wave or painted masks whose cells and crevices drive colour, roughness and height together;
+   colour that changes by zone (belly lighter than back, dark crevices, worn tips) from masks on object
+   coordinates, a gradient or ambient occlusion; variation at two scales or more. Noise on a colour ramp
+   alone is not a realistic texture.
+5. Captures of section 6 show the textures from a distance and close up (`shots.py --zoom 4`), and every
+   baked image is opened too: the pattern must be readable in both, a uniform tint fails the style item.
 
 ## 6. Look after every action
 
