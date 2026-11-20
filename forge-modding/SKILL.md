@@ -23,7 +23,8 @@ Before any code, read `gradle.properties`, `build.gradle`, `settings.gradle`,
 
 ## 2. Docs before code
 
-Open the docs of that exact version and read the page of the feature before writing it:
+Before writing, search the docs of that exact version for the task's topic and read only the matching
+pages, never the whole docs:
 
 - `https://docs.minecraftforge.net/en/latest/`, version selector at the top; pick the project's version.
   Read the page of the topic: registries, events, networking (SimpleImpl), data generation, mod files.

@@ -24,7 +24,8 @@ then write down:
 
 ## 2. Docs before code
 
-Open the docs of that exact Minecraft version and read the page of the feature before writing it:
+Before writing, search the docs of that exact Minecraft version for the task's topic and read only the matching
+pages, never the whole docs:
 
 - `https://docs.neoforged.net/docs/<version>/` (current version: `https://docs.neoforged.net/docs/`), version
   selector at the top. Read the page of the topic: registries, events, networking (payloads), data

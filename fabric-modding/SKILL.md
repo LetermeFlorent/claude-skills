@@ -23,7 +23,8 @@ Before any code, read `gradle.properties`, `build.gradle(.kts)`, `settings.gradl
 
 ## 2. Docs before code
 
-Open the docs of that exact Minecraft version and read the page of the feature before writing it:
+Before writing, search the docs of that exact Minecraft version for the task's topic and read only the matching
+pages, never the whole docs:
 
 - `https://docs.fabricmc.net/<version>/develop/` (current version: `https://docs.fabricmc.net/develop/`).
   Pages: entrypoints and `fabric.mod.json` (`/develop/loader/fabric-mod-json`), networking
