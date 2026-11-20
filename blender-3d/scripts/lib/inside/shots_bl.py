@@ -11,7 +11,7 @@ from util import args, fail, load, say
 
 VIEWS = {"front": (0, -90), "back": (0, 90), "left": (0, 180), "right": (0, 0), "side": (0, 0),
          "top": (89.9, -90), "bottom": (-89.9, -90), "three_quarter": (30, -45)}
-ZOOM = float(args()[6])
+ZOOM, FOCUS = float(args()[6]), args()[7]
 SHAPES = {"MESH", "CURVE", "SURFACE", "META", "FONT", "CURVES", "POINTCLOUD", "VOLUME", "GREASEPENCIL"}
 
 
@@ -24,6 +24,9 @@ def direction(view):
 def bounds():
     objects = bpy.context.scene.objects
     shown = [o for o in objects if o.type in SHAPES and not o.hide_render] or list(objects)
+    if FOCUS:
+        names = ", ".join(sorted(o.name for o in shown))
+        shown = [o for o in shown if o.name == FOCUS] or fail(f"no object named {FOCUS}; names: {names}")
     deps = bpy.context.evaluated_depsgraph_get()
     corners = [o.matrix_world @ Vector(c) for o in shown for c in o.evaluated_get(deps).bound_box]
     if not corners:

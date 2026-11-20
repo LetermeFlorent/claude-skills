@@ -40,6 +40,8 @@ to see Blender, switch at once, mid-task:
 2. Every next step: `live.py run <script.py>`; captures: `live.py shots <work>/shots --prefix <step>-`.
    Scripts save their own step file: `bpy.ops.wm.save_as_mainfile(filepath=<new path>, copy=True)`.
    What the user sees: a step with `bpy.ops.screen.screenshot(filepath=<png>)`, then open the PNG.
+   The window opens in Material Preview so the user sees materials and textures; never switch it to
+   Solid, which shows every object grey.
 3. Back to hidden when the user asks, or at the end: save the step file, then `live.py stop`. Leave the
    window open only when the user says so. The user closing the window ends visible mode: go on hidden
    from the last saved step.
@@ -130,7 +132,7 @@ user realistic or stylised before texturing, never pick one silently.
    copied everywhere: a wing membrane is thin skin with veins, folds and light through it, no scales; a horn
    is ringed keratin, dark base, pale worn tip. Relief strong enough to cast shade at `--zoom 4`: the baked
    normal map shows every cell clearly; a surface that looks painted on has its height too weak.
-5. Captures of section 6 show the textures from a distance and close up (`shots.py --zoom 4`), and every
+5. Captures of section 6 show the textures from a distance and close up (`shots.py --zoom 4`, one part: `--object Horn_L`), and every
    baked image is opened too: the pattern must be readable in both, a uniform tint fails the style item.
 
 ## 6. Look after every action

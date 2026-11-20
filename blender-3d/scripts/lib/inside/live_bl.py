@@ -48,6 +48,14 @@ def redraw():
             area.tag_redraw()
 
 
+def material_view():
+    for window in bpy.context.window_manager.windows:
+        for area in window.screen.areas:
+            if area.type == "VIEW_3D":
+                area.spaces.active.shading.type = "MATERIAL"
+    return None
+
+
 def tick():
     if os.path.exists(STOP):
         os.remove(STOP)
@@ -67,6 +75,7 @@ def tick():
 
 os.makedirs(INBOX, exist_ok=True)
 os.makedirs(OUTBOX, exist_ok=True)
+bpy.app.timers.register(material_view, first_interval=TICK)
 bpy.app.timers.register(tick, first_interval=TICK, persistent=True)
 with open(os.path.join(QUEUE, "ready"), "w", encoding="utf-8") as ready:
     ready.write(str(os.getpid()))
