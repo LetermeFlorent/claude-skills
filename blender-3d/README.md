@@ -15,9 +15,28 @@ make, clean, texture, rig or export for a game. It makes the agent:
 6. run scripts so that errors are not missed, and never overwrite your `.blend`;
 7. prove the result with counts, final pictures and a re-import of exported files.
 
-Only `SKILL.md` is needed.
+It drives Blender through small Python scripts in `scripts/`, no MCP server: run any Blender script,
+read operator and node names from the installed Blender, search and read the docs of that version, render
+captures, list what a file holds. Nothing in them is tied to one Blender version, so features added later
+work without changing the scripts.
 
-## Not tested yet
+Blender stays hidden by default. Ask to see it at any time and it opens a Blender window where each step
+shows live; ask again and it closes it and goes on hidden.
 
-Written from the Blender docs on 2026-11-20 without trial runs. The first real uses may show mistakes the
-skill does not catch yet.
+Needs Blender installed (or `BLENDER_EXE` pointing at it) and Python 3. Add-ons you installed in Blender are
+used only when `BLENDER_KEEP_PREFS=1` is set.
+
+## What was tested
+
+On Windows 11 with Blender 5.3.0, 2026-11-20:
+
+- every script run for real: scripts on an empty scene, a `.blend` and a `.glb`; captures with Workbench,
+  Eevee and Cycles; glTF export and re-import; docs search and page reading; the visible window opened,
+  driven, captured and closed;
+- refusals and failures: missing files, saving over the source, unknown engine or format, Python errors;
+- unit tests: `python -I tests/test_pure.py`;
+- agents given the same model tasks with and without the skill (Sonnet and Haiku): without it they read no
+  docs and looked at one picture; with it they read the docs pages, checked names, opened every view and
+  fixed what the captures and counts showed.
+
+Not tested on Linux or macOS.

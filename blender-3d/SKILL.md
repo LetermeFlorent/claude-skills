@@ -9,9 +9,45 @@ Blender renames operators, properties and nodes between versions, and memory mix
 (operator, modifier, node, property, export option) is checked in the Blender docs of the installed version
 first. Not read = not done.
 
+## Scripts: full control, no MCP
+
+`<skill>/scripts`, Python standard library, run with `python -I`. They find Blender through `BLENDER_EXE`,
+the PATH, `~/Tools/blender-*` or the usual install folders, run it headless at low priority, and print only
+what matters. Exit 2 = refused (reason printed), exit 1 = Blender or the script failed (traceback printed).
+
+| Script | Does |
+|---|---|
+| `run.py <file or -> <script.py> [--save new.blend]` | runs any bpy script on a `.blend`, on any file an importer reads (`.glb`, `.fbx`, `.obj`, `.usd`...), or on an empty scene (`-`); `--save` refuses the source path |
+| `api.py <query>` | from the installed Blender: `bpy.ops.mesh.bevel` (parameters, types, defaults, enum values), `BevelModifier` or any `bpy.types` name, a node such as `ShaderNodeBsdfPrincipled` (its sockets), any Python path such as `bmesh.ops.extrude_face_region` or `mathutils.Vector` (signature, docs, members), or a word to search every operator and type |
+| `shots.py <file> <out_dir> [--engine workbench/eevee/cycles] [--views ...] [--prefix 03-]` | renders captures framing every object, adds a light and world only when missing, never saves the file; views `front back left right side top bottom three_quarter` or `elevation:azimuth` |
+| `docs.py search <words> [--docs api]` | searches the manual (or API) index of the installed version, prints the best page URLs |
+| `docs.py page <url or path> [--find word]` | prints only the page's text, without menus; `--find` keeps the lines around a word |
+| `live.py start [file.blend]`, `run <script.py>`, `shots <out_dir> [shots options]`, `status`, `stop` | visible mode: opens a Blender window the user watches, runs each script inside it (3D view context set), captures from a copy, closes it without saving |
+| `info.py <file>` | version, objects, transforms and sizes, vertices, faces, triangles, non-manifold edges, loose parts, UV layers, materials, images (missing ones flagged), procedural textures to bake, modifiers, bones, actions |
+
+Nothing is hard-coded to a Blender version: `run.py` runs any API, `docs.py` reads the docs of the
+installed version, `api.py` reads names from the running
+Blender, importers are found by their file filter, so features added in later versions work unchanged.
+Add-ons and extensions the user installed load only with `BLENDER_KEEP_PREFS=1` (default is factory
+settings, so results do not depend on the user's preferences).
+
+## Hidden or visible
+
+Hidden by default: every step runs headless with `run.py`, nothing appears on screen. When the user asks
+to see Blender, switch at once, mid-task:
+
+1. `live.py start <latest step .blend>` opens the window on the current state.
+2. Every next step: `live.py run <script.py>`; captures: `live.py shots <work>/shots --prefix <step>-`.
+   Scripts save their own step file: `bpy.ops.wm.save_as_mainfile(filepath=<new path>, copy=True)`.
+   What the user sees: a step with `bpy.ops.screen.screenshot(filepath=<png>)`, then open the PNG.
+3. Back to hidden when the user asks, or at the end: save the step file, then `live.py stop`. Leave the
+   window open only when the user says so. The user closing the window ends visible mode: go on hidden
+   from the last saved step.
+
 ## 1. Version first
 
-`blender --version` (or `bpy.app.version_string` inside Blender), then use `<x.y>` of that version:
+`python -I <skill>/scripts/api.py` prints the version (or `blender --version`), then use `<x.y>` of that
+version:
 
 | Docs | URL |
 |---|---|
@@ -20,10 +56,14 @@ first. Not read = not done.
 | API changes of the version | `https://docs.blender.org/api/<x.y>/change_log.html` |
 | API traps (context, modes, stale data) | `https://docs.blender.org/api/<x.y>/info_gotcha.html` |
 
+Docs pages are read with `docs.py`, not a web fetch: a fetched page is mostly menus and gets cut before
+its content.
+
 ## 2. Pick the tool from every option
 
-Before choosing how to do a step, open the manual section that lists all tools of that domain and compare
-them, instead of using the first tool remembered:
+Before choosing how to do a step, open the manual section that lists all tools of that domain
+(`docs.py page <section>index.html`, or `docs.py search <step>`) and compare them, instead of using the
+first tool remembered:
 
 | Step | Manual section listing the options |
 |---|---|
@@ -42,19 +82,24 @@ Take the tool that does the step with the least destructive change (a modifier b
 
 No operator, modifier, node or export runs before these four steps for it.
 
-1. Manual page of the tool: behaviour, options, what it breaks.
-2. API page for the script call: `bpy.ops.<module>.html`, `bpy.types.<Type>.html`, `bmesh.html`.
-3. Check the real names in the installed Blender, not from memory:
-   `blender --background --python-expr "import bpy; print([p.identifier for p in bpy.ops.mesh.bevel.get_rna_type().properties])"`.
+1. Manual page of the tool: `docs.py search <tool>`, then `docs.py page <url>`: behaviour, options, what
+   it breaks.
+2. API page for the script call: `docs.py page bpy.ops.<module>.html --docs api --find <name>`, same for
+   `bpy.types.<Type>.html` and `bmesh.ops.html`.
+3. Check the real names in the installed Blender, not from memory: `api.py bpy.ops.mesh.bevel`,
+   `api.py BevelModifier`, `api.py ShaderNodeBsdfPrincipled`, or `api.py <word>` when the name is unknown.
 4. Write the call with the names just read. Report names the pages read.
 
 ## 4. Running scripts
 
-Every script runs headless, from a copy of the file.
+Every change is a bpy script run by `run.py`, one step per script, each step saved to a new file:
+`run.py work/02.blend step3.py --save work/03.blend`. Blender runs with `--python-exit-code 1`: a Python
+error fails the command with its traceback. Export is a step like any other, its options read first:
+`run.py work/05.blend export.py` with `bpy.ops.export_scene.gltf(filepath=..., export_format="GLB")`.
 
-- `blender --background <file.blend> --python <script.py> --python-exit-code 1`: a Python error fails the
-  command instead of being lost in the log.
-- Never save over the user's `.blend`: `bpy.ops.wm.save_as_mainfile(filepath=<new path>)`, or a copy first.
+- Never save over the user's `.blend`: `run.py` refuses it; scripts that save themselves use a new path.
+- A `DeprecationWarning` in the output: replace the call now; the replacement is on the API page of that
+  type (`docs.py page bpy.types.<Type>.html --docs api --find <name>`) or in `change_log.html`.
 - Scripts prefer `bpy.data` and `bmesh` to `bpy.ops`: operators depend on the active object, mode and area.
   An operator that must run gets its context with `bpy.context.temp_override(...)` and the right mode.
 
@@ -70,10 +115,12 @@ user realistic or stylised before texturing, never pick one silently.
 
 1. Read the manual pages of the method chosen: `sculpt_paint/texture_paint/`, `render/shader_nodes/`,
    `modeling/meshes/uv/`, and for baking `render/cycles/baking.html`.
-2. UVs first: unwrapped, no overlap where textures differ, seams where they hide.
+2. Image textures need UVs first: unwrapped, no overlap where textures differ, seams where they hide.
+   Flat colours from material values need none.
 3. Model for a game or any export: bake procedural nodes, lighting and high-poly detail to image textures,
-   plugged into Principled BSDF, no UDIM, before export: the glTF exporter keeps only those (its page:
-   `addons/scene_gltf2.html`). Re-imported file captured to check the textures came through.
+   plugged into Principled BSDF, before export: the glTF exporter keeps only those (its page:
+   `addons/scene_gltf2.html`; it splits UDIM tiles into separate images, all on one UV map). Re-imported
+   file captured to check the textures came through.
 4. Captures of section 6 show the textures close up and from a distance; the checklist item for the style
    is compared like the others.
 
@@ -84,12 +131,11 @@ the user a model with vision is needed: numbers alone never say a model looks ri
 
 1. Before the first change, write the request as a checklist of what can be seen: shape, proportions,
    parts, colours, style, pose, polygon budget. A reference image is opened and looked at first.
-2. After every action that changes what is seen, render captures from front, side, top and three-quarter,
-   camera aimed at the centre of all objects and far enough to frame them: Workbench for shape, Eevee or
-   Cycles for materials. `scene.render.filepath` then `bpy.ops.render.render(write_still=True)`, files in
-   `<work folder>/shots/<step>-<view>.png`.
-3. Open every capture with the image-reading tool and look at it. Write what is seen, then compare it item
-   by item with the checklist and the reference.
+2. After every action that changes what is seen: `shots.py <file> <work>/shots --prefix <step>-`
+   (front, side, top, three-quarter). Workbench for shape, `--engine eevee` or `cycles` for materials,
+   extra `--views` (`back`, `45:120`) for parts hidden in the four.
+3. Open every capture `shots.py` printed with the image-reading tool, all views, not one or two. Write
+   what is seen, then compare it item by item with the checklist and the reference.
 4. A gap: fix it, render again, look again. Stop only when every item matches, or the gap left is named
    to the user with its reason.
 
@@ -103,7 +149,8 @@ result to the request is the goal, not a model that only runs.
 | `poll() failed, context is incorrect` | wrong mode, no active or selected object, or no area: set them or use `temp_override`, read the operator's page |
 | Unknown keyword, missing attribute | name changed in this version: read `change_log.html`, check with step 3 |
 | Export for a game engine | read the exporter page; apply scale and rotation, check axes, units and the engine's limits (triangles, bones, texture size) |
-| Mesh for 3D printing or games | check non-manifold edges, flipped normals, loose parts with `bmesh` before export |
+| Mesh for 3D printing or games | `info.py` before export: non-manifold edges are counted after welding vertices closer than 0.00001, so separate parts that touch show up there too |
+| Baked or generated image shows `MISSING` in `info.py` | set `image.filepath_raw` and `image.file_format`, then `image.save()`, before the export or save |
 | Edits in a loop | `bmesh` on the data, written back once, instead of an operator per element |
 
 ## 8. Proof
@@ -111,7 +158,8 @@ result to the request is the goal, not a model that only runs.
 Done only after these ran this session:
 
 1. The script exits 0 with `--python-exit-code 1`.
-2. Counts printed from the result: objects, vertices, faces, materials, non-manifold edges.
+2. `info.py` on the result: objects, vertices, faces, materials, non-manifold edges, missing images.
 3. Final captures from every view opened, each checklist item matched or its gap named.
-4. Export: the file imported again into an empty scene with the same counts.
+4. Export: `info.py` on the exported file (imported into an empty scene) shows the same objects,
+   triangles, materials and images, and `shots.py` on it shows the textures came through.
 5. Report: version, pages read, tools chosen and why, counts, file paths.
