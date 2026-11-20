@@ -79,6 +79,9 @@ first tool remembered:
 | Import, export | `files/import_export/` |
 
 Take the tool that does the step with the least destructive change (a modifier before an applied edit).
+A creature or any organic body is one mesh, never primitives stuck together: an edge skeleton with the
+Skin modifier (radii per vertex through `bm.verts.layers.skin.verify()`), Subdivision, then sculpt or
+Displace for muscles and folds; thin parts like wing membranes are their own mesh along their bones.
 
 ## 3. Before every action, read its page
 
