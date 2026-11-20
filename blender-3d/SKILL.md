@@ -79,11 +79,22 @@ first tool remembered:
 | Import, export | `files/import_export/` |
 
 Take the tool that does the step with the least destructive change (a modifier before an applied edit).
+Before the first mesh of a creature, character or object, the model-design skill writes its design sheet.
 A creature or any organic body is one mesh, never primitives stuck together: an edge skeleton with the
 Skin modifier (radii per vertex through `bm.verts.layers.skin.verify()`), Subdivision, then sculpt or
 Displace for muscles and folds; thin parts like wing membranes are their own mesh along their bones.
 No part floats: every horn, plate, spike, tooth, claw or wing touches or sinks into what it hangs on.
 `info.py` lists each `floating` piece with its gap; refuse to go on, move it until the list is empty.
+Scripts run by `run.py` or `live.py` can `from kit import give, horn, line, material, membrane, smooth, stud`
+parts for creatures (`scripts/lib/inside/kit/`), tested; use them, and write in the report why when one is not used:
+
+| Call | Makes |
+|---|---|
+| `smooth(obj, 2)` | Subdivision level 2 or more and smooth shading: never a faceted body |
+| `stud(name, body, "plate" or "spike", line(start, end, count, (size_from, size_to)))` | plates or spikes snapped onto the evaluated body, sunk in, sizes and spacing varied |
+| `horn(name, body, [base, middle, tip], radius)` | horn, claw, tooth or tail blade along its points: tapered, ring loops, base sunk into the body |
+| `membrane(name, [body_edge, finger_1, finger_2, ...])` | wing skin between bone chains (point lists from root to tip), 16 rows, scalloped edge, slack, thickness |
+| `material(name, "hide", "plate", "membrane" or "keratin", cell=0.06)` then `give(obj, mat)` | real pattern with crevices, zone contrast (belly lighter, horn base dark), relief; `cell` = pattern size in metres |
 Anything that moves gets its rig in the same work: a skeleton vertex at every joint (shoulder, elbow,
 wrist, knee, each neck and tail segment, jaw, wing fingers) so loops sit where it bends; mark one root
 (`bm.verts.ensure_lookup_table()` first: adding the skin layer frees the old vertex references), then
