@@ -18,6 +18,8 @@ Files:
 
 ## What was tested
 
+Runs made while writing the skill, from the reports and captures they left:
+
 - The same original wyvern-like monster was asked from an empty scene, with the blender-3d skill, by a
   small model (Haiku, high effort) and a mid model (Sonnet, low effort).
 - With this skill, the small model wrote a complete design sheet: references, silhouette, proportions,
