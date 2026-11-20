@@ -1,6 +1,6 @@
 ---
 name: blender-3d
-description: Use when working in Blender or on a .blend file, writing or running a bpy script, modeling, sculpting, UV unwrapping, texturing, shading, rigging, animating, rendering, using modifiers or geometry nodes, cleaning a mesh, or importing and exporting .glb, .gltf, .fbx, .obj or .stl for a game, or when a bpy call fails with "context is incorrect", "poll() failed", an unknown keyword or a missing attribute.
+description: Use when working in Blender or on a .blend file, writing or running a bpy script, modeling, sculpting, UV unwrapping, texturing, shading, rigging, animating, rendering, using modifiers or geometry nodes, cleaning a mesh, or importing and exporting .glb, .gltf, .fbx, .obj or .stl for a game, or when a bpy call fails with "context is incorrect", "poll() failed", an unknown keyword or a missing attribute, or when a model must match a request or a reference image.
 ---
 
 # Blender 3D
@@ -58,7 +58,26 @@ Every script runs headless, from a copy of the file.
 - Scripts prefer `bpy.data` and `bmesh` to `bpy.ops`: operators depend on the active object, mode and area.
   An operator that must run gets its context with `bpy.context.temp_override(...)` and the right mode.
 
-## 5. Traps
+## 5. Look after every action
+
+The work needs a model that sees images. An agent without image input stops before any change and tells
+the user a model with vision is needed: numbers alone never say a model looks right.
+
+1. Before the first change, write the request as a checklist of what can be seen: shape, proportions,
+   parts, colours, style, pose, polygon budget. A reference image is opened and looked at first.
+2. After every action that changes what is seen, render captures from front, side, top and three-quarter,
+   camera aimed at the centre of all objects and far enough to frame them: Workbench for shape, Eevee or
+   Cycles for materials. `scene.render.filepath` then `bpy.ops.render.render(write_still=True)`, files in
+   `<work folder>/shots/<step>-<view>.png`.
+3. Open every capture with the image-reading tool and look at it. Write what is seen, then compare it item
+   by item with the checklist and the reference.
+4. A gap: fix it, render again, look again. Stop only when every item matches, or the gap left is named
+   to the user with its reason.
+
+Never say it looks right, close or done without having opened the captures of that step: the closest
+result to the request is the goal, not a model that only runs.
+
+## 6. Traps
 
 | Seen | Rule |
 |---|---|
@@ -68,12 +87,12 @@ Every script runs headless, from a copy of the file.
 | Mesh for 3D printing or games | check non-manifold edges, flipped normals, loose parts with `bmesh` before export |
 | Edits in a loop | `bmesh` on the data, written back once, instead of an operator per element |
 
-## 6. Proof
+## 7. Proof
 
 Done only after these ran this session:
 
 1. The script exits 0 with `--python-exit-code 1`.
 2. Counts printed from the result: objects, vertices, faces, materials, non-manifold edges.
-3. A preview image rendered (Workbench or Eevee) and looked at.
+3. Final captures from every view opened, each checklist item matched or its gap named.
 4. Export: the file imported again into an empty scene with the same counts.
 5. Report: version, pages read, tools chosen and why, counts, file paths.
