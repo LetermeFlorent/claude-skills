@@ -120,12 +120,16 @@ user realistic or stylised before texturing, never pick one silently.
 3. Model for a game or any export: bake procedural nodes, lighting and high-poly detail to image textures,
    plugged into Principled BSDF, before export: the glTF exporter keeps only those (its page:
    `addons/scene_gltf2.html`; it splits UDIM tiles into separate images, all on one UV map). Re-imported
-   file captured to check the textures came through.
+   file captured to check the textures came through. Every part with a node material, small ones too (horns,
+   claws, teeth, spikes), gets UVs and its own bake: a part without baked images exports as one flat colour.
 4. Realistic means the real surface pattern, not a tint: scales, pores, plates, grain or weave built from
    Voronoi, Wave or painted masks whose cells and crevices drive colour, roughness and height together;
    colour that changes by zone (belly lighter than back, dark crevices, worn tips) from masks on object
    coordinates, a gradient or ambient occlusion; variation at two scales or more. Noise on a colour ramp
-   alone is not a realistic texture.
+   alone is not a realistic texture. Each part gets the pattern its real material has, never one pattern
+   copied everywhere: a wing membrane is thin skin with veins, folds and light through it, no scales; a horn
+   is ringed keratin, dark base, pale worn tip. Relief strong enough to cast shade at `--zoom 4`: the baked
+   normal map shows every cell clearly; a surface that looks painted on has its height too weak.
 5. Captures of section 6 show the textures from a distance and close up (`shots.py --zoom 4`), and every
    baked image is opened too: the pattern must be readable in both, a uniform tint fails the style item.
 
@@ -165,6 +169,6 @@ Done only after these ran this session:
 1. The script exits 0 with `--python-exit-code 1`.
 2. `info.py` on the result: objects, vertices, faces, materials, non-manifold edges, missing images.
 3. Final captures from every view opened, each checklist item matched or its gap named.
-4. Export: `info.py` on the exported file (imported into an empty scene) shows the same objects,
+4. Export: `info.py <exported file>` (it imports the file into an empty scene itself) shows the same objects,
    triangles, materials and images, and `shots.py` on it shows the textures came through.
 5. Report: version, pages read, tools chosen and why, counts, file paths.
