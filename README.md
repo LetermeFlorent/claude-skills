@@ -40,6 +40,9 @@ Each line gives the command that starts the skill and what it does.
 | least-code | none, loaded at every session and subagent start | makes the agent write the smallest change that fully works, and stop searching once it has the answer |
 | code-map | none | maps a project's code and keeps notes on it from one session to the next: where things are defined and used, what calls what, dead code, import cycles, why the code is the way it is |
 | secure-code-loop | `/secure-code-loop` | runs the security scanners found on the PC, fixes what they report and scans again until nothing serious is left |
+| fabric-modding | none | writes and fixes Minecraft Java mods on Fabric: exact versions first, the docs of that version read before any code, names checked in the game sources, a build to prove it |
+| neoforge-modding | none | the same for NeoForge mods |
+| forge-modding | none | the same for Forge mods, including the event bus rewrite of Forge 1.21.6 |
 
 ## License
 
