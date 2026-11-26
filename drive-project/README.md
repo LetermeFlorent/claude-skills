@@ -22,9 +22,13 @@ Helpers are as silent as the main AI: they write nothing but their final report.
 
 Chains run at the same time when they share no file and do not need each other's result. Targeted tests run directly; full builds, full test runs, installs and container builds take turns through one lock. Helpers never sleep while waiting: they wait for a log line or the end of a command.
 
+## Qwen Code
+
+In Qwen Code, `/drive` reads `qwen.md` on top of the rules. It works with or without helper agents: when Qwen Code can start them, each chain goes to one, with the model picked through grades (`light`, `all-round`, `top`) that you map once in `~/.qwen/settings.json`; when it cannot, the main AI does each chain itself, one after the other, rereading only what each chain needs. Qwen3.8-Flash-Next reasons at its highest level by default, which slows every step: `qwen.md` gives the settings that keep it fast.
+
 ## Files
 
-`SKILL.md` holds the rules, `worker-brief.md` the block each helper agent gets and the rules it reads, `start-brief.md` what the mapping and run kit helpers alone read, `optimise-brief.md` the optional optimisation pass, `commands` the command.
+`SKILL.md` holds the rules, `worker-brief.md` the block each helper agent gets and the rules it reads, `start-brief.md` what the mapping and run kit helpers alone read, `optimise-brief.md` the optional optimisation pass, `qwen.md` the Qwen Code differences, `commands` the command.
 
 ## What was tested
 
@@ -44,4 +48,4 @@ Project skills were then checked on a throwaway project, one helper at a time. A
 
 Not tested: a real project with a remote and a push, a large project with code-map, the rule on a check run differently (written after the last run), and the run under Claude Code itself rather than as a subagent. Nothing added after those runs has run either: the progress page, the two level questions, the proof rule, parallel tasks and sub-helpers, resumed plans, the run kit, the shared build lock, the review and full check tasks, the closing helper, and messages sent during the run.
 
-Not tested yet either: the chain plan (one helper per feature, chains side by side, one proof per chain), which replaced one helper per box after a real run of 118 helpers spent most of its time with a single helper at work.
+Not tested yet either: the chain plan (one helper per feature, chains side by side, one proof per chain), which replaced one helper per box after a real run of 118 helpers spent most of its time with a single helper at work. Qwen Code has not run `/drive` either, in either mode: it is not installed on the machine the rules were written on.

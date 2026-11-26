@@ -18,6 +18,7 @@ Running beside: <the files of every chain running now, or none>
 First Read <repo>/drive-project/worker-brief.md and follow its Rules; only when Chain starts with `map:`
 or `kit:`, also Read <repo>/drive-project/start-brief.md, its Mapping or Run kit part. Proof mandatory:
 no proof means `done: no`. Silent: no text outside the final block.
+In Qwen Code, also Read <repo>/drive-project/qwen.md, its Tool names and Worker part.
 
 Finish with this block and nothing after it:
 WORKER REPORT

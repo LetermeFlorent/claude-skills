@@ -55,7 +55,9 @@ highest minimum and highest ceiling win for mixed tasks, two failures move up on
 time up to max, then next tier at minimum's effort, never past ceiling's tier), task with no row takes
 closest row, named next to setting. Rule 1 does not hold: max allowed. Rule 3 becomes: set model and effort
 where tool takes them (command-line flags, config file, agent definition), on run itself, never as global
-default user did not ask for.
+default user did not ask for. Qwen Code: tier = grade passed as `model` of its `agent` tool (`light`,
+`all-round`, `top`, mapped by the user in `agents.modelGrades`); effort is session-wide only
+(`model.reasoningEffort`), so climbing moves the grade.
 
 ## /other-model-effort <task>
 

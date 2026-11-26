@@ -12,6 +12,9 @@ style, `CLAUDE.md` and every skill called.
 `<repo>` = absolute path of folder holding this skill's base directory (claude-skills clone); lead writes it
 in place of `<repo>` in every brief.
 
+In Qwen Code (tools named `agent`, `run_shell_command`), first Read `qwen.md` next to this file: its tool
+names, its two modes (with or without subagents) and its model grades win over this file.
+
 Speed comes from four things, never traded away: chains run side by side, one worker per chain, proofs at
 the right size, no waiting on nothing.
 
