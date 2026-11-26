@@ -71,6 +71,22 @@ class InstallTest(unittest.TestCase):
         self.assertIn("command opencode alpha.md: removed", done.stdout)
         self.assertFalse(opencode.exists())
 
+    def test_skills_and_commands_also_go_to_qwen(self):
+        folder = self.world.clone / "beta" / "commands"
+        folder.mkdir(parents=True)
+        (folder.parent / "SKILL.md").write_text("---\nname: beta\n---\n", encoding=ENCODING)
+        (folder / "beta.md").write_text("---\nallowed-tools: Read\n---\nGoal: $ARGUMENTS.\n", encoding=ENCODING)
+        done = self.world.run("install.py")
+        self.assertIn("skill qwen alpha: linked", done.stdout)
+        self.assertTrue(same_path(self.world.qwen / "skills" / "alpha", self.world.clone / "alpha"))
+        command = self.world.qwen / "commands" / "beta.md"
+        self.assertEqual(command.read_text(encoding=ENCODING), "---\n---\nGoal: {{args}}.\n")
+        self.assertIn("command qwen beta.md: already there", self.world.run("install.py").stdout)
+        done = self.world.run("install.py", "--uninstall")
+        self.assertIn("command qwen beta.md: removed", done.stdout)
+        self.assertFalse(command.exists())
+        self.assertFalse(os.path.lexists(self.world.qwen / "skills" / "alpha"))
+
     def test_uninstall_keeps_a_link_the_user_re_pointed(self):
         self.world.run("install.py")
         link, own = self.world.skill_link("alpha"), self.world.root / "own-alpha"

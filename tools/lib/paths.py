@@ -4,6 +4,8 @@ from pathlib import Path
 CONFIG_VAR = "CLAUDE_CONFIG_DIR"
 OPENCODE_VAR = "CLAUDE_SKILLS_OPENCODE_DIR"
 OPENCODE_DEFAULT = (".config", "opencode")
+QWEN_VAR = "CLAUDE_SKILLS_QWEN_DIR"
+QWEN_DEFAULT = (".qwen",)
 DEFAULT_CONFIG = ".claude"
 REPO_NAME = "claude-skills"
 STATE_DIR = ".ia"
@@ -22,13 +24,21 @@ def config_dir(environ=None, home=None):
     return Path(home or Path.home()) / DEFAULT_CONFIG
 
 
-def opencode_dir(environ=None, home=None):
+def tool_dir(var, default, environ=None, home=None):
     environ = os.environ if environ is None else environ
-    if OPENCODE_VAR in environ:
-        value = environ[OPENCODE_VAR].strip()
+    if var in environ:
+        value = environ[var].strip()
         return Path(value).expanduser() if value else None
-    folder = Path(home or Path.home()).joinpath(*OPENCODE_DEFAULT)
+    folder = Path(home or Path.home()).joinpath(*default)
     return folder if folder.is_dir() else None
+
+
+def opencode_dir(environ=None, home=None):
+    return tool_dir(OPENCODE_VAR, OPENCODE_DEFAULT, environ, home)
+
+
+def qwen_dir(environ=None, home=None):
+    return tool_dir(QWEN_VAR, QWEN_DEFAULT, environ, home)
 
 
 def repo_dir():

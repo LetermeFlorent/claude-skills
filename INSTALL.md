@@ -9,7 +9,10 @@ The repository holds 18 skills, one folder each with a `SKILL.md`, and the slash
 them, in each skill's `commands/` folder. Installing clones the repository into the Claude Code
 configuration folder, links every skill folder into its `skills/` folder and copies every command
 into its `commands/` folder. When OpenCode is installed (`~/.config/opencode` exists), the commands are
-also copied into `~/.config/opencode/commands/`.
+also copied into `~/.config/opencode/commands/`. When Qwen Code is installed (`~/.qwen` exists, or the
+folder in `CLAUDE_SKILLS_QWEN_DIR`), every skill is also linked into `~/.qwen/skills/` and every command
+copied into `~/.qwen/commands/`, with `$ARGUMENTS` turned into `{{args}}` and the `allowed-tools` line
+dropped. Speed settings for `/drive` in Qwen Code: `drive-project/qwen.md`, Settings for speed.
 
 Two hooks load the rules of the `terse-speech` and `least-code` skills at the start of every session and
 of every subagent (see "Speech and code hooks"). Nothing goes through a plugin, an MCP server or a

@@ -45,6 +45,7 @@ class World:
         self.config = self.root / "config"
         self.clone = self.config / "claude-skills"
         self.opencode = self.root / "opencode"
+        self.qwen = self.root / "qwen"
         shutil.copytree(TOOLS, self.source / "tools", ignore=shutil.ignore_patterns("tests", "__pycache__"))
         (self.source / ".gitignore").write_text(IGNORED, encoding=ENCODING)
         git(self.source, "init", "-q")
@@ -89,6 +90,7 @@ class World:
         env = {key: value for key, value in os.environ.items() if key != SESSION_VAR}
         env[CONFIG_VAR] = str(self.config)
         env["CLAUDE_SKILLS_OPENCODE_DIR"] = str(self.opencode)
+        env["CLAUDE_SKILLS_QWEN_DIR"] = str(self.qwen)
         if path is not None:
             env["PATH"] = str(path)
         folder = tools or self.clone / "tools"

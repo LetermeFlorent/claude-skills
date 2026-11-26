@@ -38,6 +38,7 @@ class LegacyBase(unittest.TestCase):
         self.links = []
         self.addCleanup(self.close)
         patch = mock.patch.dict(os.environ, {"CLAUDE_SKILLS_OPENCODE_DIR": str(self.opencode),
+                                             "CLAUDE_SKILLS_QWEN_DIR": str(self.root / "qwen"),
                                              "XDG_CONFIG_HOME": str(self.xdg)})
         patch.start()
         self.addCleanup(patch.stop)

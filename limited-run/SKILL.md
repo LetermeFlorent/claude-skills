@@ -65,9 +65,9 @@ Hold for every agent, every project.
 
 ## Following this from other agents
 
-Claude Code reads this folder as skill. Codex CLI, Gemini CLI and Qwen Code do not load skills: add one line to
-their instructions file (`AGENTS.md` for Codex CLI, `GEMINI.md` for Gemini CLI, `QWEN.md` for Qwen Code), global
-or per project, for example:
+Claude Code and Qwen Code read this folder as skill (the installer links it into `~/.qwen/skills/` when
+`~/.qwen` exists). Codex CLI and Gemini CLI do not load skills: add one line to their instructions file
+(`AGENTS.md` for Codex CLI, `GEMINI.md` for Gemini CLI), global or per project, for example:
 
 ```
 Start every server, watcher, build and test run as described in <absolute path>/limited-run/SKILL.md, and stop them before ending.
