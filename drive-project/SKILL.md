@@ -88,7 +88,7 @@ user's language.
 | Page or layout seen | browser-bidi |
 | Failure then fix that worked | project skill (Project skills) |
 | End of work | clean-code + strip-ai-traces scan (clean box), clean-commits (clean and closing boxes) |
-| Goal about speed, size or memory, or reflection *max* | `<repo>/drive-project/optimise-brief.md` (optimise box) |
+| Start answer optimise `yes` | `<repo>/drive-project/optimise-brief.md` (optimise box) |
 
 ## Procedure
 
@@ -104,8 +104,9 @@ One pass, in order.
    background, block per Run kit part, at minimum of "Running tests, reading the failure, fixing" row. No
    chain out before run kit report.
 3. Ask per Speaking rule 1, then never again. Also asked, when they apply:
-   - optimise box will run: technologies to use or avoid (recommended `none given, AI picks`); graphics card
-     (recommended `use it only when measured gain`, or `never`).
+   - Optimise, always (not in *rapide*): `yes` or `no`; recommended `yes` when goal is about speed, size or
+     memory, or reflection is *max*, else `no`. Only on `yes`: technologies to use or avoid (recommended
+     `none given, AI picks`); graphics card (recommended `use it only when measured gain`, or `never`).
    - New project (goal asks one, or `Branch:` says `no repository`): folder (mapping's, recommended) and
      commit language (English recommended, or French). First box creates folder, runs `git init`.
    - `Uncommitted:` lists goal's files: new worktree (recommended, first box makes it through
@@ -149,7 +150,7 @@ One pass, in order.
        (failure run kit lists as already failing stays), then proof of start answer on what done means, end
        to end. Row Running tests at minimum. New failure: fix box added to the chain that owns the file,
        `final` resent after.
-     - `optimise`, only when Skills table says so, row Performance and profiling: optimise-brief.md on
+     - `optimise`, only on start answer optimise `yes`, row Performance and profiling: optimise-brief.md on
        run's files; before and after measures pasted.
      - `clean`: step 6.
      - `close`: step 7, row Run upkeep.

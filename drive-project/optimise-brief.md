@@ -1,8 +1,8 @@
 # Final optimisation
 
-Optimise chain of drive-project, after `final`, before `clean`, only when the goal names speed, size or
-memory, or reflection is *max*. Goal: run uses least resource possible (CPU, memory, disk, network, energy),
-nothing degraded. Paths: only the `files:` of your chain. Defects elsewhere reported, not fixed.
+Optimise chain of drive-project, after `final`, before `clean`, only when start answer optimise is `yes`.
+Goal: run uses least resource possible (CPU, memory, disk, network, energy), nothing degraded. Paths: only
+the `files:` of your chain. Defects elsewhere reported, not fixed.
 
 Rules:
 1. Read and understand first: code, docs and installed versions of what you touch. Never optimise from
