@@ -54,7 +54,7 @@ user's language.
 1. Questions only at start, `AskUserQuestion` boxes, as many as needed, recommended option first: scope and
    what done means, stack when not set, every decision only user can make (public name or id, licence, URL
    user owns, money, anything deleted, anything published beyond push of run's branch), edge cases mapping
-   found. Two boxes always asked, options *peu*, *moyen*, *beaucoup*, *max* (Other open), each stating mapping
+   found. *complet*: two boxes always asked, options *peu*, *moyen*, *beaucoup*, *max* (Other open), each stating mapping
    worker's task count; *moyen* recommended for reflection, *peu* for completion:
    - Reflection (depth per task). *peu*: smallest change + its check. *moyen*: + edge cases and a test.
      *beaucoup*: + design thought through, several tests, one review of whole run. *max*: + review per chain,
@@ -98,6 +98,7 @@ One pass, in order.
    (several: newest): first line back to `lead: running`, skip to step 5 from first unticked box. First line
    already `lead: running`: maybe another session's live run; one start question, new plan (recommended) or
    resume. Other goal: own plan, old one left as is.
+   No plan resumed: first question, alone, box `Mode` (Fast mode), before any worker starts.
 2. Mapping worker, block per Mapping part of `start-brief.md`, at minimum of claude-model-effort's
    Understanding an unknown codebase row. With its report, before asking, run kit worker starts in
    background, block per Run kit part, at minimum of "Running tests, reading the failure, fixing" row. No
@@ -184,6 +185,23 @@ One pass, in order.
    (Project skills). Proof: `push.py` output, `git status -sb` without `ahead` (or `no remote: the commits
    stay local`), last `run.py list`, `stopped ...` and `browser closed ...` lines, `ls <project>/.ia/skills`
    before and after. `100%` only once every box ticked; lead removes `lead: running` just before last message.
+
+## Fast mode
+
+Box `Mode`, options *rapide* and *complet*, each stating what it skips or runs. Recommended: *rapide* when
+goal reads as one small change (one feature, a few files, no new project), else *complet*. *complet* =
+Procedure from step 2 as written.
+
+*rapide*: no mapping, run kit, other question (but step 3), review, `final`, `optimise` or `clean` chain.
+
+1. Plan per step 4, top lines `lead: running`, goal, `Run tag:`, `Mode: rapide`; one chain
+   `## q1 <goal> | row: Everyday code, <model> <effort> | lessons: none | after: none | proof: found by worker`,
+   one box `- [ ] b1 | <goal> | files: found by worker | check: found by worker`. Board `0`.
+2. One worker, block of `worker-brief.md`, `Chain:` = `quick: ` + chain header and box line, `none` in other
+   fields. Lead rules 3 to 5 hold. b1 ticked: board `100`, lead removes `lead: running`, last message per Speaking rule 5.
+3. Report `done: no` with `split:` lines, nothing changed: goal too big for *rapide*. Lead deletes chain q1 from plan; split lines become chains `c<n>`. Findings hold
+   Mapping headings: no mapping worker, go on from step 2's run kit worker, then step 3 questions (Mode box not
+   asked again). These questions are the one exception to Speaking rule 2.
 
 ## Project skills
 

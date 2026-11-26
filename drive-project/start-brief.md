@@ -1,6 +1,6 @@
 # Start brief
 
-Read only by `map:` and `kit:` workers of a `/drive` run, besides Rules of `worker-brief.md`. `<repo>`: same
+Read only by `map:`, `kit:` and `quick:` workers of a `/drive` run, besides Rules of `worker-brief.md`. `<repo>`: same
 folder as there.
 
 ## Mapping
@@ -51,3 +51,20 @@ Run kit worker gets block with `Chain: kit: <the run kit file's path>`, mapping 
    dev server's address and ready line, every test or check already failing, and date.
 
 Check and proof are one: run kit file, its path and content pasted.
+
+## Quick
+
+Quick worker does the whole goal alone, box `b1`: no mapping, run kit or closing worker comes before or after.
+
+1. Find goal's code with `rg`; Graph none, no code map built. Lessons: Mapping step 2.
+2. Stop before changing anything, `done: no`, one `split:` line per feature or per decision only user can make, Mapping headings under findings,
+   when goal needs any of: more than one feature, more than 5 files, a new project, a sign-in only a human
+   can type, a decision only user can make, a file `git status --short` already lists as changed.
+3. Change; check = narrowest command proving it (test it adds or touches, typecheck of own package; file with no test: `rg` or `git diff` showing the change), new
+   logic leaves one small test. Proof per worker Rules, once. Under `check:` write the command run.
+4. `python -I <repo>/strip-ai-traces/scripts/scan.py <file> --no-git --fix` per changed file, one shell call,
+   until `0 to fix by hand`.
+5. clean-commits as caller on changed files, on current branch, push through its `push.py`; no remote = commits
+   stay local. Then `run.py stop` each name starting `<Run tag>-`, browser closed per worker Rules.
+
+Proof adds: scan summary lines, push output, `git status -sb` without `ahead` (or `no remote`).

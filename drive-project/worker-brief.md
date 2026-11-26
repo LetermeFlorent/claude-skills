@@ -15,8 +15,8 @@ Earlier attempt: <the failed WORKER REPORT of this chain, or none>
 Run kit: <the run kit file's path, or none>
 Graph: <none, or the project root of the code map>
 Running beside: <the files of every chain running now, or none>
-First Read <repo>/drive-project/worker-brief.md and follow its Rules; only when Chain starts with `map:`
-or `kit:`, also Read <repo>/drive-project/start-brief.md, its Mapping or Run kit part. Proof mandatory:
+First Read <repo>/drive-project/worker-brief.md and follow its Rules; only when Chain starts with `map:`,
+`kit:` or `quick:`, also Read <repo>/drive-project/start-brief.md, its Mapping, Run kit or Quick part. Proof mandatory:
 no proof means `done: no`. Silent: no text outside the final block.
 
 Finish with this block and nothing after it:
