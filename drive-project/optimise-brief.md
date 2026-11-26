@@ -1,7 +1,8 @@
 # Final optimisation
 
-Box of drive-project between "Done means" and commit box. Goal: run uses least resource possible (CPU, memory, disk, network,
-energy), nothing degraded. Paths: only the `files:` of your box. Defects elsewhere reported, not fixed.
+Optimise chain of drive-project, after `final`, before `clean`, only when the goal names speed, size or
+memory, or reflection is *max*. Goal: run uses least resource possible (CPU, memory, disk, network, energy),
+nothing degraded. Paths: only the `files:` of your chain. Defects elsewhere reported, not fixed.
 
 Rules:
 1. Read and understand first: code, docs and installed versions of what you touch. Never optimise from
@@ -16,7 +17,7 @@ Rules:
    fallback when no card is present. Answer `never`: not used.
 6. Cheapest correct structure and type, no allocation in a hot loop, lazy work, cache only what is
    measured, remove unused work, load and build only what production needs.
-7. Whole check of the box's plan line passes: tests, typecheck, lint, build. Same behaviour proven, not
+7. Whole check of the chain passes: tests, typecheck, lint, build. Same behaviour proven, not
    assumed.
 8. Code rules of clean-code (`<repo>/clean-code/SKILL.md`, Writing code) bind every line written.
 
